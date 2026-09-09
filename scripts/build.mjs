@@ -269,10 +269,42 @@ function relatedCard(a) {
     ${a.youtubeUrl ? '<span class="badge-video">▶ Видео</span>' : ''}
   </a>
   <div class="rc">
-    <a class="kicker" href="${attr(url('/category/' + a.category + '/'))}">${esc(catTitle(a.category))}</a>
+    <div class="card-meta">
+      <a class="kicker" href="${attr(url('/category/' + a.category + '/'))}">${esc(catTitle(a.category))}</a>
+      <span class="readtime">${esc(readingLabel(a))}</span>
+    </div>
     <h3><a href="${attr(href)}">${esc(a.title)}</a></h3>
+    <p>${esc(a.excerpt)}</p>
   </div>
 </article>`;
+}
+
+function asideCard(a) {
+  const href = url('/articles/' + a.slug + '/');
+  return `<li class="ac">
+  <a class="cover" href="${attr(href)}" tabindex="-1" aria-hidden="true">
+    ${coverImg(a, '300px', false)}
+    ${a.youtubeUrl ? '<span class="badge-video">▶ Видео</span>' : ''}
+  </a>
+  <div class="ac-body">
+    <span class="kicker">${esc(catTitle(a.category))}</span>
+    <h3><a href="${attr(href)}">${esc(a.title)}</a></h3>
+    <span class="readtime">${esc(readingLabel(a))}</span>
+  </div>
+</li>`;
+}
+
+function nextCard(a) {
+  const href = url('/articles/' + a.slug + '/');
+  return `<a class="next-card" href="${attr(href)}">
+  <span class="next-cover">${coverImg(a, '(min-width:760px) 320px, 100vw', false)}</span>
+  <span class="next-body">
+    <span class="lbl">Следующая статья</span>
+    <span class="t">${esc(a.title)}</span>
+    <span class="ex">${esc(a.excerpt)}</span>
+    <span class="go">Читать дальше →</span>
+  </span>
+</a>`;
 }
 
 /* ── Лента (главная, категория, тег, «все») ──────────────────────── */
@@ -303,7 +335,9 @@ function feedPage({ items, total, page, pages, basePath, eyebrow, h1, lead, titl
     </div>` : ''}
   </section>
 </main>`;
-  return layout({ title, description, canonical: ORIGIN + canonicalPath, body, active, jsonld, noindex });
+  const seq = (page > 1 ? `<link rel="prev" href="${attr(ORIGIN + pageLink(page - 1))}">\n` : '')
+    + (page < pages ? `<link rel="next" href="${attr(ORIGIN + pageLink(page + 1))}">\n` : '');
+  return layout({ title, description, canonical: ORIGIN + canonicalPath, body, active, jsonld, noindex, extraHead: seq });
 }
 function writeFeed({ list, basePath, eyebrow, h1, lead, title, description, active, jsonldFor, noindex }) {
   const perPage = site.pageSize || 4;
@@ -322,9 +356,16 @@ function writeFeed({ list, basePath, eyebrow, h1, lead, title, description, acti
 }
 
 /* ── Статья ──────────────────────────────────────────────────────── */
-function renderBody(a) {
+function renderBody(a, inlineRel) {
   const out = [];
+  let h2seen = 0, pending = false;
+  const inlineBlock = inlineRel ? `<aside class="inline-rel">
+  <span class="lbl">Читайте также</span>
+  <a href="${attr(url('/articles/' + inlineRel.slug + '/'))}">${esc(inlineRel.title)}</a>
+</aside>` : '';
   for (const b of a.body) {
+    if (b.type === 'h2' && ++h2seen === 2) pending = true;
+    else if (pending && inlineBlock) { pending = false; out.push(inlineBlock); }
     switch (b.type) {
       case 'h2': out.push(`<h2 id="${attr(b.anchor || slugify(b.text))}">${inline(b.text)}</h2>`); break;
       case 'h3': out.push(`<h3 id="${attr(b.anchor || slugify(b.text))}">${inline(b.text)}</h3>`); break;
@@ -345,6 +386,9 @@ function renderBody(a) {
   return out.join('\n');
 }
 
+/* Очередь рекомендаций. Порядок: выбранные вручную в админке → та же категория →
+   общие теги → всё остальное свежее. Текущая статья и черновики не попадают никогда.
+   Ничего выбирать вручную не обязательно: список всегда заполняется сам. */
 function pickRelated(a) {
   const pool = published.filter((x) => x.slug !== a.slug);
   const picked = [];
@@ -353,7 +397,18 @@ function pickRelated(a) {
   pool.filter((x) => x.category === a.category).forEach(push);
   pool.filter((x) => x.tags.some((t) => a.tags.includes(t))).forEach(push);
   pool.forEach(push);
-  return picked.slice(0, 4);
+  return picked;
+}
+
+/* Следующий материал для чтения: ближайший по времени в той же категории,
+   иначе ближайший вообще, иначе самый свежий. */
+function pickNext(a) {
+  const older = published.filter((x) => x.slug !== a.slug
+    && String(x.publishedAt || '') < String(a.publishedAt || ''));
+  return older.find((x) => x.category === a.category)
+    || older[0]
+    || published.find((x) => x.slug !== a.slug)
+    || null;
 }
 
 function articlePage(a) {
@@ -363,6 +418,12 @@ function articlePage(a) {
   const vid = youtubeId(a.youtubeUrl);
   const toc = a.body.filter((b) => b.type === 'h2').map((b) => ({ id: b.anchor || slugify(b.text), text: b.text }));
   const related = pickRelated(a);
+  const next = pickNext(a);
+  // Боковая колонка забирает самые близкие материалы, нижний блок — следующие.
+  // Когда архив маленький и «следующих» не набирается, нижний блок берёт те же.
+  const sideItems = related.slice(0, 5);
+  const rest = related.slice(5, 11);
+  const bottomItems = rest.length >= 3 ? rest : related.slice(0, 6);
   const cover = coverData(a);
   const desc = a.seoDescription || a.excerpt || a.lead || '';
 
@@ -399,12 +460,14 @@ function articlePage(a) {
     });
   }
 
-  const body = `<nav class="crumbs" aria-label="Хлебные крошки">
+  const body = `<main id="main">
+<div class="article-layout">
+<div class="article-col">
+<nav class="crumbs" aria-label="Хлебные крошки">
   <a href="${attr(url('/'))}">Главная</a><span>/</span>
   <a href="${attr(url('/category/' + cat.id + '/'))}">${esc(cat.title)}</a><span>/</span>
   <span class="cur">${esc(a.title)}</span>
 </nav>
-<main id="main">
 <article class="article">
   <a class="kicker" href="${attr(url('/category/' + cat.id + '/'))}">${esc(cat.title)}</a>
   <h1 class="h1-art">${esc(a.title)}</h1>
@@ -432,7 +495,7 @@ function articlePage(a) {
     <button type="button" data-toc-toggle aria-expanded="true" aria-controls="toc-list"><span>Содержание</span><span class="sign">−</span></button>
     <ol id="toc-list">${toc.map((t) => `<li><a href="#${attr(t.id)}">${esc(t.text)}</a></li>`).join('')}</ol>
   </nav>` : ''}
-  <div class="body">${renderBody(a)}</div>
+  <div class="body">${renderBody(a, sideItems[0] || null)}</div>
   ${a.sources.length ? `<section class="sources">
     <div class="eyebrow"><span class="sl">//</span><span>Источники</span></div>
     <ul>${a.sources.map((s) => `<li>${inline(s)}</li>`).join('')}</ul>
@@ -440,10 +503,26 @@ function articlePage(a) {
   ${a.tags.length ? `<div class="tags">${a.tags.map((t) =>
     `<a href="${attr(url('/tag/' + slugify(t) + '/'))}">${esc(t)}</a>`).join('')}</div>` : ''}
 </article>
-${related.length ? `<section class="more">
-  <div class="eyebrow"><span class="sl">//</span><span>Вспомнить ещё</span></div>
-  <div class="grid">${related.map(relatedCard).join('\n')}</div>
-  <div class="back"><a class="btn-accent" href="${attr(url('/'))}" data-back-to-feed>← Вернуться в ленту</a></div>
+${next ? `<section class="next-up">
+  <div class="eyebrow"><span class="sl">//</span><span>Читать дальше</span></div>
+  ${nextCard(next)}
+</section>` : ''}
+</div>
+${sideItems.length ? `<aside class="rail" aria-label="Другие материалы">
+  <div class="rail-inner">
+    <div class="eyebrow"><span class="sl">//</span><span>Ещё по теме</span></div>
+    <ul class="rail-list">${sideItems.map(asideCard).join('\n')}</ul>
+    <a class="rail-all" href="${attr(url('/all/'))}">Все статьи →</a>
+  </div>
+</aside>` : ''}
+</div>
+${bottomItems.length ? `<section class="more">
+  <div class="eyebrow"><span class="sl">//</span><span>Советуем почитать</span></div>
+  <div class="grid">${bottomItems.map(relatedCard).join('\n')}</div>
+  <div class="back">
+    <a class="btn-accent" href="${attr(url('/'))}" data-back-to-feed>← Вернуться в ленту</a>
+    <a class="btn-more" href="${attr(url('/all/'))}">Все статьи</a>
+  </div>
 </section>` : `<section class="more"><div class="back"><a class="btn-accent" href="${attr(url('/'))}" data-back-to-feed>← Вернуться в ленту</a></div></section>`}
 </main>`;
 

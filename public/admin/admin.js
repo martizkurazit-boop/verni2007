@@ -415,7 +415,8 @@
       var on = (state.draft.related || []).indexOf(a.data.slug) >= 0;
       return '<button class="check" aria-pressed="' + on + '" data-rel="' + esc(a.data.slug) + '">'
         + '<span class="box">' + (on ? '✓' : '') + '</span><span>' + esc(a.data.title) + '</span></button>';
-    }).join('') : '<span class="hint">Других материалов пока нет.</span>';
+    }).join('') : '<span class="hint">Других материалов пока нет — рекомендации появятся, '
+      + 'как только в разделе будет больше одной опубликованной статьи.</span>';
     $$('[data-rel]', $('#related-choices')).forEach(function (b) {
       b.addEventListener('click', function () {
         var s = b.dataset.rel, list = state.draft.related || (state.draft.related = []);
