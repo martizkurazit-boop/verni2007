@@ -1,0 +1,662 @@
+#!/usr/bin/env node
+/**
+ * Генератор статического сайта «Верните мой 2007».
+ * Каждая страница отдаётся готовым HTML — текст статьи присутствует в исходнике ответа.
+ * Зависимостей нет: node scripts/build.mjs
+ */
+import fs from 'node:fs';
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
+
+const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
+const CONTENT = path.join(ROOT, 'content');
+const PUBLIC = path.join(ROOT, 'public');
+const DIST = path.join(ROOT, 'dist');
+
+/* ── Конфигурация адреса ─────────────────────────────────────────── */
+const site = JSON.parse(fs.readFileSync(path.join(CONTENT, 'site.json'), 'utf8'));
+const RAW_URL = (process.env.SITE_URL || site.url || 'http://localhost:8000').replace(/\/+$/, '');
+const U = new URL(RAW_URL);
+const BASE = U.pathname.replace(/\/+$/, '');          // '' или '/repo-name' для project pages
+const ORIGIN = U.origin;
+const url = (p) => (BASE + (p.startsWith('/') ? p : '/' + p)) || '/';
+const abs = (p) => ORIGIN + url(p);
+
+/* ── Утилиты ─────────────────────────────────────────────────────── */
+const esc = (s) => String(s == null ? '' : s)
+  .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+  .replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+const attr = esc;
+
+const TRANSLIT = {а:'a',б:'b',в:'v',г:'g',д:'d',е:'e',ё:'e',ж:'zh',з:'z',и:'i',й:'y',к:'k',л:'l',м:'m',н:'n',
+  о:'o',п:'p',р:'r',с:'s',т:'t',у:'u',ф:'f',х:'h',ц:'c',ч:'ch',ш:'sh',щ:'sch',ъ:'',ы:'y',ь:'',э:'e',ю:'yu',я:'ya'};
+function slugify(s) {
+  return String(s).toLowerCase().split('').map((c) => TRANSLIT[c] ?? c).join('')
+    .replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '').slice(0, 80) || 'x';
+}
+
+const MONTHS = ['января','февраля','марта','апреля','мая','июня','июля','августа','сентября','октября','ноября','декабря'];
+function ruDate(iso) {
+  const d = new Date(iso + (iso.length === 10 ? 'T00:00:00Z' : ''));
+  if (Number.isNaN(d.getTime())) return iso;
+  return `${d.getUTCDate()} ${MONTHS[d.getUTCMonth()]} ${d.getUTCFullYear()}`;
+}
+
+function blockText(b) {
+  if (!b) return '';
+  if (b.type === 'list') return (b.items || []).join(' ');
+  return b.text || b.caption || '';
+}
+function plain(article) {
+  return [article.lead, ...(article.body || []).map(blockText)].filter(Boolean).join(' ');
+}
+function readingMinutes(article) {
+  const words = plain(article).split(/\s+/).filter(Boolean).length;
+  return Math.max(1, Math.round(words / 180));
+}
+function readingLabel(article) { return `${readingMinutes(article)} мин чтения`; }
+
+function youtubeId(link) {
+  if (!link) return '';
+  const m = String(link).match(/(?:youtube\.com\/(?:watch\?(?:.*&)?v=|embed\/|shorts\/|live\/)|youtu\.be\/)([\w-]{6,})/);
+  return m ? m[1] : '';
+}
+
+/* Инлайновая разметка внутри текста: **жирный**, [ссылка](url) */
+function inline(text) {
+  let out = esc(text);
+  out = out.replace(/\[([^\]]+)\]\((https?:\/\/[^\s)]+|\/[^\s)]*)\)/g,
+    (_, t, href) => `<a href="${attr(href)}"${href.startsWith('http') ? ' target="_blank" rel="noopener"' : ''}>${t}</a>`);
+  out = out.replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>');
+  return out;
+}
+
+/* ── Контент ─────────────────────────────────────────────────────── */
+function loadArticles() {
+  const dir = path.join(CONTENT, 'articles');
+  if (!fs.existsSync(dir)) return [];
+  return fs.readdirSync(dir).filter((f) => f.endsWith('.json')).map((f) => {
+    const a = JSON.parse(fs.readFileSync(path.join(dir, f), 'utf8'));
+    a.slug = a.slug || f.replace(/\.json$/, '');
+    a.body = Array.isArray(a.body) ? a.body : [];
+    a.tags = Array.isArray(a.tags) ? a.tags : [];
+    a.related = Array.isArray(a.related) ? a.related : [];
+    a.sources = Array.isArray(a.sources) ? a.sources : [];
+    return a;
+  }).sort((x, y) => String(y.publishedAt || '').localeCompare(String(x.publishedAt || '')));
+}
+
+const allArticles = loadArticles();
+const published = allArticles.filter((a) => a.status === 'published');
+const catById = new Map((site.categories || []).map((c) => [c.id, c]));
+const countIn = (id) => published.filter((a) => a.category === id).length;
+const visibleCats = (site.categories || []).filter((c) => c.enabled !== false && countIn(c.id) > 0);
+const catTitle = (id) => (catById.get(id) || {}).title || '';
+
+const tagIndex = new Map();
+for (const a of published) {
+  for (const t of a.tags) {
+    const s = slugify(t);
+    if (!tagIndex.has(s)) tagIndex.set(s, { slug: s, label: t, items: [] });
+    tagIndex.get(s).items.push(a);
+  }
+}
+const topTags = [...tagIndex.values()].sort((a, b) => b.items.length - a.items.length);
+
+/* ── Обложки ─────────────────────────────────────────────────────── */
+function coverData(a) {
+  const c = a.cover || {};
+  if (!c.src) return null;
+  const src = c.src.startsWith('/') ? c.src : '/uploads/' + c.src;
+  const variants = [1600, 1000, 600]
+    .map((w) => ({ w, file: src.replace(/-(?:1600|1000|600)?(\.\w+)$/, `-${w}$1`) }))
+    .filter((v) => fs.existsSync(path.join(CONTENT, v.file.replace(/^\/uploads\//, 'uploads/'))));
+  const srcset = variants.length > 1 ? variants.map((v) => `${url(v.file)} ${v.w}w`).join(', ') : '';
+  return { src: url(src), srcset, alt: c.alt || a.title, focus: c.focus || '50% 50%' };
+}
+function coverImg(a, sizes, eager) {
+  const c = coverData(a);
+  if (!c) return `<span class="ph">Обложка 16:9</span>`;
+  return `<img src="${attr(c.src)}"${c.srcset ? ` srcset="${attr(c.srcset)}" sizes="${attr(sizes)}"` : ''}`
+    + ` alt="${attr(c.alt)}" width="1600" height="900" style="object-position:${attr(c.focus)}"`
+    + ` loading="${eager ? 'eager' : 'lazy'}" decoding="async">`;
+}
+
+/* ── Общая обвязка страницы ──────────────────────────────────────── */
+function analyticsSnippet() {
+  const ya = site.analytics && site.analytics.yandexMetrika;
+  const ga = site.analytics && site.analytics.ga4;
+  let out = '';
+  if (ya) {
+    out += `<script>(function(m,e,t,r,i,k,a){m[i]=m[i]||function(){(m[i].a=m[i].a||[]).push(arguments)};`
+      + `k=e.createElement(t),a=e.getElementsByTagName(t)[0],k.async=1,k.src=r,a.parentNode.insertBefore(k,a)})`
+      + `(window,document,"script","https://mc.yandex.ru/metrika/tag.js","ym");`
+      + `ym(${JSON.stringify(ya)},"init",{clickmap:true,trackLinks:true,accurateTrackBounce:true,webvisor:false});</script>`
+      + `<noscript><div><img src="https://mc.yandex.ru/watch/${attr(ya)}" style="position:absolute;left:-9999px" alt=""></div></noscript>`;
+  }
+  if (ga) {
+    out += `<script async src="https://www.googletagmanager.com/gtag/js?id=${attr(ga)}"></script>`
+      + `<script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments)}`
+      + `gtag('js',new Date());gtag('config',${JSON.stringify(ga)});</script>`;
+  }
+  return out;
+}
+
+function header(active) {
+  const link = (href, title, id) =>
+    `<a href="${attr(url(href))}"${active === id ? ' aria-current="page"' : ''}>${esc(title)}</a>`;
+  return `<header class="hdr">
+  <div class="hdr-in">
+    <a class="mark" href="${attr(url('/'))}" aria-label="Верните мой 2007 — на главную"><b>Верните мой</b><i>2007</i></a>
+    <nav class="nav-desk" aria-label="Разделы">
+      ${visibleCats.map((c) => link('/category/' + c.id + '/', c.title, 'cat:' + c.id)).join('\n      ')}
+      <a class="all" href="${attr(url('/all/'))}"${active === 'all' ? ' aria-current="page"' : ''}>Все статьи</a>
+    </nav>
+    <div class="hdr-act">
+      <button class="btn-ico" type="button" data-search-toggle aria-expanded="false" aria-controls="searchbar" aria-label="Поиск">⌕</button>
+      <a class="btn-line" href="${attr(url('/admin/'))}" rel="nofollow">Админка</a>
+    </div>
+  </div>
+  <nav class="nav-mob" aria-label="Разделы (мобильные)">
+    <div class="nav-mob-in">
+      <a href="${attr(url('/all/'))}"${active === 'all' ? ' aria-current="page"' : ''}>Все</a>
+      ${visibleCats.map((c) => link('/category/' + c.id + '/', c.title, 'cat:' + c.id)).join('\n      ')}
+    </div>
+  </nav>
+</header>
+<div class="searchbar" id="searchbar" hidden>
+  <div class="searchbar-in">
+    <form class="search-row" action="${attr(url('/search/'))}" method="get" role="search">
+      <input type="search" name="q" placeholder="Герой, фильм, вещь, год…" aria-label="Поиск по сайту">
+      <button type="button" data-search-toggle>Закрыть</button>
+    </form>
+    ${topTags.length ? `<div class="tagrow"><span class="lbl">Теги</span>${topTags.slice(0, 8)
+      .map((t) => `<a class="chip" href="${attr(url('/tag/' + t.slug + '/'))}">${esc(t.label)}</a>`).join('')}</div>` : ''}
+  </div>
+</div>`;
+}
+
+function footer() {
+  return `<footer class="ftr">
+  <div class="ftr-in">
+    <div>
+      <div class="mark"><b>Верните мой</b><i>2007</i></div>
+      <p>${esc(site.description)}</p>
+    </div>
+    <div class="ftr-cols">
+      <div class="ftr-col"><span class="lbl">Разделы</span>
+        ${visibleCats.map((c) => `<a href="${attr(url('/category/' + c.id + '/'))}">${esc(c.title)}</a>`).join('\n        ')}
+      </div>
+      <div class="ftr-col"><span class="lbl">Ещё</span>
+        <a href="${attr(url('/all/'))}">Все статьи</a>
+        <a href="${attr(url('/search/'))}">Поиск</a>
+        <a href="${attr(url('/admin/'))}" rel="nofollow">Админка</a>
+      </div>
+    </div>
+  </div>
+  <div class="ftr-bot"><div>${esc(site.footerNote || '')}</div></div>
+</footer>`;
+}
+
+function layout({ title, description, canonical, body, active, jsonld = [], noindex = false, ogImage, ogType = 'website', extraHead = '' }) {
+  const img = ogImage || (site.defaultOgImage ? url(site.defaultOgImage) : '');
+  return `<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>${esc(title)}</title>
+<meta name="description" content="${attr(description)}">
+${noindex ? '<meta name="robots" content="noindex, follow">\n' : ''}<link rel="canonical" href="${attr(canonical)}">
+<meta property="og:type" content="${attr(ogType)}">
+<meta property="og:site_name" content="${attr(site.title)}">
+<meta property="og:locale" content="ru_RU">
+<meta property="og:title" content="${attr(title)}">
+<meta property="og:description" content="${attr(description)}">
+<meta property="og:url" content="${attr(canonical)}">
+${img ? `<meta property="og:image" content="${attr(img.startsWith('http') ? img : ORIGIN + img)}">\n<meta property="og:image:width" content="1600">\n<meta property="og:image:height" content="900">\n` : ''}<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="${attr(title)}">
+<meta name="twitter:description" content="${attr(description)}">
+${img ? `<meta name="twitter:image" content="${attr(img.startsWith('http') ? img : ORIGIN + img)}">\n` : ''}<meta name="theme-color" content="#0A0A0A">
+<link rel="icon" href="${attr(url('/favicon.svg'))}" type="image/svg+xml">
+<link rel="alternate" type="application/rss+xml" title="${attr(site.title)}" href="${attr(url('/feed.xml'))}">
+<link rel="preload" href="${attr(url('/fonts/gilroy-900.woff2'))}" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="${attr(url('/fonts/gilroy-500.woff2'))}" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="${attr(url('/assets/site.css'))}">
+${jsonld.map((j) => `<script type="application/ld+json">${JSON.stringify(j).replace(/</g, '\\u003c')}</script>`).join('\n')}
+${extraHead}${analyticsSnippet()}
+</head>
+<body>
+<a class="skip" href="#main">К содержанию</a>
+${header(active)}
+${body}
+${footer()}
+<script src="${attr(url('/assets/site.js'))}" defer></script>
+</body>
+</html>`;
+}
+
+/* ── Карточки ────────────────────────────────────────────────────── */
+function card(a, i) {
+  const href = url('/articles/' + a.slug + '/');
+  return `<article class="card">
+  <a class="cover" href="${attr(href)}" tabindex="-1" aria-hidden="true">
+    ${coverImg(a, '(min-width:860px) 360px, 100vw', i < 2)}
+    ${a.youtubeUrl ? '<span class="badge-video">▶ Есть видео</span>' : ''}
+  </a>
+  <div class="card-body">
+    <div class="card-meta">
+      <a class="kicker" href="${attr(url('/category/' + a.category + '/'))}">${esc(catTitle(a.category))}</a>
+      <span class="readtime">${esc(readingLabel(a))}</span>
+    </div>
+    <h2><a href="${attr(href)}">${esc(a.title)}</a></h2>
+    <p>${esc(a.excerpt)}</p>
+    <a class="read-more" href="${attr(href)}">Читать →</a>
+  </div>
+</article>`;
+}
+
+function relatedCard(a) {
+  const href = url('/articles/' + a.slug + '/');
+  return `<article>
+  <a class="cover" href="${attr(href)}" tabindex="-1" aria-hidden="true">
+    ${coverImg(a, '(min-width:860px) 260px, 100vw', false)}
+    ${a.youtubeUrl ? '<span class="badge-video">▶ Видео</span>' : ''}
+  </a>
+  <div class="rc">
+    <a class="kicker" href="${attr(url('/category/' + a.category + '/'))}">${esc(catTitle(a.category))}</a>
+    <h3><a href="${attr(href)}">${esc(a.title)}</a></h3>
+  </div>
+</article>`;
+}
+
+/* ── Лента (главная, категория, тег, «все») ──────────────────────── */
+function feedPage({ items, total, page, pages, basePath, eyebrow, h1, lead, title, description, canonicalPath, active, jsonld, noindex }) {
+  const pageLink = (n) => url(n === 1 ? basePath : basePath + 'page/' + n + '/');
+  const perPage = site.pageSize || 4;
+  const shownTo = Math.min(page * perPage, total);
+  const body = `<main id="main">
+  <section class="head-sec">
+    <div class="eyebrow"><span class="sl">//</span><span>${esc(eyebrow)}</span></div>
+    <h1 class="h1-feed">${esc(h1)}</h1>
+    ${lead ? `<p class="lead-feed">${esc(lead)}</p>` : ''}
+    <div class="rule-accent"></div>
+  </section>
+  <section class="feed">
+    ${items.length ? `<div class="grid" data-feed>${items.map(card).join('\n')}</div>` : `<div class="empty">
+      <p>Ничего не нашлось.</p>
+      <p>Попробуй другое имя или сними фильтр.</p>
+      <p style="margin-top:18px"><a class="btn-accent" href="${attr(url('/all/'))}">Все статьи</a></p>
+    </div>`}
+    ${pages > 1 ? `<div class="pager">
+      ${page < pages ? `<a class="btn-more" data-more href="${attr(pageLink(page + 1))}">Показать ещё</a>` : ''}
+      <nav class="pages" aria-label="Страницы ленты">
+        ${Array.from({ length: pages }, (_, i) => i + 1).map((n) =>
+          `<a href="${attr(pageLink(n))}"${n === page ? ' aria-current="page"' : ''}>${n}</a>`).join('\n        ')}
+      </nav>
+      <span class="page-status" data-status>Показано ${shownTo} из ${total} · страница ${page} из ${pages}</span>
+    </div>` : ''}
+  </section>
+</main>`;
+  return layout({ title, description, canonical: ORIGIN + canonicalPath, body, active, jsonld, noindex });
+}
+function writeFeed({ list, basePath, eyebrow, h1, lead, title, description, active, jsonldFor, noindex }) {
+  const perPage = site.pageSize || 4;
+  const pages = Math.max(1, Math.ceil(list.length / perPage));
+  for (let p = 1; p <= pages; p++) {
+    const items = list.slice((p - 1) * perPage, p * perPage);
+    const rel = p === 1 ? basePath : basePath + 'page/' + p + '/';
+    const html = feedPage({
+      items, total: list.length, page: p, pages, basePath, eyebrow, h1, lead,
+      title: p > 1 ? `${title} — страница ${p}` : title,
+      description, canonicalPath: url(rel), active,
+      jsonld: jsonldFor ? jsonldFor(items, p) : [], noindex,
+    });
+    write(rel + 'index.html', html);
+  }
+}
+
+/* ── Статья ──────────────────────────────────────────────────────── */
+function renderBody(a) {
+  const out = [];
+  for (const b of a.body) {
+    switch (b.type) {
+      case 'h2': out.push(`<h2 id="${attr(b.anchor || slugify(b.text))}">${inline(b.text)}</h2>`); break;
+      case 'h3': out.push(`<h3 id="${attr(b.anchor || slugify(b.text))}">${inline(b.text)}</h3>`); break;
+      case 'quote': out.push(`<blockquote>${inline(b.text)}</blockquote>`); break;
+      case 'list': out.push(`<ul>${(b.items || []).map((i) => `<li>${inline(i)}</li>`).join('')}</ul>`); break;
+      case 'rule': out.push('<hr>'); break;
+      case 'image': {
+        const src = b.src ? (b.src.startsWith('/') ? url(b.src) : url('/uploads/' + b.src)) : '';
+        out.push(`<figure><div class="fr">${src
+          ? `<img src="${attr(src)}" alt="${attr(b.alt || b.caption || '')}" width="1600" height="900" loading="lazy" decoding="async">`
+          : `<span class="ph" style="display:flex;height:100%;align-items:flex-end;justify-content:flex-end;padding:10px;font-weight:800;font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:#A6A6A0">${esc(b.alt || 'Изображение 16:9')}</span>`}</div>`
+          + `${b.caption ? `<figcaption>${esc(b.caption)}</figcaption>` : ''}</figure>`);
+        break;
+      }
+      default: out.push(`<p>${inline(b.text || '')}</p>`);
+    }
+  }
+  return out.join('\n');
+}
+
+function pickRelated(a) {
+  const pool = published.filter((x) => x.slug !== a.slug);
+  const picked = [];
+  const push = (x) => { if (x && !picked.some((p) => p.slug === x.slug)) picked.push(x); };
+  a.related.forEach((slug) => push(pool.find((x) => x.slug === slug)));
+  pool.filter((x) => x.category === a.category).forEach(push);
+  pool.filter((x) => x.tags.some((t) => a.tags.includes(t))).forEach(push);
+  pool.forEach(push);
+  return picked.slice(0, 4);
+}
+
+function articlePage(a) {
+  const cat = catById.get(a.category) || { id: a.category, title: '' };
+  const canonicalPath = url('/articles/' + a.slug + '/');
+  const canonical = ORIGIN + canonicalPath;
+  const vid = youtubeId(a.youtubeUrl);
+  const toc = a.body.filter((b) => b.type === 'h2').map((b) => ({ id: b.anchor || slugify(b.text), text: b.text }));
+  const related = pickRelated(a);
+  const cover = coverData(a);
+  const desc = a.seoDescription || a.excerpt || a.lead || '';
+
+  const jsonld = [
+    {
+      '@context': 'https://schema.org', '@type': 'Article',
+      headline: a.title, description: desc,
+      mainEntityOfPage: { '@type': 'WebPage', '@id': canonical },
+      datePublished: a.publishedAt, dateModified: a.updatedAt || a.publishedAt,
+      author: { '@type': 'Organization', name: a.author || site.author || site.title },
+      publisher: { '@type': 'Organization', name: site.title },
+      inLanguage: 'ru-RU',
+      ...(cover ? { image: [cover.src.startsWith('http') ? cover.src : ORIGIN + cover.src] } : {}),
+      ...(a.tags.length ? { keywords: a.tags.join(', ') } : {}),
+      articleSection: cat.title,
+    },
+    {
+      '@context': 'https://schema.org', '@type': 'BreadcrumbList',
+      itemListElement: [
+        { '@type': 'ListItem', position: 1, name: 'Главная', item: ORIGIN + url('/') },
+        { '@type': 'ListItem', position: 2, name: cat.title, item: ORIGIN + url('/category/' + cat.id + '/') },
+        { '@type': 'ListItem', position: 3, name: a.title, item: canonical },
+      ],
+    },
+  ];
+  // VideoObject — только при полных достоверных данных о ролике.
+  const v = a.video || {};
+  if (vid && v.name && v.uploadDate && v.thumbnailUrl && v.duration) {
+    jsonld.push({
+      '@context': 'https://schema.org', '@type': 'VideoObject',
+      name: v.name, description: v.description || desc, uploadDate: v.uploadDate,
+      duration: v.duration, thumbnailUrl: v.thumbnailUrl,
+      embedUrl: `https://www.youtube-nocookie.com/embed/${vid}`, contentUrl: a.youtubeUrl,
+    });
+  }
+
+  const body = `<nav class="crumbs" aria-label="Хлебные крошки">
+  <a href="${attr(url('/'))}">Главная</a><span>/</span>
+  <a href="${attr(url('/category/' + cat.id + '/'))}">${esc(cat.title)}</a><span>/</span>
+  <span class="cur">${esc(a.title)}</span>
+</nav>
+<main id="main">
+<article class="article">
+  <a class="kicker" href="${attr(url('/category/' + cat.id + '/'))}">${esc(cat.title)}</a>
+  <h1 class="h1-art">${esc(a.title)}</h1>
+  ${a.lead ? `<p class="lead-art">${esc(a.lead)}</p>` : ''}
+  <div class="meta">
+    <span class="who">${esc(a.author || site.author || 'Редакция')}</span>
+    <span><time datetime="${attr(a.publishedAt)}">${esc(ruDate(a.publishedAt))}</time></span>
+    <span>${esc(readingLabel(a))}</span>
+  </div>
+  ${a.demo ? '<p class="demo-note">Демо-материал: образец вёрстки. Перед публикацией факты нужно проверить и переписать.</p>' : ''}
+  ${vid ? `<div class="video" data-video data-id="${attr(vid)}">
+    <button class="video-facade" type="button" data-play aria-label="Загрузить и проиграть видео">
+      <img src="https://i.ytimg.com/vi/${attr(vid)}/maxresdefault.jpg" alt="Превью видео к статье «${attr(a.title)}»" width="1600" height="900" loading="lazy" decoding="async"
+           onerror="this.src='https://i.ytimg.com/vi/${attr(vid)}/hqdefault.jpg'">
+      <span class="play"><span>▶ Смотреть выпуск</span></span>
+    </button>
+    <div class="video-note">
+      <span>Видео не запускается само — грузится по нажатию.</span>
+      <a href="${attr(a.youtubeUrl)}" target="_blank" rel="noopener" data-yt-out>Смотреть на YouTube →</a>
+    </div>
+  </div>` : (cover ? `<div class="hero"><div class="hero-cover">
+      <img src="${attr(cover.src)}"${cover.srcset ? ` srcset="${attr(cover.srcset)}" sizes="(min-width:800px) 760px, 100vw"` : ''} alt="${attr(cover.alt)}" width="1600" height="900" style="object-position:${attr(cover.focus)}" decoding="async">
+    </div></div>` : '')}
+  ${toc.length > 2 ? `<nav class="toc" data-toc aria-label="Содержание">
+    <button type="button" data-toc-toggle aria-expanded="true" aria-controls="toc-list"><span>Содержание</span><span class="sign">−</span></button>
+    <ol id="toc-list">${toc.map((t) => `<li><a href="#${attr(t.id)}">${esc(t.text)}</a></li>`).join('')}</ol>
+  </nav>` : ''}
+  <div class="body">${renderBody(a)}</div>
+  ${a.sources.length ? `<section class="sources">
+    <div class="eyebrow"><span class="sl">//</span><span>Источники</span></div>
+    <ul>${a.sources.map((s) => `<li>${inline(s)}</li>`).join('')}</ul>
+  </section>` : ''}
+  ${a.tags.length ? `<div class="tags">${a.tags.map((t) =>
+    `<a href="${attr(url('/tag/' + slugify(t) + '/'))}">${esc(t)}</a>`).join('')}</div>` : ''}
+</article>
+${related.length ? `<section class="more">
+  <div class="eyebrow"><span class="sl">//</span><span>Вспомнить ещё</span></div>
+  <div class="grid">${related.map(relatedCard).join('\n')}</div>
+  <div class="back"><a class="btn-accent" href="${attr(url('/'))}" data-back-to-feed>← Вернуться в ленту</a></div>
+</section>` : `<section class="more"><div class="back"><a class="btn-accent" href="${attr(url('/'))}" data-back-to-feed>← Вернуться в ленту</a></div></section>`}
+</main>`;
+
+  return layout({
+    title: a.seoTitle || `${a.title} — ${site.title}`,
+    description: desc, canonical, body, active: 'cat:' + cat.id, jsonld, ogType: 'article',
+    ogImage: a.ogImage ? (a.ogImage.startsWith('http') ? a.ogImage : url(a.ogImage)) : (cover ? cover.src : ''),
+  });
+}
+
+/* ── Запись файлов ───────────────────────────────────────────────── */
+function write(rel, content) {
+  const p = path.join(DIST, rel.replace(/^\//, ''));
+  fs.mkdirSync(path.dirname(p), { recursive: true });
+  fs.writeFileSync(p, content);
+}
+function copyDir(from, to) {
+  if (!fs.existsSync(from)) return;
+  fs.mkdirSync(to, { recursive: true });
+  for (const e of fs.readdirSync(from, { withFileTypes: true })) {
+    const s = path.join(from, e.name), d = path.join(to, e.name);
+    if (e.isDirectory()) copyDir(s, d); else fs.copyFileSync(s, d);
+  }
+}
+
+/* ── Сборка ──────────────────────────────────────────────────────── */
+fs.rmSync(DIST, { recursive: true, force: true });
+fs.mkdirSync(DIST, { recursive: true });
+copyDir(PUBLIC, DIST);
+copyDir(path.join(CONTENT, 'uploads'), path.join(DIST, 'uploads'));
+
+const urls = [];   // для sitemap
+const addUrl = (loc, lastmod, priority, changefreq) => urls.push({ loc: ORIGIN + loc, lastmod, priority, changefreq });
+
+// Главная + /page/N
+writeFeed({
+  list: published, basePath: '/', eyebrow: 'Онлайн-энциклопедия',
+  h1: site.title + '.', lead: site.lead || site.description,
+  title: site.seoTitle || `${site.title} — энциклопедия 90-х и 2000-х`,
+  description: site.description, active: 'home',
+  jsonldFor: (items, p) => p === 1 ? [
+    { '@context': 'https://schema.org', '@type': 'WebSite', name: site.title, url: ORIGIN + url('/'),
+      inLanguage: 'ru-RU', description: site.description,
+      potentialAction: { '@type': 'SearchAction', target: { '@type': 'EntryPoint', urlTemplate: ORIGIN + url('/search/') + '?q={search_term_string}' }, 'query-input': 'required name=search_term_string' } },
+    { '@context': 'https://schema.org', '@type': 'ItemList', itemListElement: items.map((a, i) => ({
+      '@type': 'ListItem', position: i + 1, url: ORIGIN + url('/articles/' + a.slug + '/'), name: a.title })) },
+  ] : [],
+});
+{
+  const pages = Math.max(1, Math.ceil(published.length / (site.pageSize || 4)));
+  addUrl(url('/'), published[0] && published[0].publishedAt, '1.0', 'daily');
+  for (let p = 2; p <= pages; p++) addUrl(url('/page/' + p + '/'), undefined, '0.5', 'weekly');
+}
+
+// Все статьи
+writeFeed({
+  list: published, basePath: '/all/', eyebrow: 'Все материалы', h1: 'Все статьи.',
+  lead: `Полная лента: ${published.length} ${plural(published.length, 'материал', 'материала', 'материалов')} о девяностых и двухтысячных.`,
+  title: `Все статьи — ${site.title}`,
+  description: `Полный архив материалов «${site.title}»: музыка, кино, вещи, телевидение, игры и интернет 90-х и 2000-х.`,
+  active: 'all',
+});
+addUrl(url('/all/'), undefined, '0.8', 'daily');
+
+// Категории
+for (const c of visibleCats) {
+  const list = published.filter((a) => a.category === c.id);
+  writeFeed({
+    list, basePath: '/category/' + c.id + '/', eyebrow: 'Раздел', h1: c.title + '.',
+    lead: c.description || '', active: 'cat:' + c.id,
+    title: c.seoTitle || `${c.title} — ${site.title}`,
+    description: c.seoDescription || c.description || `${c.title}: материалы «${site.title}» о культуре 90-х и 2000-х.`,
+    jsonldFor: (items) => [{ '@context': 'https://schema.org', '@type': 'CollectionPage', name: c.title,
+      description: c.description || '', url: ORIGIN + url('/category/' + c.id + '/'), inLanguage: 'ru-RU' }],
+  });
+  addUrl(url('/category/' + c.id + '/'), undefined, '0.8', 'weekly');
+  const pages = Math.ceil(list.length / (site.pageSize || 4));
+  for (let p = 2; p <= pages; p++) addUrl(url('/category/' + c.id + '/page/' + p + '/'), undefined, '0.4', 'weekly');
+}
+
+// Теги
+for (const t of topTags) {
+  writeFeed({
+    list: t.items, basePath: '/tag/' + t.slug + '/', eyebrow: 'Тег', h1: t.label + '.',
+    lead: `Материалы по теме «${t.label}».`, active: '',
+    title: `${t.label} — ${site.title}`,
+    description: `Все материалы «${site.title}» по теме «${t.label}».`,
+  });
+  addUrl(url('/tag/' + t.slug + '/'), undefined, '0.5', 'weekly');
+}
+
+// Статьи
+for (const a of published) {
+  write('/articles/' + a.slug + '/index.html', articlePage(a));
+  addUrl(url('/articles/' + a.slug + '/'), a.updatedAt || a.publishedAt, '0.9', 'monthly');
+}
+
+// 301-редиректы со старых адресов (на статике — HTML-редирект с canonical)
+for (const [from, to] of Object.entries(site.redirects || {})) {
+  const target = url('/articles/' + to + '/');
+  write('/articles/' + from + '/index.html', `<!doctype html><html lang="ru"><head><meta charset="utf-8">
+<title>Статья переехала</title><link rel="canonical" href="${attr(ORIGIN + target)}">
+<meta name="robots" content="noindex, follow"><meta http-equiv="refresh" content="0; url=${attr(target)}">
+</head><body><p>Материал переехал: <a href="${attr(target)}">${attr(ORIGIN + target)}</a></p>
+<script>location.replace(${JSON.stringify(target)})</script></body></html>`);
+}
+
+// Поиск (клиентский, из индекса; из выдачи исключён)
+write('/search/index.html', layout({
+  title: `Поиск — ${site.title}`, description: 'Поиск по статьям, героям и темам.',
+  canonical: ORIGIN + url('/search/'), noindex: true, active: '',
+  body: `<main id="main">
+  <section class="head-sec">
+    <div class="eyebrow"><span class="sl">//</span><span>Результаты поиска</span></div>
+    <h1 class="h1-feed" data-search-title>Поиск.</h1>
+    <p class="lead-feed" data-search-lead>Введите имя героя, название фильма, вещи или год.</p>
+    <div class="rule-accent"></div>
+  </section>
+  <section class="feed">
+    <form class="search-row" style="max-width:720px;margin-bottom:28px" action="${attr(url('/search/'))}" method="get" role="search">
+      <input type="search" name="q" placeholder="Герой, фильм, вещь, год…" aria-label="Поиск по сайту" data-search-input>
+      <button type="submit" style="background:#CCFF04;border-color:#CCFF04">Найти</button>
+    </form>
+    <div class="grid" data-search-results></div>
+    <div class="empty" data-search-empty hidden>
+      <p>Ничего не нашлось.</p><p>Попробуй другое имя или сними фильтр.</p>
+      <p style="margin-top:18px"><a class="btn-accent" href="${attr(url('/all/'))}">Все статьи</a></p>
+    </div>
+  </section>
+</main>`,
+}));
+
+// 404
+write('/404.html', layout({
+  title: `Страница не найдена — ${site.title}`, description: 'Такой страницы нет.',
+  canonical: ORIGIN + url('/404.html'), noindex: true, active: '',
+  body: `<main id="main"><div class="center-box">
+    <div class="eyebrow"><span class="sl">//</span><span>Ошибка 404</span></div>
+    <h1>Такой страницы нет.</h1>
+    <p>Адрес устарел или в нём опечатка. Загляните в ленту — там всё живое.</p>
+    <p><a class="btn-accent" href="${attr(url('/'))}">← Вернуться в ленту</a></p>
+  </div></main>`,
+}));
+
+// Индекс для поиска
+write('/search-index.json', JSON.stringify(published.map((a) => ({
+  slug: a.slug, title: a.title, excerpt: a.excerpt, category: catTitle(a.category), categoryId: a.category,
+  tags: a.tags, read: readingLabel(a), video: !!a.youtubeUrl, date: a.publishedAt,
+  cover: coverData(a) ? coverData(a).src : '', coverAlt: coverData(a) ? coverData(a).alt : '',
+  href: url('/articles/' + a.slug + '/'),
+}))));
+
+// sitemap.xml
+write('/sitemap.xml', `<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+${urls.map((u) => `  <url><loc>${esc(u.loc)}</loc>${u.lastmod ? `<lastmod>${esc(u.lastmod)}</lastmod>` : ''}`
+  + `${u.changefreq ? `<changefreq>${u.changefreq}</changefreq>` : ''}<priority>${u.priority}</priority></url>`).join('\n')}
+</urlset>`);
+
+// robots.txt
+write('/robots.txt', `User-agent: *
+Allow: /
+Disallow: ${url('/admin/')}
+Disallow: ${url('/search/')}
+Disallow: ${url('/preview/')}
+
+Sitemap: ${ORIGIN + url('/sitemap.xml')}
+`);
+
+// RSS
+write('/feed.xml', `<?xml version="1.0" encoding="UTF-8"?>
+<rss version="2.0"><channel>
+<title>${esc(site.title)}</title>
+<link>${esc(ORIGIN + url('/'))}</link>
+<description>${esc(site.description)}</description>
+<language>ru</language>
+${published.slice(0, 20).map((a) => `<item>
+  <title>${esc(a.title)}</title>
+  <link>${esc(ORIGIN + url('/articles/' + a.slug + '/'))}</link>
+  <guid isPermaLink="true">${esc(ORIGIN + url('/articles/' + a.slug + '/'))}</guid>
+  <pubDate>${new Date(a.publishedAt).toUTCString()}</pubDate>
+  <description>${esc(a.excerpt || a.lead)}</description>
+</item>`).join('\n')}
+</channel></rss>`);
+
+// llms.txt — карта сайта для ИИ-ассистентов
+write('/llms.txt', `# ${site.title}
+
+> ${site.description}
+
+${site.lead || ''}
+
+${visibleCats.map((c) => `## ${c.title}\n${published.filter((a) => a.category === c.id)
+  .map((a) => `- [${a.title}](${ORIGIN + url('/articles/' + a.slug + '/')}): ${a.excerpt}`).join('\n')}`).join('\n\n')}
+
+## Служебное
+- [Все статьи](${ORIGIN + url('/all/')})
+- [RSS](${ORIGIN + url('/feed.xml')})
+- [Карта сайта](${ORIGIN + url('/sitemap.xml')})
+`);
+
+// Конфиг админки (репозиторий и ветка для GitHub API)
+write('/admin/config.js', `window.VM2007 = ${JSON.stringify({
+  repo: process.env.CONTENT_REPO || site.repo || '',
+  branch: process.env.CONTENT_BRANCH || site.branch || 'main',
+  contentPath: process.env.CONTENT_PATH || site.contentPath || 'verni2007/content',
+  siteUrl: ORIGIN + BASE,
+  base: BASE,
+}, null, 2)};
+`);
+
+function plural(n, one, few, many) {
+  const m10 = n % 10, m100 = n % 100;
+  if (m10 === 1 && m100 !== 11) return one;
+  if (m10 >= 2 && m10 <= 4 && (m100 < 10 || m100 >= 20)) return few;
+  return many;
+}
+
+console.log(`Собрано: ${published.length} опубликованных статей, ${allArticles.length - published.length} черновиков, `
+  + `${visibleCats.length} разделов, ${topTags.length} тегов → ${path.relative(process.cwd(), DIST)}`);
+console.log(`Адрес сборки: ${ORIGIN + BASE || '/'}`);

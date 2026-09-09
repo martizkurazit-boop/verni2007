@@ -1,0 +1,57 @@
+name: Deploy to GitHub Pages
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# Публикация идёт по очереди: параллельные сборки не наступают друг другу на пятки,
+# но уже запущенная не отменяется — иначе можно потерять только что опубликованную статью.
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Configure Pages
+        id: pages
+        uses: actions/configure-pages@v5
+        with:
+          # Пытаемся включить Pages автоматически; если прав не хватит —
+          # включите вручную: Settings → Pages → Source: GitHub Actions.
+          enablement: true
+
+      - name: Build static site
+        env:
+          # Адрес сайта: берётся из переменной репозитория, если она задана
+          # (Settings → Secrets and variables → Actions → Variables → SITE_URL),
+          # иначе — из настроек Pages (там же учитывается подключённый домен).
+          SITE_URL: ${{ vars.SITE_URL != '' && vars.SITE_URL || steps.pages.outputs.base_url }}
+          CONTENT_REPO: ${{ github.repository }}
+          CONTENT_BRANCH: ${{ github.ref_name }}
+          CONTENT_PATH: content
+        run: node scripts/build.mjs
+
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: dist
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4

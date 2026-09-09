@@ -1,0 +1,69 @@
+{
+  "title": "Верните мой 2007",
+  "seoTitle": "Верните мой 2007 — энциклопедия культуры 90-х и 2000-х",
+  "description": "Энциклопедия культуры, людей и явлений девяностых и двухтысячных.",
+  "lead": "Музыканты, актёры, фильмы, телевидение, игры и вещи, из которых была собрана жизнь до смартфонов. Читаем истории, вспоминаем детали, идём дальше.",
+  "url": "https://verni2007.ru",
+  "author": "Редакция",
+  "pageSize": 4,
+  "footerNote": "Демо-материалы отмечены на странице статьи: это образцы вёрстки, факты в них нужно проверить перед публикацией.",
+  "defaultOgImage": "",
+  "repo": "martizkurazit-boop/verni2007",
+  "branch": "main",
+  "contentPath": "content",
+  "analytics": {
+    "yandexMetrika": "",
+    "ga4": ""
+  },
+  "categories": [
+    {
+      "id": "music",
+      "title": "Музыка",
+      "enabled": true,
+      "description": "Группы, песни и люди, под которых прошли девяностые и нулевые.",
+      "seoTitle": "",
+      "seoDescription": ""
+    },
+    {
+      "id": "cinema",
+      "title": "Кино",
+      "enabled": true,
+      "description": "Фильмы и актёры, которые страна пересматривает до сих пор.",
+      "seoTitle": "",
+      "seoDescription": ""
+    },
+    {
+      "id": "things",
+      "title": "Вещи",
+      "enabled": true,
+      "description": "Предметы, которые были у всех: от тамагочи до складного велосипеда.",
+      "seoTitle": "",
+      "seoDescription": ""
+    },
+    {
+      "id": "tv",
+      "title": "Телевидение",
+      "enabled": true,
+      "description": "Каналы и передачи, которые формировали вкус до появления стримингов.",
+      "seoTitle": "",
+      "seoDescription": ""
+    },
+    {
+      "id": "games",
+      "title": "Игры",
+      "enabled": false,
+      "description": "",
+      "seoTitle": "",
+      "seoDescription": ""
+    },
+    {
+      "id": "web",
+      "title": "Интернет",
+      "enabled": false,
+      "description": "",
+      "seoTitle": "",
+      "seoDescription": ""
+    }
+  ],
+  "redirects": {}
+}

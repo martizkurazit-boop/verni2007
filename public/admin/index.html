@@ -1,0 +1,221 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>Админка — Верните мой 2007</title>
+<link rel="icon" href="../favicon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="admin.css">
+<script src="config.js"></script>
+</head>
+<body>
+<div class="saving" id="progress"></div>
+
+<!-- Экран входа -->
+<section class="login" id="screen-login" hidden>
+  <div class="eyebrow"><span class="sl">//</span><span>Доступ</span></div>
+  <h1>Вход.</h1>
+  <div class="card">
+    <p class="hint">Админка работает напрямую с репозиторием GitHub: статьи и картинки сохраняются в него,
+      а сайт пересобирается автоматически. Нужен персональный токен с правом записи.</p>
+    <ol>
+      <li>Откройте <code>github.com → Settings → Developer settings → Personal access tokens → Fine-grained tokens</code>.</li>
+      <li>Repository access — только репозиторий <code id="login-repo">—</code>.</li>
+      <li>Permissions → Repository permissions → <code>Contents: Read and write</code>.</li>
+      <li>Скопируйте токен и вставьте сюда.</li>
+    </ol>
+    <label class="field"><span>Токен GitHub</span>
+      <input type="password" id="token" placeholder="github_pat_…" autocomplete="off"></label>
+    <label class="check" id="remember" aria-pressed="true" role="button" tabindex="0">
+      <span class="box">✓</span><span>Запомнить на этом устройстве</span></label>
+    <p class="hint">Токен хранится только в этом браузере и уходит исключительно на api.github.com.
+      На чужом устройстве снимайте галочку — тогда он забудется при закрытии вкладки.</p>
+    <div class="row"><button class="btn primary" id="login-btn">Войти</button>
+      <a class="btn" href="../">Смотреть сайт</a></div>
+    <p class="hint warn" id="login-error" hidden></p>
+  </div>
+</section>
+
+<!-- Рабочая область -->
+<div id="app" hidden>
+<header class="hdr">
+  <div class="hdr-in">
+    <span class="logo">Админка</span>
+    <nav class="tabs">
+      <button class="btn tab" data-tab="list" aria-selected="true">Статьи</button>
+      <button class="btn tab" data-tab="stats" aria-selected="false">Аналитика</button>
+    </nav>
+    <div class="hdr-right">
+      <span class="hint" id="whoami"></span>
+      <a class="btn sm" href="../" target="_blank" rel="noopener">Смотреть сайт</a>
+      <button class="btn sm" id="logout">Выйти</button>
+    </div>
+  </div>
+</header>
+
+<!-- Список статей -->
+<main id="screen-list" hidden>
+  <div class="row" style="justify-content:space-between;align-items:flex-end">
+    <div>
+      <div class="eyebrow"><span class="sl">//</span><span>Материалы</span></div>
+      <h1>Статьи.</h1>
+    </div>
+    <button class="btn primary" id="new-article" style="height:50px;padding:0 22px">+ Новая статья</button>
+  </div>
+  <div class="row" style="margin-top:26px">
+    <button class="btn tab on" data-filter="all">Все</button>
+    <button class="btn tab" data-filter="published">Опубликованные</button>
+    <button class="btn tab" data-filter="draft">Черновики</button>
+  </div>
+  <div class="list" id="articles"></div>
+
+  <div class="card" style="margin-top:26px;background:transparent">
+    <div class="eyebrow"><span class="sl">//</span><span>Категории</span></div>
+    <p class="hint" style="margin:0 0 14px">Выключенная категория пропадает из меню и футера. Пустые разделы посетителям не показываются.</p>
+    <div class="tbl" id="categories"></div>
+    <p class="hint" style="margin-top:12px">Описание раздела редактируется здесь же — оно выводится под заголовком категории.</p>
+  </div>
+</main>
+
+<!-- Редактор -->
+<main id="screen-editor" hidden>
+  <button class="btn sm" id="back-to-list" style="border:0;padding:0;color:var(--muted)">← К списку</button>
+  <div class="row" style="margin-top:14px;justify-content:space-between;align-items:flex-end">
+    <h1 id="editor-title">Новая статья.</h1>
+    <div class="row">
+      <button class="btn" id="save-draft">Сохранить черновик</button>
+      <button class="btn" id="preview">Предпросмотр</button>
+      <button class="btn primary" id="publish">Опубликовать</button>
+    </div>
+  </div>
+  <div class="banner" id="editor-note" hidden></div>
+
+  <div class="cols">
+    <div class="stack">
+      <section class="card">
+        <h2 class="sec">Основное</h2>
+        <div class="stack" style="gap:14px">
+          <label class="field"><span>Заголовок</span><input type="text" id="f-title"></label>
+          <div class="field"><span>URL-slug</span>
+            <div class="slug-wrap"><span>/articles/</span><input type="text" id="f-slug"></div>
+            <span class="hint">При смене адреса опубликованной статьи со старого ставится редирект на новый.</span>
+          </div>
+          <label class="field"><span>Краткий анонс</span><textarea id="f-excerpt" rows="3"></textarea></label>
+          <label class="field"><span>Лид (первый абзац под заголовком)</span><textarea id="f-lead" rows="3"></textarea></label>
+        </div>
+      </section>
+
+      <section class="card">
+        <div class="row" style="justify-content:space-between;margin-bottom:16px">
+          <h2 class="sec" style="margin:0">Содержание</h2>
+          <button class="btn sm" id="toggle-import">Вставить готовый текст</button>
+        </div>
+
+        <div id="import-panel" hidden style="margin-bottom:18px;border:1px solid var(--strong);padding:16px;background:#0A0A0A">
+          <p class="hint">Вставьте статью как есть — из документа или заметок. Абзацы разберутся по одному,
+            дальше каждому назначается роль.</p>
+          <textarea id="import-text" rows="6" placeholder="Вставьте сюда весь текст статьи" style="margin-top:12px"></textarea>
+          <div class="row" style="margin-top:10px">
+            <button class="btn primary sm" id="do-parse" style="height:42px">Разобрать на блоки</button>
+            <button class="btn sm" id="auto-roles" style="height:42px">Расставить роли автоматом</button>
+          </div>
+          <div id="chunks" class="blocks" style="margin-top:16px"></div>
+          <div class="row" id="chunks-actions" hidden style="margin-top:14px">
+            <button class="btn primary sm" id="apply-chunks" style="height:44px">Собрать статью →</button>
+            <span class="hint" id="chunk-stats"></span>
+          </div>
+        </div>
+
+        <div class="blocks" id="blocks"></div>
+        <div class="row" style="margin-top:14px">
+          <button class="btn sm" data-add="p">+ Абзац</button>
+          <button class="btn sm" data-add="h2">+ H2</button>
+          <button class="btn sm" data-add="h3">+ H3</button>
+          <button class="btn sm" data-add="quote">+ Цитата</button>
+          <button class="btn sm" data-add="list">+ Список</button>
+          <button class="btn sm" data-add="image">+ Фото</button>
+          <button class="btn sm" data-add="rule">+ Разделитель</button>
+        </div>
+        <p class="hint" style="margin-top:10px">Внутри текста работает разметка: <code>**жирный**</code> и
+          <code>[ссылка](https://…)</code>. Заголовки H2 попадают в оглавление статьи.</p>
+        <p class="hint" id="content-stats" style="margin-top:8px"></p>
+      </section>
+
+      <section class="card">
+        <h2 class="sec">Источники</h2>
+        <textarea id="f-sources" rows="3" placeholder="По одному источнику в строке"></textarea>
+        <p class="hint" style="margin-top:8px">Пусто — блок источников на странице не появится.</p>
+      </section>
+
+      <section class="card">
+        <h2 class="sec">SEO и соцсети</h2>
+        <div class="stack" style="gap:14px">
+          <label class="field"><span>SEO title</span><input type="text" id="f-seo-title">
+            <span class="hint" id="seo-title-hint"></span></label>
+          <label class="field"><span>SEO description</span><textarea id="f-seo-desc" rows="2"></textarea>
+            <span class="hint" id="seo-desc-hint"></span></label>
+          <label class="field"><span>Картинка для соцсетей (если отличается от обложки)</span>
+            <input type="text" id="f-og" placeholder="/uploads/…-1600.webp"></label>
+          <div class="snippet">
+            <div class="lbl" style="margin-bottom:10px">Предпросмотр сниппета</div>
+            <div class="u" id="snippet-url"></div>
+            <div class="t" id="snippet-title"></div>
+            <div class="d" id="snippet-desc"></div>
+          </div>
+        </div>
+      </section>
+    </div>
+
+    <div class="stack">
+      <section class="card">
+        <h2 class="sec">Обложка 16:9</h2>
+        <div class="dropzone" id="cover-drop">
+          <img id="cover-img" hidden alt="">
+          <span class="cap" id="cover-cap">Перетащите обложку 16:9 или нажмите, чтобы выбрать файл</span>
+        </div>
+        <input type="file" id="cover-file" accept="image/png,image/jpeg,image/webp,image/avif" hidden>
+        <p class="hint" id="cover-note" hidden></p>
+        <div class="stack" style="gap:10px;margin-top:12px">
+          <span class="lbl">Точка фокуса</span>
+          <div class="focus-grid" id="focus-grid"></div>
+          <span class="hint">Кадрирование 16:9 без искажения пропорций. Фокус держит лицо в кадре на узких экранах.</span>
+          <label class="field" style="margin-top:4px"><span>Alt-текст обложки</span>
+            <input type="text" id="f-cover-alt"></label>
+          <button class="btn sm" id="cover-clear">Убрать обложку</button>
+        </div>
+      </section>
+
+      <section class="card">
+        <h2 class="sec">Публикация</h2>
+        <div class="stack" style="gap:14px">
+          <div class="field"><span>Категория</span><div class="row" id="cat-choices"></div></div>
+          <label class="field"><span>Теги через запятую</span><input type="text" id="f-tags"></label>
+          <label class="field"><span>Ссылка на YouTube (необязательно)</span>
+            <input type="text" id="f-youtube" placeholder="https://www.youtube.com/watch?v=…">
+            <span class="hint" id="yt-hint">Пусто — блок видео на странице не появится.</span></label>
+          <div class="row" style="gap:10px;flex-wrap:nowrap">
+            <label class="field" style="flex:1"><span>Автор</span><input type="text" id="f-author"></label>
+            <label class="field" style="flex:1"><span>Дата</span><input type="date" id="f-date"></label>
+          </div>
+          <div class="field"><span>Связанные материалы</span>
+            <div class="stack" style="gap:6px" id="related-choices"></div></div>
+        </div>
+      </section>
+
+      <section class="note-danger">
+        <div class="h">Опасная зона</div>
+        <button class="btn danger" id="delete-article">Удалить статью</button>
+      </section>
+    </div>
+  </div>
+</main>
+
+<!-- Аналитика -->
+<main id="screen-stats" hidden></main>
+</div>
+
+<div id="modal-root"></div>
+<script src="admin.js"></script>
+</body>
+</html>
