@@ -20,6 +20,10 @@ const U = new URL(RAW_URL);
 const BASE = U.pathname.replace(/\/+$/, '');          // '' или '/repo-name' для project pages
 const ORIGIN = U.origin;
 const url = (p) => (BASE + (p.startsWith('/') ? p : '/' + p)) || '/';
+// Временный адрес github.io закрывается от индексации целиком: иначе, когда появится
+// собственный домен, тот же текст будет висеть в выдаче по двум адресам сразу.
+// Снимается автоматически, как только SITE_URL станет доменом (или FORCE_INDEX=1).
+const TEMP_HOST = /\.github\.io$/.test(U.hostname) && process.env.FORCE_INDEX !== '1';
 const abs = (p) => ORIGIN + url(p);
 
 /* ── Утилиты ─────────────────────────────────────────────────────── */
@@ -199,6 +203,7 @@ function footer() {
 }
 
 function layout({ title, description, canonical, body, active, jsonld = [], noindex = false, ogImage, ogType = 'website', extraHead = '' }) {
+  if (TEMP_HOST) noindex = true;
   const img = ogImage || (site.defaultOgImage ? url(site.defaultOgImage) : '');
   return `<!doctype html>
 <html lang="ru">
@@ -599,7 +604,10 @@ ${urls.map((u) => `  <url><loc>${esc(u.loc)}</loc>${u.lastmod ? `<lastmod>${esc(
 </urlset>`);
 
 // robots.txt
-write('/robots.txt', `User-agent: *
+write('/robots.txt', TEMP_HOST ? `# Временный адрес: сайт закрыт от индексации до подключения домена.
+User-agent: *
+Disallow: /
+` : `User-agent: *
 Allow: /
 Disallow: ${url('/admin/')}
 Disallow: ${url('/search/')}
@@ -660,3 +668,7 @@ function plural(n, one, few, many) {
 console.log(`Собрано: ${published.length} опубликованных статей, ${allArticles.length - published.length} черновиков, `
   + `${visibleCats.length} разделов, ${topTags.length} тегов → ${path.relative(process.cwd(), DIST)}`);
 console.log(`Адрес сборки: ${ORIGIN + BASE || '/'}`);
+if (TEMP_HOST) {
+  console.log('ВНИМАНИЕ: временный адрес github.io — все страницы отдаются с noindex, robots.txt закрыт.');
+  console.log('Индексация включится сама, когда SITE_URL станет собственным доменом.');
+}
