@@ -1143,36 +1143,111 @@
     });
   });
 
-  /* ── Аналитика (демо-экран) ─────────────────────────────────────── */
+  /* ── Аналитика ────────────────────────────────────────────────────
+     Цифры приходят из content/stats.json: его раз в шесть часов наполняет
+     GitHub Actions, обращаясь к API Метрики с токеном из секретов репозитория.
+     В браузере токена нет и быть не может — админка только читает готовый файл. */
+  function fmt(n) {
+    return typeof n === 'number' && isFinite(n)
+      ? String(Math.round(n)).replace(/\B(?=(\d{3})+(?!\d))/g, ' ') : '—';
+  }
+  function ago(iso) {
+    var d = new Date(iso), mins = Math.round((Date.now() - d) / 60000);
+    if (!isFinite(mins)) return iso;
+    if (mins < 60) return mins + ' мин назад';
+    if (mins < 60 * 24) return Math.round(mins / 60) + ' ч назад';
+    return Math.round(mins / 1440) + ' дн назад';
+  }
+  function shortUrl(u) {
+    try { return decodeURI(new URL(u).pathname) || '/'; } catch (e) { return u; }
+  }
+
   function renderStats() {
-    var connected = state.site.analytics && (state.site.analytics.yandexMetrika || state.site.analytics.ga4);
-    var tiles = [['Визиты за 30 дней', '—', 'из отчёта счётчика'], ['Дочитывания', '—', 'цель read_end'],
-      ['Переходы на YouTube', '—', 'цель youtube_click'], ['Доля из поиска', '—', 'источники трафика']];
-    var sources = [['Google', 0], ['Яндекс', 0], ['Прямые заходы', 0], ['Соцсети', 0], ['ChatGPT / Perplexity', 0]];
-    $('#screen-stats').innerHTML = '<div class="eyebrow"><span class="sl">//</span><span>'
-      + (connected ? 'Счётчик подключён — цифры смотрите в кабинете счётчика' : 'Счётчик не подключён')
-      + '</span></div><h1>Аналитика.</h1>'
-      + '<div class="tiles">' + tiles.map(function (t) {
-        return '<div class="tile"><div class="l">' + t[0] + '</div><div class="v">' + t[1] + '</div><div class="n">' + t[2] + '</div></div>';
-      }).join('') + '</div>'
-      + '<div class="cols"><div class="card"><h2 class="sec">Откуда приходят</h2>'
-      + sources.map(function (s) {
-        return '<div style="margin-bottom:12px"><div class="row" style="justify-content:space-between;font-size:14px;font-weight:700">'
-          + '<span>' + s[0] + '</span><span class="hint">—</span></div><div class="bar"><i style="width:' + s[1] + '%"></i></div></div>';
-      }).join('')
-      + '</div><div class="card"><h2 class="sec">Что уже размечено в коде сайта</h2><ul style="margin:0;padding-left:18px;'
-      + 'display:flex;flex-direction:column;gap:9px;font-size:14px;line-height:1.6;color:#9A9A9A">'
-      + '<li>Цель <b style="color:#CCFF04">video_play</b> — клик по превью видео.</li>'
-      + '<li>Цель <b style="color:#CCFF04">youtube_click</b> — переход по ссылке «Смотреть на YouTube».</li>'
-      + '<li>Цель <b style="color:#CCFF04">read_end</b> — дочитывание до конца статьи.</li>'
-      + '<li>Цель <b style="color:#CCFF04">search</b> — поиск по сайту.</li></ul></div></div>'
-      + '<div class="note-danger" style="margin-top:24px"><div class="h">Что нужно, чтобы цифры появились здесь</div><ul>'
-      + '<li>Указать номер Яндекс.Метрики или GA4 в <code>content/site.json</code> → <code>analytics</code>. '
-      + 'После этого счётчик встанет на все страницы, а перечисленные цели начнут отправляться.</li>'
-      + '<li>Создать эти цели в интерфейсе счётчика (тип «JavaScript-событие» с теми же именами).</li>'
-      + '<li>Чтобы цифры выводились прямо в этой админке, нужен серверный прокси к Yandex Metrika Reporting API '
-      + 'или GA4 Data API с токеном на сервере. На статическом хостинге GitHub Pages такого сервера нет — '
-      + 'цифры смотрите в кабинете счётчика.</li></ul></div>';
+    var box = $('#screen-stats');
+    box.innerHTML = '<div class="eyebrow"><span class="sl">//</span><span>Загружаем данные…</span></div>'
+      + '<h1>Аналитика.</h1>';
+    gh(repoPath('/contents/' + contentPath('stats.json') + '?ref=' + (CFG.branch || 'main')
+      + '&_=' + Date.now()), { raw: true, allow404: true })
+      .then(function (text) { drawStats(text ? JSON.parse(text) : null); })
+      .catch(function (e) { drawStats(null, e.message); });
+  }
+
+  function drawStats(d, err) {
+    var box = $('#screen-stats');
+    var counter = (state.site.analytics || {}).yandexMetrika;
+    if (!d) {
+      box.innerHTML = '<div class="eyebrow"><span class="sl">//</span><span>Данные ещё не забирались</span></div>'
+        + '<h1>Аналитика.</h1>' + setupBlock(counter, err);
+      return;
+    }
+    var byEvent = {};
+    (d.goals || []).forEach(function (g) { byEvent[g.event || g.name] = g; });
+    var tile = function (label, value, note) {
+      return '<div class="tile"><div class="l">' + esc(label) + '</div><div class="v">' + value
+        + '</div><div class="n">' + esc(note) + '</div></div>';
+    };
+    var t = d.totals || {};
+    var goalTile = function (event, label) {
+      var g = byEvent[event];
+      var share = (g && t.visits) ? ' · ' + Math.round(g.reaches / t.visits * 100) + '% визитов' : '';
+      return tile(label, g ? fmt(g.reaches) : '—', g ? 'цель ' + event + share : 'цель ' + event + ' не заведена');
+    };
+
+    box.innerHTML = '<div class="eyebrow"><span class="sl">//</span><span>Метрика · счётчик '
+      + esc(d.counter) + ' · обновлено ' + esc(ago(d.updatedAt)) + '</span></div>'
+      + '<h1>Аналитика.</h1>'
+      + '<div class="tiles">'
+      + tile('Визиты за ' + d.days + ' дней', fmt(t.visits), fmt(t.users) + ' посетителей')
+      + goalTile('youtube_click', 'Переходы на YouTube')
+      + goalTile('read_end', 'Дочитывания')
+      + goalTile('video_play', 'Запуски видео')
+      + '</div>'
+      + '<div class="cols">'
+      + '<div class="card"><h2 class="sec">Откуда приходят</h2>'
+      + ((d.sources || []).length ? d.sources.map(function (s) {
+          return '<div style="margin-bottom:12px"><div class="row" style="justify-content:space-between;font-size:14px;font-weight:700">'
+            + '<span>' + esc(s.name) + '</span><span class="hint">' + fmt(s.visits) + ' · ' + s.share + '%</span></div>'
+            + '<div class="bar"><i style="width:' + s.share + '%"></i></div></div>';
+        }).join('') : '<p class="hint">Пока не из чего считать.</p>')
+      + '</div>'
+      + '<div class="card"><h2 class="sec">География</h2><div class="tbl">'
+      + ((d.geo || []).length ? d.geo.map(function (g) {
+          return '<div class="r"><span style="flex:1 1 auto;font-weight:600">' + esc(g.name)
+            + '</span><span class="hint">' + fmt(g.visits) + '</span></div>';
+        }).join('') : '<div class="r"><span class="hint">Пока пусто.</span></div>')
+      + '</div></div></div>'
+      + '<div class="card" style="margin-top:24px"><h2 class="sec">Статьи и переходы на YouTube</h2><div class="tbl">'
+      + ((d.pages || []).length ? d.pages.map(function (p) {
+          return '<div class="r">'
+            + '<span style="flex:1 1 220px;min-width:0;font-weight:700;font-size:14px;color:#fff">' + esc(shortUrl(p.url)) + '</span>'
+            + '<span class="hint" style="min-width:110px">' + fmt(p.visits) + ' визитов</span>'
+            + '<span class="hint" style="min-width:120px">' + fmt((p.goals || {}).read_end) + ' дочитываний</span>'
+            + '<span style="min-width:120px;font-weight:800;color:var(--accent)">' + fmt((p.goals || {}).youtube_click) + ' → YouTube</span>'
+            + '</div>';
+        }).join('') : '<div class="r"><span class="hint">Данных пока нет.</span></div>')
+      + '</div></div>'
+      + ((d.errors || []).length ? '<div class="note-danger" style="margin-top:24px">'
+          + '<div class="h">Метрика ответила ошибкой</div><ul>'
+          + d.errors.map(function (e) { return '<li>' + esc(e) + '</li>'; }).join('') + '</ul></div>' : '')
+      + '<p class="hint" style="margin-top:16px">Данные обновляются каждые шесть часов. '
+      + 'Полные отчёты — в кабинете Метрики: '
+      + '<a href="https://metrika.yandex.ru/dashboard?id=' + esc(d.counter) + '" target="_blank" rel="noopener" '
+      + 'style="color:var(--accent)">открыть</a>.</p>';
+  }
+
+  function setupBlock(counter, err) {
+    return '<div class="note-danger" style="margin-top:26px">'
+      + '<div class="h">Что нужно, чтобы цифры появились здесь</div><ul>'
+      + '<li>Счётчик Метрики: ' + (counter
+          ? '<b style="color:#CCFF04">подключён, номер ' + esc(counter) + '</b>'
+          : 'не указан в <code>content/site.json</code> → <code>analytics</code>') + '.</li>'
+      + '<li>Нужен OAuth-токен Яндекса с правом «получение статистики» — его кладут в секрет '
+      + '<code>METRIKA_TOKEN</code> в настройках репозитория. Токен остаётся на стороне GitHub '
+      + 'и в браузер не попадает.</li>'
+      + '<li>После этого раз в шесть часов запускается сбор данных, и цифры появляются на этом экране. '
+      + 'Первый раз можно запустить вручную: Actions → «Обновить статистику Метрики» → Run workflow.</li>'
+      + (err ? '<li>Последняя ошибка чтения: ' + esc(err) + '</li>' : '')
+      + '</ul></div>';
   }
 
   /* ── Старт ──────────────────────────────────────────────────────── */

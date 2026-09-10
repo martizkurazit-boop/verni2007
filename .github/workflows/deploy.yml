@@ -3,6 +3,10 @@ name: Deploy to GitHub Pages
 on:
   push:
     branches: [main]
+    paths-ignore:
+      # Статистика обновляется по расписанию и на сайт не выкладывается —
+      # пересобирать его из-за неё незачем.
+      - 'content/stats.json'
   workflow_dispatch:
 
 permissions:
