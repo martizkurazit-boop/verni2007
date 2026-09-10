@@ -7,7 +7,7 @@
   "author": "Редакция",
   "pageSize": 4,
   "footerNote": "Демо-материалы отмечены на странице статьи: это образцы вёрстки, факты в них нужно проверить перед публикацией.",
-  "defaultOgImage": "",
+  "defaultOgImage": "/assets/og-default.png",
   "repo": "martizkurazit-boop/verni2007",
   "branch": "main",
   "contentPath": "content",
@@ -70,5 +70,6 @@
   "verification": {
     "yandex": "",
     "google": ""
-  }
+  },
+  "social": []
 }

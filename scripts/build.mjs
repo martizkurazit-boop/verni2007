@@ -238,6 +238,7 @@ ${img ? `<meta property="og:image" content="${attr(img.startsWith('http') ? img 
 ${img ? `<meta name="twitter:image" content="${attr(img.startsWith('http') ? img : ORIGIN + img)}">\n` : ''}<meta name="theme-color" content="#0A0A0A">
 ${(site.verification && site.verification.yandex) ? `<meta name="yandex-verification" content="${attr(site.verification.yandex)}">\n` : ''}${(site.verification && site.verification.google) ? `<meta name="google-site-verification" content="${attr(site.verification.google)}">\n` : ''}
 <link rel="icon" href="${attr(url('/favicon.svg'))}" type="image/svg+xml">
+<link rel="apple-touch-icon" href="${attr(url('/apple-touch-icon.png'))}">
 <link rel="alternate" type="application/rss+xml" title="${attr(site.title)}" href="${attr(url('/feed.xml'))}">
 <link rel="preload" href="${attr(url('/fonts/gilroy-900.woff2'))}" as="font" type="font/woff2" crossorigin>
 <link rel="preload" href="${attr(url('/fonts/gilroy-500.woff2'))}" as="font" type="font/woff2" crossorigin>
@@ -448,7 +449,10 @@ function articlePage(a) {
       mainEntityOfPage: { '@type': 'WebPage', '@id': canonical },
       datePublished: a.publishedAt, dateModified: a.updatedAt || a.publishedAt,
       author: { '@type': 'Organization', name: a.author || site.author || site.title },
-      publisher: { '@type': 'Organization', name: site.title },
+      publisher: {
+        '@type': 'Organization', name: site.title,
+        logo: { '@type': 'ImageObject', url: ORIGIN + url('/assets/logo-512.png'), width: 512, height: 512 },
+      },
       inLanguage: 'ru-RU',
       ...(cover ? { image: [cover.src.startsWith('http') ? cover.src : ORIGIN + cover.src] } : {}),
       ...(a.tags.length ? { keywords: a.tags.join(', ') } : {}),
@@ -578,6 +582,10 @@ writeFeed({
   title: site.seoTitle || `${site.title} — энциклопедия 90-х и 2000-х`,
   description: site.description, active: 'home',
   jsonldFor: (items, p) => p === 1 ? [
+    { '@context': 'https://schema.org', '@type': 'Organization', name: site.title,
+      url: ORIGIN + url('/'), description: site.description,
+      logo: { '@type': 'ImageObject', url: ORIGIN + url('/assets/logo-512.png'), width: 512, height: 512 },
+      ...((site.social || []).length ? { sameAs: site.social } : {}) },
     { '@context': 'https://schema.org', '@type': 'WebSite', name: site.title, url: ORIGIN + url('/'),
       inLanguage: 'ru-RU', description: site.description,
       potentialAction: { '@type': 'SearchAction', target: { '@type': 'EntryPoint', urlTemplate: ORIGIN + url('/search/') + '?q={search_term_string}' }, 'query-input': 'required name=search_term_string' } },
