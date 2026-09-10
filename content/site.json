@@ -12,9 +12,9 @@
   "branch": "main",
   "contentPath": "content",
   "analytics": {
-    "yandexMetrika": "",
+    "yandexMetrika": "112450613",
     "ga4": "",
-    "webvisor": false
+    "webvisor": true
   },
   "categories": [
     {

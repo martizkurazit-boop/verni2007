@@ -138,10 +138,16 @@ function analyticsSnippet() {
   const ga = site.analytics && site.analytics.ga4;
   let out = '';
   if (ya) {
-    out += `<script>(function(m,e,t,r,i,k,a){m[i]=m[i]||function(){(m[i].a=m[i].a||[]).push(arguments)};`
+    // Официальный сниппет Метрики: маркер времени загрузки, защита от повторной вставки
+    // и id счётчика в отдельной переменной — из неё цели берут номер после того,
+    // как tag.js подменит функцию ym собой.
+    out += `<script>window.__YM_ID=${JSON.stringify(String(ya))};`
+      + `(function(m,e,t,r,i,k,a){m[i]=m[i]||function(){(m[i].a=m[i].a||[]).push(arguments)};`
+      + `m[i].l=1*new Date();`
+      + `for(var j=0;j<e.scripts.length;j++){if(e.scripts[j].src===r){return}}`
       + `k=e.createElement(t),a=e.getElementsByTagName(t)[0],k.async=1,k.src=r,a.parentNode.insertBefore(k,a)})`
-      + `(window,document,"script","https://mc.yandex.ru/metrika/tag.js","ym");`
-      + `ym(${JSON.stringify(ya)},"init",{clickmap:true,trackLinks:true,accurateTrackBounce:true,`
+      + `(window,document,"script","https://mc.yandex.ru/metrika/tag.js?id=${attr(ya)}","ym");`
+      + `ym(${JSON.stringify(String(ya))},"init",{ssr:true,clickmap:true,trackLinks:true,accurateTrackBounce:true,`
       + `webvisor:${site.analytics.webvisor ? 'true' : 'false'}});</script>`
       + `<noscript><div><img src="https://mc.yandex.ru/watch/${attr(ya)}" style="position:absolute;left:-9999px" alt=""></div></noscript>`;
   }

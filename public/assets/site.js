@@ -5,7 +5,9 @@
 
   function goal(name, params) {
     try {
-      if (window.ym && window.ym.a) { var id = window.ym.a[0] && window.ym.a[0][0]; if (id) window.ym(id, 'reachGoal', name, params); }
+      // Номер счётчика берём из переменной, а не из очереди ym.a: после загрузки
+      // tag.js подменяет ym собой, и очередь пропадает вместе с номером.
+      if (window.ym && window.__YM_ID) window.ym(window.__YM_ID, 'reachGoal', name, params);
       if (window.gtag) window.gtag('event', name, params || {});
     } catch (e) {}
   }
@@ -60,14 +62,29 @@
   }
 
   /* ── Дочитывание ───────────────────────────────────────────────── */
+  /* Считаем по положению метки в конце текста, а не через IntersectionObserver:
+     при прыжке в самый низ (клавиша End, быстрый флик) метка не успевает
+     побывать в кадре, и наблюдатель молчит. Проверка по координате ловит и это. */
   var body = document.querySelector('.body');
-  if (body && 'IntersectionObserver' in window) {
-    var end = document.createElement('div');
-    body.appendChild(end);
-    var io = new IntersectionObserver(function (es) {
-      if (es.some(function (e) { return e.isIntersecting; })) { goal('read_end', { article: location.pathname }); io.disconnect(); }
-    });
-    io.observe(end);
+  if (body) {
+    var endMark = document.createElement('div');
+    body.appendChild(endMark);
+    var fired = false, ticking = false;
+    var check = function () {
+      ticking = false;
+      if (fired) return;
+      var r = endMark.getBoundingClientRect();
+      if (r.top <= window.innerHeight) {
+        fired = true;
+        goal('read_end', { article: location.pathname });
+        window.removeEventListener('scroll', onScroll);
+      }
+    };
+    var onScroll = function () {
+      if (!ticking) { ticking = true; window.requestAnimationFrame(check); }
+    };
+    // Только по прокрутке: статью, целиком поместившуюся на экран, дочитыванием не считаем.
+    window.addEventListener('scroll', onScroll, { passive: true });
   }
 
   /* ── Запоминаем ленту, чтобы вернуться в ту же точку ───────────── */
