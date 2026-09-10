@@ -322,3 +322,42 @@ img{max-width:100%}
 /* Пометка демо-материала */
 .demo-note{margin:16px 0 0;padding:10px 12px;border:1px solid var(--accent-2);font-size:12px;font-weight:700;
   letter-spacing:.04em;text-transform:uppercase;color:var(--accent-2)}
+
+/* Переключатели ленты */
+.feed-chips{display:flex;flex-wrap:wrap;gap:8px;margin-top:20px}
+.feed-chip{padding:9px 14px;border:1px solid var(--border);background:#fff;font-weight:800;font-size:11px;
+  letter-spacing:.1em;text-transform:uppercase;transition:border-color var(--ease),background var(--ease)}
+.feed-chip:hover{border-color:var(--ink);color:var(--ink)}
+.feed-chip.on{background:var(--accent);border-color:var(--accent);color:#000}
+
+/* Карточка «смотреть выпуск» в конце статьи */
+.watch-up{max-width:760px;margin:52px auto 0;padding:0 20px}
+.watch-card{display:flex;gap:20px;align-items:stretch;border:1px solid var(--border);background:var(--bg-alt);
+  transition:border-color var(--ease)}
+.watch-card:hover{border-color:var(--ink);color:var(--ink)}
+.watch-cover{position:relative;flex:0 0 42%;max-width:300px;aspect-ratio:16/9;overflow:hidden;background:#000}
+.watch-cover img{width:100%;height:100%;object-fit:cover;display:block}
+.watch-play{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);background:var(--accent);color:#000;
+  font-size:15px;line-height:1;padding:12px 16px;pointer-events:none}
+.watch-body{display:flex;flex-direction:column;gap:7px;padding:16px 18px 16px 0;min-width:0}
+.watch-body .t{font-weight:800;font-size:20px;line-height:1.15;text-transform:uppercase}
+.watch-body .ex{font-weight:500;font-size:14px;line-height:1.5;color:var(--muted)}
+.watch-body .go{margin-top:auto;font-weight:800;font-size:11px;letter-spacing:.12em;text-transform:uppercase;
+  border-bottom:2px solid var(--accent);align-self:flex-start;padding-bottom:2px}
+@media (max-width:640px){
+  .watch-card{flex-direction:column;gap:0}
+  .watch-cover{flex:none;max-width:none;width:100%}
+  .watch-body{padding:16px 18px 18px}
+}
+
+/* Липкая плашка перехода на выпуск */
+.yt-sticky{position:fixed;left:50%;bottom:18px;transform:translateX(-50%) translateY(120%);z-index:50;
+  background:var(--accent);color:#000;font-weight:900;font-size:13px;letter-spacing:.08em;text-transform:uppercase;
+  padding:14px 18px;display:flex;align-items:center;gap:14px;max-width:calc(100vw - 32px);
+  transition:transform .18s cubic-bezier(.2,.6,.2,1)}
+.yt-sticky[hidden]{display:flex!important}
+.yt-sticky.show{transform:translateX(-50%) translateY(0)}
+.yt-sticky:hover{color:#000;filter:brightness(1.06)}
+.yt-sticky-x{font-size:13px;font-weight:700;opacity:.6;padding:0 2px}
+.yt-sticky-x:hover{opacity:1}
+@media (prefers-reduced-motion:reduce){.yt-sticky{transition:none}}

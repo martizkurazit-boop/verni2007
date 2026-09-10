@@ -29,11 +29,54 @@
   /* ── Переходы на канал из шапки и футера ───────────────────────── */
   // Это тот же бизнес-результат, что и ссылка под видео, поэтому цель одна,
   // а место перехода уходит параметром — в отчёте видно, что сработало.
-  Array.prototype.forEach.call(document.querySelectorAll('[data-yt-header],[data-yt-footer]'), function (a) {
-    a.addEventListener('click', function () {
-      goal('youtube_click', { place: a.hasAttribute('data-yt-header') ? 'header' : 'footer' });
+  var PLACES = [['data-yt-header', 'header'], ['data-yt-footer', 'footer'],
+    ['data-yt-end', 'article-end'], ['data-yt-sticky', 'article-sticky']];
+  PLACES.forEach(function (pair) {
+    Array.prototype.forEach.call(document.querySelectorAll('[' + pair[0] + ']'), function (a) {
+      a.addEventListener('click', function () { goal('youtube_click', { place: pair[1] }); });
     });
   });
+
+  /* ── Липкая плашка «Смотреть выпуск» ────────────────────────────
+     Появляется, когда видео уехало вверх, и прячется у карточки выпуска в конце:
+     две одинаковые кнопки на экране раздражают. Закрытая плашка не возвращается
+     до конца сессии — навязчивость вредит больше, чем недобор кликов. */
+  var sticky = document.querySelector('[data-yt-sticky]');
+  if (sticky) {
+    var videoBox = document.querySelector('[data-video]');
+    var endCard = document.querySelector('[data-yt-end]');
+    var key = 'vm2007:sticky-off:' + location.pathname;
+    var closed = false;
+    try { closed = sessionStorage.getItem(key) === '1'; } catch (e) {}
+    sticky.hidden = false;
+    var ticking = false;
+    var update = function () {
+      ticking = false;
+      if (closed) { sticky.classList.remove('show'); return; }
+      var passedVideo = !videoBox || videoBox.getBoundingClientRect().bottom < 0;
+      var endNear = endCard && endCard.getBoundingClientRect().top < window.innerHeight + 120;
+      sticky.classList.toggle('show', passedVideo && !endNear);
+    };
+    window.addEventListener('scroll', function () {
+      if (!ticking) { ticking = true; window.requestAnimationFrame(update); }
+    }, { passive: true });
+    window.addEventListener('resize', update);
+    $close(sticky, function () {
+      closed = true;
+      sticky.classList.remove('show');
+      try { sessionStorage.setItem(key, '1'); } catch (e) {}
+    });
+    update();
+  }
+  function $close(bar, fn) {
+    var x = bar.querySelector('[data-yt-sticky-close]');
+    if (!x) return;
+    x.addEventListener('click', function (e) {
+      e.preventDefault();
+      e.stopPropagation();
+      fn();
+    });
+  }
 
   /* ── Оглавление: свёрнуто на телефоне ──────────────────────────── */
   var toc = document.querySelector('[data-toc]');

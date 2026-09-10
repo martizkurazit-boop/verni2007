@@ -83,6 +83,19 @@ function readingMinutes(article) {
 }
 function readingLabel(article) { return `${readingMinutes(article)} мин чтения`; }
 
+/* Ссылка на YouTube с метками: без них переходы с сайта смешиваются в отчётах
+   канала с прочими «внешними источниками», и понять отдачу невозможно. */
+function ytLink(link, place) {
+  if (!link) return '';
+  try {
+    const u = new URL(link);
+    u.searchParams.set('utm_source', U.hostname);
+    u.searchParams.set('utm_medium', 'site');
+    u.searchParams.set('utm_campaign', place || 'link');
+    return u.toString();
+  } catch (e) { return link; }
+}
+
 function youtubeId(link) {
   if (!link) return '';
   const m = String(link).match(/(?:youtube\.com\/(?:watch\?(?:.*&)?v=|embed\/|shorts\/|live\/)|youtu\.be\/)([\w-]{6,})/);
@@ -188,7 +201,7 @@ function header(active) {
     </nav>
     <div class="hdr-act">
       <button class="btn-ico" type="button" data-search-toggle aria-expanded="false" aria-controls="searchbar" aria-label="Поиск">⌕</button>
-      ${site.youtubeChannel ? `<a class="btn-yt" href="${attr(site.youtubeChannel)}" target="_blank" rel="noopener"
+      ${site.youtubeChannel ? `<a class="btn-yt" href="${attr(ytLink(site.youtubeChannel, 'header'))}" target="_blank" rel="noopener"
         data-yt-header>▶ <span class="yt-our">Наш&nbsp;</span>YouTube<span class="yt-word">&nbsp;канал</span></a>` : ''}
     </div>
   </div>
@@ -225,7 +238,7 @@ function footer() {
       <div class="ftr-col"><span class="lbl">Ещё</span>
         <a href="${attr(url('/all/'))}">Все статьи</a>
         <a href="${attr(url('/search/'))}">Поиск</a>
-        ${site.youtubeChannel ? `<a href="${attr(site.youtubeChannel)}" target="_blank" rel="noopener" data-yt-footer>Наш YouTube-канал →</a>` : ''}
+        ${site.youtubeChannel ? `<a href="${attr(ytLink(site.youtubeChannel, 'footer'))}" target="_blank" rel="noopener" data-yt-footer>Наш YouTube-канал →</a>` : ''}
       </div>
     </div>
   </div>
@@ -288,6 +301,7 @@ function card(a, i) {
     <div class="card-meta">
       <a class="kicker" href="${attr(url('/category/' + a.category + '/'))}">${esc(catTitle(a.category))}</a>
       <span class="readtime">${esc(readingLabel(a))}</span>
+      <time class="readtime" datetime="${attr(a.publishedAt)}">${esc(ruDate(a.publishedAt))}</time>
     </div>
     <h2><a href="${attr(href)}">${esc(a.title)}</a></h2>
     <p>${esc(a.excerpt)}</p>
@@ -343,6 +357,17 @@ function nextCard(a) {
 }
 
 /* ── Лента (главная, категория, тег, «все») ──────────────────────── */
+/* Переключатели над лентой: вся лента или только материалы с выпуском.
+   Показываются там, где это осмысленно — на главной, «Все статьи» и в самой ленте с видео. */
+function feedFilters(active) {
+  const spots = ['home', 'all', 'with-video'];
+  if (!spots.includes(active) || !published.some((a) => youtubeId(a.youtubeUrl))) return '';
+  const chip = (href, label, on) =>
+    `<a class="feed-chip${on ? ' on' : ''}" href="${attr(url(href))}">${esc(label)}</a>`;
+  return `<div class="feed-chips">${chip('/all/', 'Все материалы', active !== 'with-video')}`
+    + `${chip('/with-video/', '▶ Только с видео', active === 'with-video')}</div>`;
+}
+
 function feedPage({ items, total, page, pages, basePath, eyebrow, h1, lead, title, description, canonicalPath, active, jsonld, noindex }) {
   const pageLink = (n) => url(n === 1 ? basePath : basePath + 'page/' + n + '/');
   const perPage = site.pageSize || 4;
@@ -352,6 +377,7 @@ function feedPage({ items, total, page, pages, basePath, eyebrow, h1, lead, titl
     <div class="eyebrow"><span class="sl">//</span><span>${esc(eyebrow)}</span></div>
     <h1 class="h1-feed">${esc(h1)}</h1>
     ${lead ? `<p class="lead-feed">${esc(lead)}</p>` : ''}
+    ${feedFilters(active)}
     <div class="rule-accent"></div>
   </section>
   <section class="feed">
@@ -531,7 +557,7 @@ function articlePage(a) {
     </button>
     <div class="video-note">
       <span>Видео не запускается само — грузится по нажатию.</span>
-      <a href="${attr(a.youtubeUrl)}" target="_blank" rel="noopener" data-yt-out>Смотреть на YouTube →</a>
+      <a href="${attr(ytLink(a.youtubeUrl, 'article-top'))}" target="_blank" rel="noopener" data-yt-out>Смотреть на YouTube →</a>
     </div>
   </div>` : (cover ? `<div class="hero"><div class="hero-cover">
       <img src="${attr(cover.src)}"${cover.srcset ? ` srcset="${attr(cover.srcset)}" sizes="(min-width:800px) 760px, 100vw"` : ''} alt="${attr(cover.alt)}" width="1600" height="900" style="object-position:${attr(cover.focus)}" decoding="async">
@@ -548,6 +574,21 @@ function articlePage(a) {
   ${a.tags.length ? `<div class="tags">${a.tags.map((t) =>
     `<a href="${attr(url('/tag/' + slugify(t) + '/'))}">${esc(t)}</a>`).join('')}</div>` : ''}
 </article>
+${vid ? `<section class="watch-up">
+  <div class="eyebrow"><span class="sl">//</span><span>Выпуск на канале</span></div>
+  <a class="watch-card" href="${attr(ytLink(a.youtubeUrl, 'article-end'))}" target="_blank" rel="noopener" data-yt-end>
+    <span class="watch-cover">
+      <img src="https://i.ytimg.com/vi/${attr(vid)}/hqdefault.jpg" alt="Превью выпуска «${attr(a.title)}»"
+           width="480" height="360" loading="lazy" decoding="async">
+      <span class="watch-play">▶</span>
+    </span>
+    <span class="watch-body">
+      <span class="t">Смотреть выпуск целиком</span>
+      <span class="ex">Полная версия истории — на нашем YouTube-канале.</span>
+      <span class="go">Открыть на YouTube →</span>
+    </span>
+  </a>
+</section>` : ''}
 ${next ? `<section class="next-up">
   <div class="eyebrow"><span class="sl">//</span><span>Читать дальше</span></div>
   ${nextCard(next)}
@@ -569,7 +610,9 @@ ${bottomItems.length ? `<section class="more">
     <a class="btn-more" href="${attr(url('/all/'))}">Все статьи</a>
   </div>
 </section>` : `<section class="more"><div class="back"><a class="btn-accent" href="${attr(url('/'))}" data-back-to-feed>← Вернуться в ленту</a></div></section>`}
-</main>`;
+</main>
+${vid ? `<a class="yt-sticky" href="${attr(ytLink(a.youtubeUrl, 'article-sticky'))}" target="_blank" rel="noopener"
+  data-yt-sticky hidden>▶ Смотреть выпуск<span class="yt-sticky-x" data-yt-sticky-close role="button" aria-label="Скрыть">✕</span></a>` : ''}`;
 
   return layout({
     title: a.seoTitle || `${a.title} — ${site.title}`,
@@ -627,6 +670,21 @@ writeFeed({
   const pages = Math.max(1, Math.ceil(published.length / (site.pageSize || 4)));
   addUrl(url('/'), published[0] && published[0].publishedAt, '1.0', 'daily');
   for (let p = 2; p <= pages; p++) addUrl(url('/page/' + p + '/'), undefined, '0.5', 'weekly');
+}
+
+// Материалы с видео — отдельная лента и точка входа для тех, кто пришёл смотреть
+const withVideo = published.filter((a) => youtubeId(a.youtubeUrl));
+if (withVideo.length) {
+  writeFeed({
+    list: withVideo, basePath: '/with-video/', eyebrow: 'С выпусками',
+    h1: 'Статьи с видео.',
+    lead: `Материалы, к которым есть выпуск на нашем YouTube-канале: ${withVideo.length} `
+      + `${plural(withVideo.length, 'штука', 'штуки', 'штук')}.`,
+    title: `Статьи с видео — ${site.title}`,
+    description: `Материалы «${site.title}», к которым есть выпуск на YouTube-канале.`,
+    active: 'with-video',
+  });
+  addUrl(url('/with-video/'), undefined, '0.7', 'weekly');
 }
 
 // Все статьи
