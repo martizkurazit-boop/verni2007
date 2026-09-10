@@ -380,3 +380,4 @@ img{max-width:100%}
 .videos-strip .readtime{color:#6A6A6A}
 .videos-strip .btn-more{border-color:#383838;color:#E8E8E8;background:transparent}
 .videos-strip .btn-more:hover{background:var(--accent);border-color:var(--accent);color:#000}
+.meta .upd{color:var(--accent-2)}

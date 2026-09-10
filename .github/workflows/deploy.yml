@@ -48,6 +48,13 @@ jobs:
           CONTENT_PATH: content
         run: node scripts/build.mjs
 
+      # Картинки для соцсетей рисуются с настоящим текстом заголовка, поэтому
+      # нужен растеризатор шрифта — в Node без зависимостей его нет.
+      - name: Нарисовать картинки для соцсетей
+        run: |
+          python3 -m pip install --quiet Pillow
+          python3 scripts/og-images.py
+
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:

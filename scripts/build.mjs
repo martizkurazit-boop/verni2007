@@ -516,6 +516,16 @@ function pickNext(a) {
     || null;
 }
 
+/* Путь к нарисованной карточке для соцсетей. Ставится в очередь только тем
+   статьям, у которых нет своей обложки: у остальных в соцсети уходит обложка. */
+function ogCardPath(a) {
+  const rel = '/assets/og/' + a.slug + '.png';
+  if (!ogQueue.some((x) => x.path === rel)) {
+    ogQueue.push({ path: rel, title: a.title, category: catTitle(a.category) });
+  }
+  return rel;
+}
+
 function articlePage(a) {
   const cat = catById.get(a.category) || { id: a.category, title: '' };
   const canonicalPath = url('/articles/' + a.slug + '/');
@@ -584,6 +594,8 @@ function articlePage(a) {
     <span class="who">${esc(a.author || site.author || 'Редакция')}</span>
     <span><time datetime="${attr(a.publishedAt)}">${esc(ruDate(a.publishedAt))}</time></span>
     <span>${esc(readingLabel(a))}</span>
+    ${a.updatedAt && a.updatedAt > a.publishedAt
+      ? `<span class="upd">Обновлено <time datetime="${attr(a.updatedAt)}">${esc(ruDate(a.updatedAt))}</time></span>` : ''}
   </div>
   ${a.demo ? '<p class="demo-note">Демо-материал: образец вёрстки. Перед публикацией факты нужно проверить и переписать.</p>' : ''}
   ${vid ? `<div class="video" data-video data-id="${attr(vid)}">
@@ -654,7 +666,9 @@ ${vid ? `<a class="yt-sticky" href="${attr(ytLink(a.youtubeUrl, 'article-sticky'
   return layout({
     title: a.seoTitle || `${a.title} — ${site.title}`,
     description: desc, canonical, body, active: 'cat:' + cat.id, jsonld, ogType: 'article',
-    ogImage: a.ogImage ? (a.ogImage.startsWith('http') ? a.ogImage : url(a.ogImage)) : (cover ? cover.src : ''),
+    ogImage: a.ogImage
+      ? (a.ogImage.startsWith('http') ? a.ogImage : url(a.ogImage))
+      : (cover ? cover.src : url(ogCardPath(a))),
   });
 }
 
@@ -683,7 +697,9 @@ if (ADMIN !== 'admin' && fs.existsSync(path.join(DIST, 'admin'))) {
 copyDir(path.join(CONTENT, 'uploads'), path.join(DIST, 'uploads'));
 
 const urls = [];   // для sitemap
-const addUrl = (loc, lastmod, priority, changefreq) => urls.push({ loc: ORIGIN + loc, lastmod, priority, changefreq });
+const ogQueue = [];  // статьи, которым нужна нарисованная картинка для соцсетей
+const addUrl = (loc, lastmod, priority, changefreq, images) =>
+  urls.push({ loc: ORIGIN + loc, lastmod, priority, changefreq, images });
 
 // Главная + /page/N
 writeFeed({
@@ -764,7 +780,20 @@ for (const t of topTags) {
 // Статьи
 for (const a of published) {
   write('/articles/' + a.slug + '/index.html', articlePage(a));
-  addUrl(url('/articles/' + a.slug + '/'), a.updatedAt || a.publishedAt, '0.9', 'monthly');
+  // Картинки перечисляем в карте отдельно: поиск по картинкам для ностальгического
+  // контента даёт заметный трафик, а сам он их находит хуже.
+  const cover = coverData(a);
+  const imgs = [];
+  if (cover) imgs.push({ loc: ORIGIN + cover.src, caption: cover.alt });
+  for (const b of a.body) {
+    if (b.type === 'image' && b.src) {
+      imgs.push({
+        loc: ORIGIN + (b.src.startsWith('/') ? url(b.src) : url('/uploads/' + b.src)),
+        caption: b.caption || b.alt || a.title,
+      });
+    }
+  }
+  addUrl(url('/articles/' + a.slug + '/'), a.updatedAt || a.publishedAt, '0.9', 'monthly', imgs);
 }
 
 // 301-редиректы со старых адресов (на статике — HTML-редирект с canonical)
@@ -869,9 +898,12 @@ write('/search-index.json', JSON.stringify(published.map((a) => ({
 
 // sitemap.xml
 write('/sitemap.xml', `<?xml version="1.0" encoding="UTF-8"?>
-<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:image="http://www.google.com/schemas/sitemap-image/1.1">
 ${urls.map((u) => `  <url><loc>${esc(u.loc)}</loc>${u.lastmod ? `<lastmod>${esc(u.lastmod)}</lastmod>` : ''}`
-  + `${u.changefreq ? `<changefreq>${u.changefreq}</changefreq>` : ''}<priority>${u.priority}</priority></url>`).join('\n')}
+  + `${u.changefreq ? `<changefreq>${u.changefreq}</changefreq>` : ''}<priority>${u.priority}</priority>`
+  + `${(u.images || []).map((im) => `\n    <image:image><image:loc>${esc(im.loc)}</image:loc>`
+      + `${im.caption ? `<image:caption>${esc(im.caption)}</image:caption>` : ''}</image:image>`).join('')}`
+  + `${(u.images || []).length ? '\n  ' : ''}</url>`).join('\n')}
 </urlset>`);
 
 // robots.txt
@@ -1009,6 +1041,11 @@ write('/' + ADMIN + '/config.js', `window.VM2007 = ${JSON.stringify({
   base: BASE,
 }, null, 2)};
 `);
+
+if (ogQueue.length) {
+  write('/og-manifest.json', JSON.stringify(ogQueue, null, 2));
+  console.log(`Картинок для соцсетей в очереди: ${ogQueue.length} (рисует scripts/og-images.py)`);
+}
 
 function plural(n, one, few, many) {
   const m10 = n % 10, m100 = n % 100;
