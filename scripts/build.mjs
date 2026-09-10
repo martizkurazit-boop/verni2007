@@ -1120,8 +1120,10 @@ if (site.about) {
 
       <h2 id="avtor">${esc(ab.authorTitle || 'Кто это пишет')}</h2>
       <div class="author-card">
-        ${ab.photo ? `<img class="author-photo" src="${attr(url(ab.photo))}"
-          alt="${attr(ab.photoAlt || site.author)}" width="800" height="800" loading="lazy" decoding="async">` : ''}
+        ${ab.photo ? `<img class="author-photo" src="${attr(url(ab.photo.replace('-800.', '-400.')))}"
+          srcset="${attr(url(ab.photo.replace('-800.', '-400.')))} 400w, ${attr(url(ab.photo))} 800w"
+          sizes="180px" alt="${attr(ab.photoAlt || site.author)}"
+          width="800" height="800" loading="lazy" decoding="async">` : ''}
         <div class="author-text">
           <span class="author-name">${esc(site.author || 'Автор')}</span>
           <span class="author-role">${esc(((site.people || {})[site.author] || {}).role || '')}</span>
