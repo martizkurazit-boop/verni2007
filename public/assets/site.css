@@ -397,3 +397,24 @@ img{max-width:100%}
 .faq-item summary::after{content:'+';color:var(--accent-2);font-weight:800;font-size:18px}
 .faq-item[open] summary::after{content:'−'}
 .faq-a{padding:0 0 18px;font-weight:500;font-size:17px;line-height:1.6;color:var(--body)}
+
+/* Полоса прогресса чтения */
+.read-progress{position:fixed;left:0;top:0;width:100%;height:3px;z-index:45;background:transparent;pointer-events:none}
+.read-progress i{display:block;height:100%;width:0;background:var(--accent)}
+
+/* Кнопка «наверх» */
+.to-top{position:fixed;right:20px;bottom:20px;z-index:44;width:46px;height:46px;border:1px solid var(--border);
+  background:#fff;color:var(--ink);font-size:18px;font-weight:800;cursor:pointer;
+  transition:border-color var(--ease),background var(--ease)}
+.to-top:hover{border-color:var(--ink);background:var(--accent)}
+.to-top[hidden]{display:none}
+@media (max-width:520px){.to-top{right:14px;bottom:14px;width:42px;height:42px}}
+
+/* Активный пункт оглавления */
+.toc a.on{color:var(--accent-2);border-bottom-color:var(--accent-2)}
+
+/* Поделиться и «читать позже» */
+.share{margin-top:32px;display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.share-l{font-weight:800;font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted-2);margin-right:4px}
+.share .chip{font-family:inherit;font-size:12px;font-weight:700;padding:8px 12px;cursor:pointer}
+.share .chip[aria-pressed=true]{background:var(--accent);border-color:var(--accent);color:#000}

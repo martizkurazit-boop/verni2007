@@ -309,6 +309,7 @@ function footer() {
         ${videoFeed ? `<a href="${attr(url('/video/'))}">Видео</a>` : ''}
         ${activeHubs().map((h) => `<a href="${attr(url('/' + h.slug + '/'))}">${esc(h.title)}</a>`).join('\n        ')}
         <a href="${attr(url('/about/'))}">О проекте</a>
+        <a href="${attr(url('/saved/'))}">Читать позже</a>
         <a href="${attr(url('/search/'))}">Поиск</a>
         ${site.youtubeChannel ? `<a href="${attr(ytLink(site.youtubeChannel, 'footer'))}" target="_blank" rel="noopener" data-yt-footer>Наш YouTube-канал →</a>` : ''}
       </div>
@@ -353,9 +354,11 @@ ${extraHead}${analyticsSnippet()}
 </head>
 <body>
 <a class="skip" href="#main">К содержанию</a>
+<div class="read-progress" data-progress hidden><i></i></div>
 ${header(active)}
 ${body}
 ${footer()}
+<button class="to-top" type="button" data-to-top hidden aria-label="Наверх">↑</button>
 <script src="${attr(ver('/assets/site.js'))}" defer></script>
 </body>
 </html>`;
@@ -700,6 +703,13 @@ function articlePage(a) {
     <div class="eyebrow"><span class="sl">//</span><span>Источники</span></div>
     <ul>${a.sources.map((s) => `<li>${inline(s)}</li>`).join('')}</ul>
   </section>` : ''}
+  <div class="share" data-share data-title="${attr(a.title)}">
+    <span class="share-l">Поделиться</span>
+    <a class="chip" data-share-tg target="_blank" rel="noopener" href="https://t.me/share/url?url=${attr(encodeURIComponent(canonical))}&text=${attr(encodeURIComponent(a.title))}">Telegram</a>
+    <a class="chip" data-share-vk target="_blank" rel="noopener" href="https://vk.com/share.php?url=${attr(encodeURIComponent(canonical))}">ВКонтакте</a>
+    <button class="chip" type="button" data-share-copy>Скопировать ссылку</button>
+    <button class="chip" type="button" data-save aria-pressed="false">Читать позже</button>
+  </div>
   ${a.tags.length ? `<div class="tags">${a.tags.map((t) =>
     `<a href="${attr(url('/tag/' + slugify(t) + '/'))}">${esc(t)}</a>`).join('')}</div>` : ''}
 </article>
@@ -1018,6 +1028,30 @@ if (site.about) {
   }));
   addUrl(url('/about/'), undefined, '0.5', 'monthly');
 }
+
+// «Читать позже»: список хранится в браузере, поэтому страница собирается на месте.
+write('/saved/index.html', layout({
+  title: `Читать позже — ${site.title}`,
+  description: 'Материалы, отложенные вами на этом устройстве.',
+  canonical: ORIGIN + url('/saved/'), noindex: true, active: '',
+  body: `<main id="main">
+  <section class="head-sec">
+    <div class="eyebrow"><span class="sl">//</span><span>Ваш список</span></div>
+    <h1 class="h1-feed">Читать позже.</h1>
+    <p class="lead-feed">Материалы, которые вы отложили. Список хранится в этом браузере
+      и никуда не отправляется — на другом устройстве он будет свой.</p>
+    <div class="rule-accent"></div>
+  </section>
+  <section class="feed">
+    <div class="grid" data-saved-list></div>
+    <div class="empty" data-saved-empty hidden>
+      <p>Пока пусто.</p>
+      <p>Кнопка «Читать позже» есть под каждой статьёй — отложенное появится здесь.</p>
+      <p style="margin-top:18px"><a class="btn-accent" href="${attr(url('/all/'))}">Все статьи</a></p>
+    </div>
+  </section>
+</main>`,
+}));
 
 // 404
 write('/404.html', layout({

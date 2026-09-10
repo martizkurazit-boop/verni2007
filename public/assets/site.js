@@ -181,6 +181,143 @@
     });
   }
 
+  /* ── Полоса прогресса чтения ────────────────────────────────────── */
+  var progress = document.querySelector('[data-progress]');
+  var articleBody = document.querySelector('.article');
+  if (progress && articleBody) {
+    progress.hidden = false;
+    var bar = progress.firstElementChild, pTicking = false;
+    var drawProgress = function () {
+      pTicking = false;
+      var box = articleBody.getBoundingClientRect();
+      var total = box.height - window.innerHeight;
+      var done = total > 0 ? Math.min(1, Math.max(0, -box.top / total)) : 0;
+      bar.style.width = (done * 100).toFixed(1) + '%';
+    };
+    window.addEventListener('scroll', function () {
+      if (!pTicking) { pTicking = true; window.requestAnimationFrame(drawProgress); }
+    }, { passive: true });
+    window.addEventListener('resize', drawProgress);
+    drawProgress();
+  }
+
+  /* ── Кнопка «наверх» ────────────────────────────────────────────── */
+  var toTop = document.querySelector('[data-to-top]');
+  if (toTop) {
+    var tTicking = false;
+    var toggleTop = function () {
+      tTicking = false;
+      toTop.hidden = window.scrollY < window.innerHeight * 1.5;
+    };
+    window.addEventListener('scroll', function () {
+      if (!tTicking) { tTicking = true; window.requestAnimationFrame(toggleTop); }
+    }, { passive: true });
+    toTop.addEventListener('click', function () {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    });
+    toggleTop();
+  }
+
+  /* ── Подсветка активного пункта оглавления ──────────────────────── */
+  var tocLinks = Array.prototype.slice.call(document.querySelectorAll('.toc a[href^="#"]'));
+  if (tocLinks.length) {
+    var heads = tocLinks.map(function (a) {
+      return document.getElementById(decodeURIComponent(a.getAttribute('href').slice(1)));
+    });
+    var hTicking = false;
+    var markToc = function () {
+      hTicking = false;
+      var best = 0;
+      heads.forEach(function (h, i) { if (h && h.getBoundingClientRect().top < 140) best = i; });
+      tocLinks.forEach(function (a, i) { a.classList.toggle('on', i === best); });
+    };
+    window.addEventListener('scroll', function () {
+      if (!hTicking) { hTicking = true; window.requestAnimationFrame(markToc); }
+    }, { passive: true });
+    markToc();
+  }
+
+  /* ── Поделиться и «читать позже» ────────────────────────────────── */
+  // Список отложенного живёт только в этом браузере: без регистрации, без сервера.
+  var SAVED_KEY = 'vm2007:saved';
+  function readSaved() {
+    try { return JSON.parse(localStorage.getItem(SAVED_KEY) || '[]'); } catch (e) { return []; }
+  }
+  function writeSaved(list) {
+    try { localStorage.setItem(SAVED_KEY, JSON.stringify(list.slice(0, 200))); } catch (e) {}
+  }
+
+  var shareBox = document.querySelector('[data-share]');
+  if (shareBox) {
+    var copyBtn = shareBox.querySelector('[data-share-copy]');
+    copyBtn.addEventListener('click', function () {
+      var done = function () {
+        var was = copyBtn.textContent;
+        copyBtn.textContent = 'Ссылка скопирована';
+        setTimeout(function () { copyBtn.textContent = was; }, 2000);
+      };
+      if (navigator.clipboard) navigator.clipboard.writeText(location.href).then(done, done);
+      else done();
+      goal('share', { place: 'copy' });
+    });
+    shareBox.querySelectorAll('[data-share-tg],[data-share-vk]').forEach(function (a) {
+      a.addEventListener('click', function () {
+        goal('share', { place: a.hasAttribute('data-share-tg') ? 'telegram' : 'vk' });
+      });
+    });
+
+    var saveBtn = shareBox.querySelector('[data-save]');
+    var here = location.pathname;
+    var mark = function () {
+      var on = readSaved().some(function (x) { return x.href === here; });
+      saveBtn.setAttribute('aria-pressed', String(on));
+      saveBtn.textContent = on ? '✓ В списке «позже»' : 'Читать позже';
+    };
+    saveBtn.addEventListener('click', function () {
+      var list = readSaved();
+      var i = list.findIndex(function (x) { return x.href === here; });
+      if (i >= 0) list.splice(i, 1);
+      else list.unshift({ href: here, title: shareBox.getAttribute('data-title'), at: Date.now() });
+      writeSaved(list);
+      mark();
+      if (i < 0) goal('save_later', { article: here });
+    });
+    mark();
+  }
+
+  /* ── Страница «Читать позже» ────────────────────────────────────── */
+  var savedList = document.querySelector('[data-saved-list]');
+  if (savedList) {
+    var items = readSaved();
+    var empty = document.querySelector('[data-saved-empty]');
+    if (!items.length) { if (empty) empty.hidden = false; }
+    else {
+      fetch(new URL('search-index.json', new URL('../', BASE)).href)
+        .then(function (r) { return r.json(); })
+        .then(function (all) {
+          var byHref = {};
+          all.forEach(function (a) { byHref[a.href] = a; });
+          var html = items.map(function (it) {
+            var a = byHref[it.href];
+            if (!a) return '';
+            return '<article class="card">'
+              + '<a class="cover" href="' + a.href + '" tabindex="-1" aria-hidden="true">'
+              + (a.cover ? '<img src="' + a.cover + '" alt="" width="1600" height="900" loading="lazy" decoding="async">'
+                         : '<span class="ph">Обложка 16:9</span>')
+              + (a.video ? '<span class="badge-video">▶ Есть видео</span>' : '') + '</a>'
+              + '<div class="card-body"><div class="card-meta"><span class="kicker">' + a.category
+              + '</span><span class="readtime">' + a.read + '</span></div>'
+              + '<h2><a href="' + a.href + '">' + a.title + '</a></h2><p>' + a.excerpt + '</p>'
+              + '<a class="read-more" href="' + a.href + '">Читать →</a></div></article>';
+          }).join('');
+          savedList.innerHTML = html;
+          // Статью могли удалить или переименовать — тогда список пуст, хотя записи есть.
+          if (!html && empty) empty.hidden = false;
+        })
+        .catch(function () { if (empty) empty.hidden = false; });
+    }
+  }
+
   /* ── Страница поиска ───────────────────────────────────────────── */
   var results = document.querySelector('[data-search-results]');
   if (results) {
