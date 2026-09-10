@@ -245,5 +245,24 @@
 
 <div id="modal-root"></div>
 <script src="admin.js"></script>
+<script>
+  // Если admin.js не отработал (старая версия из кэша, сбой сети, ошибка),
+  // оба экрана остаются скрытыми и страница выглядит пустой чёрной. Объясняем.
+  window.addEventListener('load', function () {
+    setTimeout(function () {
+      var login = document.getElementById('screen-login');
+      var app = document.getElementById('app');
+      if ((!login || login.hidden) && (!app || app.hidden)) {
+        document.body.insertAdjacentHTML('beforeend',
+          '<div class="login"><div class="eyebrow"><span class="sl">//</span><span>Сбой загрузки</span></div>' +
+          '<h1>Админка не загрузилась.</h1><div class="card">' +
+          '<p class="hint">Чаще всего это старая версия страницы из кэша браузера. ' +
+          'Обновите принудительно: Ctrl+F5 на Windows или Cmd+Shift+R на Mac.</p>' +
+          '<div class="row"><button class="btn primary" onclick="location.reload(true)">Обновить</button>' +
+          '<a class="btn" href="../">Смотреть сайт</a></div></div></div>');
+      }
+    }, 1200);
+  });
+</script>
 </body>
 </html>

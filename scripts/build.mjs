@@ -6,6 +6,7 @@
  */
 import fs from 'node:fs';
 import path from 'node:path';
+import crypto from 'node:crypto';
 import { fileURLToPath } from 'node:url';
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
@@ -31,6 +32,20 @@ const url = (p) => (BASE + (p.startsWith('/') ? p : '/' + p)) || '/';
 // Снимается автоматически, как только SITE_URL станет доменом (или FORCE_INDEX=1).
 const TEMP_HOST = /\.github\.io$/.test(U.hostname) && process.env.FORCE_INDEX !== '1';
 const abs = (p) => ORIGIN + url(p);
+
+/* Отпечаток содержимого: подставляется к статике как ?v=…
+   Без него браузер может взять новый HTML и старый скрипт из кэша — страница
+   ломается на ровном месте, и лечится только ручной очисткой кэша. */
+const hashCache = new Map();
+function ver(rel) {
+  if (!hashCache.has(rel)) {
+    const file = path.join(PUBLIC, rel.replace(/^\//, ''));
+    let h = '0';
+    try { h = crypto.createHash('sha1').update(fs.readFileSync(file)).digest('hex').slice(0, 10); } catch (e) {}
+    hashCache.set(rel, h);
+  }
+  return url(rel) + '?v=' + hashCache.get(rel);
+}
 
 /* ── Утилиты ─────────────────────────────────────────────────────── */
 const esc = (s) => String(s == null ? '' : s)
@@ -242,7 +257,7 @@ ${(site.verification && site.verification.yandex) ? `<meta name="yandex-verifica
 <link rel="alternate" type="application/rss+xml" title="${attr(site.title)}" href="${attr(url('/feed.xml'))}">
 <link rel="preload" href="${attr(url('/fonts/gilroy-900.woff2'))}" as="font" type="font/woff2" crossorigin>
 <link rel="preload" href="${attr(url('/fonts/gilroy-500.woff2'))}" as="font" type="font/woff2" crossorigin>
-<link rel="stylesheet" href="${attr(url('/assets/site.css'))}">
+<link rel="stylesheet" href="${attr(ver('/assets/site.css'))}">
 ${jsonld.map((j) => `<script type="application/ld+json">${JSON.stringify(j).replace(/</g, '\\u003c')}</script>`).join('\n')}
 ${extraHead}${analyticsSnippet()}
 </head>
@@ -251,7 +266,7 @@ ${extraHead}${analyticsSnippet()}
 ${header(active)}
 ${body}
 ${footer()}
-<script src="${attr(url('/assets/site.js'))}" defer></script>
+<script src="${attr(ver('/assets/site.js'))}" defer></script>
 </body>
 </html>`;
 }
@@ -752,6 +767,22 @@ ${visibleCats.map((c) => `## ${c.title}\n${published.filter((a) => a.category ==
 // CNAME для GitHub Pages: пишется только когда сайт собирается под собственный домен.
 if (!TEMP_HOST && U.hostname && !/\.github\.io$/.test(U.hostname) && U.hostname !== 'localhost') {
   write('/CNAME', U.hostname + '\n');
+}
+
+// Админка — статический файл, отпечатки её файлов проставляем в собранной копии.
+// config.js генерируется этой же сборкой, поэтому его версия — время сборки.
+{
+  const indexPath = path.join(DIST, 'admin', 'index.html');
+  if (fs.existsSync(indexPath)) {
+    const hashOf = (rel) => crypto.createHash('sha1')
+      .update(fs.readFileSync(path.join(PUBLIC, rel))).digest('hex').slice(0, 10);
+    const stamp = crypto.createHash('sha1').update(String(Date.now())).digest('hex').slice(0, 10);
+    const html = fs.readFileSync(indexPath, 'utf8')
+      .replace('href="admin.css"', `href="admin.css?v=${hashOf('admin/admin.css')}"`)
+      .replace('src="admin.js"', `src="admin.js?v=${hashOf('admin/admin.js')}"`)
+      .replace('src="config.js"', `src="config.js?v=${stamp}"`);
+    fs.writeFileSync(indexPath, html);
+  }
 }
 
 // Конфиг админки (репозиторий и ветка для GitHub API)
