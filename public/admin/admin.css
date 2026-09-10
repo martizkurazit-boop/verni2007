@@ -88,7 +88,7 @@ textarea{resize:vertical;font-weight:500}
 .block[data-role=quote] textarea{font-style:italic;font-size:17px}
 .block[data-role=list] textarea{font-size:15px}
 .block .imgbox{display:flex;gap:12px;flex-wrap:wrap;align-items:flex-start}
-.block .imgbox img{width:200px;aspect-ratio:16/9;object-fit:cover;border:1px solid var(--strong);background:#171717}
+.block .imgbox img{width:200px;height:auto;max-height:220px;object-fit:contain;border:1px solid var(--strong);background:#171717}
 
 /* Обложка */
 .dropzone{width:100%;aspect-ratio:16/9;border:1px solid var(--strong);background:#0A0A0A;display:flex;

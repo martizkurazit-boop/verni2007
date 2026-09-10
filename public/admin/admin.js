@@ -778,13 +778,17 @@
     input.addEventListener('change', function () {
       var f = this.files[0];
       if (!f) return;
+      var dims = null;
       createImageBitmap(f).then(function (bmp) {
-        var target = 16 / 9, sx = 0, sy = 0, sw = bmp.width, sh = bmp.height;
-        if (bmp.width / bmp.height > target) { sw = bmp.height * target; sx = (bmp.width - sw) / 2; }
-        else { sh = bmp.width / target; sy = (bmp.height - sh) / 2; }
+        // Картинки в тексте не кадрируем: форма кадра — решение автора.
+        // Только уменьшаем, чтобы страница не тащила мегабайты.
+        var max = 1600;
+        var scale = Math.min(1, max / Math.max(bmp.width, bmp.height));
         var c = document.createElement('canvas');
-        c.width = Math.min(1600, bmp.width); c.height = Math.round(c.width * 9 / 16);
-        c.getContext('2d').drawImage(bmp, sx, sy, sw, sh, 0, 0, c.width, c.height);
+        c.width = Math.max(1, Math.round(bmp.width * scale));
+        c.height = Math.max(1, Math.round(bmp.height * scale));
+        c.getContext('2d').drawImage(bmp, 0, 0, c.width, c.height);
+        dims = { w: c.width, h: c.height };
         return new Promise(function (res) { c.toBlob(res, 'image/webp', 0.85); });
       }).then(function (blob) {
         var name = (state.draft.slug || 'img') + '-' + Date.now() + '-1600.webp';
@@ -796,6 +800,10 @@
           var path = '/uploads/' + name;
           state.localPreviews[path] = URL.createObjectURL(blob);
           state.draft.body[index].src = path;
+          // Размеры уходят в статью: по ним вёрстка резервирует место под картинку,
+          // и страница не прыгает во время загрузки.
+          state.draft.body[index].w = dims.w;
+          state.draft.body[index].h = dims.h;
           state.dirty = true; renderBlocks();
           toast('Изображение загружено. На сайте появится после сборки, примерно через минуту.');
         });

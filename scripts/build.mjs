@@ -404,9 +404,16 @@ function renderBody(a, inlineRel) {
       case 'rule': out.push('<hr>'); break;
       case 'image': {
         const src = b.src ? (b.src.startsWith('/') ? url(b.src) : url('/uploads/' + b.src)) : '';
-        out.push(`<figure><div class="fr">${src
-          ? `<img src="${attr(src)}" alt="${attr(b.alt || b.caption || '')}" width="1600" height="900" loading="lazy" decoding="async">`
-          : `<span class="ph" style="display:flex;height:100%;align-items:flex-end;justify-content:flex-end;padding:10px;font-weight:800;font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:#A6A6A0">${esc(b.alt || 'Изображение 16:9')}</span>`}</div>`
+        const w = Number(b.w) || 0, h = Number(b.h) || 0;
+        // Форму кадра задаёт сам снимок. Вертикальные и квадратные ограничиваем по
+        // ширине и ставим по центру: иначе портрет занимает три экрана подряд.
+        const shape = (w && h)
+          ? (h > w * 1.05 ? ' fig-portrait' : (w > h * 1.05 ? ' fig-wide' : ' fig-square'))
+          : '';
+        out.push(`<figure class="fig${shape}">${src
+          ? `<img src="${attr(src)}" alt="${attr(b.alt || b.caption || '')}"`
+            + `${w && h ? ` width="${w}" height="${h}"` : ''} loading="lazy" decoding="async">`
+          : `<div class="fr"><span class="ph">${esc(b.alt || 'Изображение')}</span></div>`}`
           + `${b.caption ? `<figcaption>${esc(b.caption)}</figcaption>` : ''}</figure>`);
         break;
       }
