@@ -53,7 +53,7 @@
      до конца сессии — навязчивость вредит больше, чем недобор кликов. */
   var sticky = document.querySelector('[data-yt-sticky]');
   if (sticky) {
-    var videoBox = document.querySelector('[data-video]');
+    var videoBox = document.querySelector('[data-place="article-top"]') || document.querySelector('[data-video]');
     var endCard = document.querySelector('[data-yt-end]');
     var key = 'vm2007:sticky-off:' + location.pathname;
     var closed = false;
@@ -103,10 +103,12 @@
   }
 
   /* ── Видео: грузится только по клику ───────────────────────────── */
-  var video = document.querySelector('[data-video]');
-  if (video) {
+  // Проигрывателей на странице может быть два: свой выпуск статьи вверху и
+  // предложенный в конце, поэтому обходим все.
+  Array.prototype.forEach.call(document.querySelectorAll('[data-video]'), function (video) {
     var play = video.querySelector('[data-play]');
-    play.addEventListener('click', function () {
+    var place = video.getAttribute('data-place') || 'article-top';
+    if (play) play.addEventListener('click', function () {
       var id = video.getAttribute('data-id');
       var box = document.createElement('div');
       box.className = 'video-frame';
@@ -117,11 +119,11 @@
       f.setAttribute('allowfullscreen', '');
       box.appendChild(f);
       play.replaceWith(box);
-      goal('video_play', { article: location.pathname });
+      goal('video_play', { article: location.pathname, place: place });
     });
     var out = video.querySelector('[data-yt-out]');
-    if (out) out.addEventListener('click', function () { goal('youtube_click', { article: location.pathname }); });
-  }
+    if (out) out.addEventListener('click', function () { goal('youtube_click', { article: location.pathname, place: place }); });
+  });
 
   /* ── Дочитывание ───────────────────────────────────────────────── */
   /* Считаем по положению метки в конце текста, а не через IntersectionObserver:

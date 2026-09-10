@@ -530,6 +530,112 @@ function latestVideosBlock() {
 </section>`;
 }
 
+/* ── Блок «Предлагаем посмотреть» в конце статьи ──────────────────
+   Читатель дочитал — это лучший момент увести его на канал. Ролик
+   подставляется сам из ленты канала: чем больше выпусков, тем реже
+   повторяется один и тот же. Свой ролик статьи в подборку не идёт —
+   он уже стоит вверху страницы; исключение — когда других выпусков
+   ещё нет, тогда внизу стоит ссылка на него, а не второй проигрыватель. */
+
+// Хвост «| Название канала» в заголовке ролика на сайте лишний.
+function videoTitleShort(t) {
+  const tail = new RegExp('\\s*[|·—-]\\s*' + String(site.title).replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + '\\s*$', 'i');
+  const out = String(t || '').replace(tail, '').trim();
+  return out || String(t || '');
+}
+
+// Анонс: первые фразы описания ролика, обрезанные по границе предложения.
+function videoTeaser(v, limit = 220) {
+  const t = String(v.description || '').replace(/\s+/g, ' ').trim();
+  if (!t) return '';
+  if (t.length <= limit) return t;
+  const cut = t.slice(0, limit);
+  const dot = Math.max(cut.lastIndexOf('. '), cut.lastIndexOf('! '), cut.lastIndexOf('? '));
+  if (dot > limit * 0.5) return cut.slice(0, dot + 1);
+  return cut.slice(0, cut.lastIndexOf(' ')) + '…';
+}
+
+function pickWatchVideo(a) {
+  const pool = (videoFeed && videoFeed.videos) || [];
+  if (!pool.length) return null;
+  const own = youtubeId(a.youtubeUrl);
+  const others = pool.filter((v) => v.id !== own);
+  if (!others.length) return null;
+  // Раздаём ролики по порядку статей: соседние материалы получают разные.
+  const i = Math.max(0, published.findIndex((x) => x.slug === a.slug));
+  return others[i % others.length];
+}
+
+function watchEndBlock(a) {
+  const own = youtubeId(a.youtubeUrl);
+  const v = pickWatchVideo(a);
+  const head = `<div class="eyebrow"><span class="sl">//</span><span>Выпуск на канале</span></div>
+    <h2 class="watch-end-h">Предлагаем посмотреть</h2>`;
+
+  if (v) {
+    const title = videoTitleShort(v.title);
+    const href = ytLink('https://www.youtube.com/watch?v=' + v.id, 'article-end');
+    const teaser = videoTeaser(v);
+    return `<section class="watch-end">
+  <div class="watch-end-in">
+    ${head}
+    <div class="video" data-video data-id="${attr(v.id)}" data-place="article-end">
+      <button class="video-facade" type="button" data-play aria-label="Загрузить и проиграть выпуск «${attr(title)}»">
+        <img src="https://i.ytimg.com/vi/${attr(v.id)}/maxresdefault.jpg" alt="Превью выпуска «${attr(title)}»"
+             width="1600" height="900" loading="lazy" decoding="async"
+             onerror="this.src='https://i.ytimg.com/vi/${attr(v.id)}/hqdefault.jpg'">
+        <span class="play"><span>▶ Смотреть выпуск</span></span>
+      </button>
+    </div>
+    <h3 class="watch-end-t"><a href="${attr(href)}" target="_blank" rel="noopener" data-yt-end>${esc(typo(title))}</a></h3>
+    ${teaser ? `<p class="watch-end-x">${esc(typo(teaser))}</p>` : ''}
+    <div class="watch-end-a">
+      <a class="btn-accent" href="${attr(href)}" target="_blank" rel="noopener" data-yt-end>▶ Смотреть на YouTube</a>
+      ${videoFeed && videoFeed.videos.length > 1 ? `<a class="btn-more" href="${attr(url('/video/'))}">Все выпуски</a>` : ''}
+    </div>
+  </div>
+</section>`;
+  }
+
+  if (own) {
+    // Других выпусков пока нет: второй проигрыватель с тем же роликом не нужен,
+    // достаточно приглашения досмотреть его целиком на канале.
+    const feedOwn = ((videoFeed && videoFeed.videos) || []).find((x) => x.id === own);
+    const title = feedOwn ? videoTitleShort(feedOwn.title) : a.title;
+    const teaser = feedOwn ? videoTeaser(feedOwn) : '';
+    const href = ytLink(a.youtubeUrl, 'article-end');
+    return `<section class="watch-end">
+  <div class="watch-end-in">
+    ${head}
+    <a class="watch-end-cover" href="${attr(href)}" target="_blank" rel="noopener" data-yt-end>
+      <img src="https://i.ytimg.com/vi/${attr(own)}/maxresdefault.jpg" alt="Превью выпуска «${attr(title)}»"
+           width="1600" height="900" loading="lazy" decoding="async"
+           onerror="this.src='https://i.ytimg.com/vi/${attr(own)}/hqdefault.jpg'">
+      <span class="watch-play">▶</span>
+    </a>
+    <h3 class="watch-end-t"><a href="${attr(href)}" target="_blank" rel="noopener" data-yt-end>${esc(typo(title))}</a></h3>
+    <p class="watch-end-x">${esc(typo(teaser || 'Полная версия истории — на нашем YouTube-канале.'))}</p>
+    <div class="watch-end-a">
+      <a class="btn-accent" href="${attr(href)}" target="_blank" rel="noopener" data-yt-end>▶ Смотреть выпуск целиком</a>
+    </div>
+  </div>
+</section>`;
+  }
+
+  if (!site.youtubeChannel) return '';
+  // Роликов в ленте ещё нет — статья всё равно заканчивается приглашением.
+  return `<section class="watch-end">
+  <div class="watch-end-in">
+    ${head}
+    <p class="watch-end-x">Те же истории — в кадре: разборы, детали и хроника на нашем YouTube-канале.</p>
+    <div class="watch-end-a">
+      <a class="btn-accent" href="${attr(ytLink(site.youtubeChannel, 'article-end'))}"
+         target="_blank" rel="noopener" data-yt-end>▶ Наш YouTube-канал</a>
+    </div>
+  </div>
+</section>`;
+}
+
 /* ── Лента (главная, категория, тег, «все») ──────────────────────── */
 /* Переключатели над лентой: вся лента или только материалы с выпуском.
    Показываются там, где это осмысленно — на главной, «Все статьи» и в самой ленте с видео. */
@@ -780,7 +886,7 @@ function articlePage(a) {
       ? `<span class="upd">Обновлено <time datetime="${attr(a.updatedAt)}">${esc(ruDate(a.updatedAt))}</time></span>` : ''}
   </div>
   ${a.demo ? '<p class="demo-note">Демо-материал: образец вёрстки. Перед публикацией факты нужно проверить и переписать.</p>' : ''}
-  ${vid ? `<div class="video" data-video data-id="${attr(vid)}">
+  ${vid ? `<div class="video" data-video data-id="${attr(vid)}" data-place="article-top">
     <button class="video-facade" type="button" data-play aria-label="Загрузить и проиграть видео">
       <img src="https://i.ytimg.com/vi/${attr(vid)}/maxresdefault.jpg" alt="Превью видео к статье «${attr(a.title)}»" width="1600" height="900" loading="lazy" decoding="async"
            onerror="this.src='https://i.ytimg.com/vi/${attr(vid)}/hqdefault.jpg'">
@@ -825,21 +931,7 @@ function articlePage(a) {
   ${a.tags.length ? `<div class="tags">${a.tags.map((t) =>
     `<a href="${attr(url('/tag/' + slugify(t) + '/'))}">${esc(t)}</a>`).join('')}</div>` : ''}
 </article>
-${vid ? `<section class="watch-up">
-  <div class="eyebrow"><span class="sl">//</span><span>Выпуск на канале</span></div>
-  <a class="watch-card" href="${attr(ytLink(a.youtubeUrl, 'article-end'))}" target="_blank" rel="noopener" data-yt-end>
-    <span class="watch-cover">
-      <img src="https://i.ytimg.com/vi/${attr(vid)}/hqdefault.jpg" alt="Превью выпуска «${attr(a.title)}»"
-           width="480" height="360" loading="lazy" decoding="async">
-      <span class="watch-play">▶</span>
-    </span>
-    <span class="watch-body">
-      <span class="t">Смотреть выпуск целиком</span>
-      <span class="ex">Полная версия истории — на нашем YouTube-канале.</span>
-      <span class="go">Открыть на YouTube →</span>
-    </span>
-  </a>
-</section>` : ''}
+${watchEndBlock(a)}
 ${next ? `<section class="next-up">
   <div class="eyebrow"><span class="sl">//</span><span>Читать дальше</span></div>
   ${nextCard(next)}
