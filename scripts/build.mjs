@@ -26,6 +26,8 @@ if (U.protocol === 'http:' && !/^(localhost|127\.|0\.0\.0\.0|\[::1\])/.test(U.ho
 }
 const BASE = U.pathname.replace(/\/+$/, '');          // '' или '/repo-name' для project pages
 const ORIGIN = U.origin;
+// Админка живёт по своему адресу: в меню сайта ссылки на неё нет.
+const ADMIN = String(site.adminPath || 'admin').replace(/^\/+|\/+$/g, '');
 const url = (p) => (BASE + (p.startsWith('/') ? p : '/' + p)) || '/';
 // Временный адрес github.io закрывается от индексации целиком: иначе, когда появится
 // собственный домен, тот же текст будет висеть в выдаче по двум адресам сразу.
@@ -186,7 +188,6 @@ function header(active) {
     </nav>
     <div class="hdr-act">
       <button class="btn-ico" type="button" data-search-toggle aria-expanded="false" aria-controls="searchbar" aria-label="Поиск">⌕</button>
-      <a class="btn-line" href="${attr(url('/admin/'))}" rel="nofollow">Админка</a>
     </div>
   </div>
   <nav class="nav-mob" aria-label="Разделы (мобильные)">
@@ -222,7 +223,6 @@ function footer() {
       <div class="ftr-col"><span class="lbl">Ещё</span>
         <a href="${attr(url('/all/'))}">Все статьи</a>
         <a href="${attr(url('/search/'))}">Поиск</a>
-        <a href="${attr(url('/admin/'))}" rel="nofollow">Админка</a>
       </div>
     </div>
   </div>
@@ -592,6 +592,9 @@ function copyDir(from, to) {
 fs.rmSync(DIST, { recursive: true, force: true });
 fs.mkdirSync(DIST, { recursive: true });
 copyDir(PUBLIC, DIST);
+if (ADMIN !== 'admin' && fs.existsSync(path.join(DIST, 'admin'))) {
+  fs.renameSync(path.join(DIST, 'admin'), path.join(DIST, ADMIN));
+}
 copyDir(path.join(CONTENT, 'uploads'), path.join(DIST, 'uploads'));
 
 const urls = [];   // для sitemap
@@ -732,9 +735,7 @@ User-agent: *
 Disallow: /
 ` : `User-agent: *
 Allow: /
-Disallow: ${url('/admin/')}
 Disallow: ${url('/search/')}
-Disallow: ${url('/preview/')}
 
 Sitemap: ${ORIGIN + url('/sitemap.xml')}
 `);
@@ -779,7 +780,7 @@ if (!TEMP_HOST && U.hostname && !/\.github\.io$/.test(U.hostname) && U.hostname 
 // Админка — статический файл, отпечатки её файлов проставляем в собранной копии.
 // config.js генерируется этой же сборкой, поэтому его версия — время сборки.
 {
-  const indexPath = path.join(DIST, 'admin', 'index.html');
+  const indexPath = path.join(DIST, ADMIN, 'index.html');
   if (fs.existsSync(indexPath)) {
     const hashOf = (rel) => crypto.createHash('sha1')
       .update(fs.readFileSync(path.join(PUBLIC, rel))).digest('hex').slice(0, 10);
@@ -793,7 +794,7 @@ if (!TEMP_HOST && U.hostname && !/\.github\.io$/.test(U.hostname) && U.hostname 
 }
 
 // Конфиг админки (репозиторий и ветка для GitHub API)
-write('/admin/config.js', `window.VM2007 = ${JSON.stringify({
+write('/' + ADMIN + '/config.js', `window.VM2007 = ${JSON.stringify({
   repo: process.env.CONTENT_REPO || site.repo || '',
   branch: process.env.CONTENT_BRANCH || site.branch || 'main',
   contentPath: process.env.CONTENT_PATH || site.contentPath || 'verni2007/content',
