@@ -696,13 +696,108 @@
     });
   }
 
-  /* ── Блочный редактор ───────────────────────────────────────────── */
+  /* ── Блочный редактор ─────────────────────────────────────────────
+     Статья хранится плоским списком блоков — так её ждёт сборка. Но в редакторе
+     она показывается разделами: раздел начинается с заголовка H2 и держит всё,
+     что идёт до следующего. Разделы не хранятся отдельно, а вычисляются из списка,
+     поэтому уже написанные статьи открываются как есть, без переделки. */
+  function sections() {
+    var body = state.draft.body || [];
+    var secs = [];
+    body.forEach(function (b, i) {
+      if (b.type === 'h2' || !secs.length) secs.push({ from: i, to: i, titled: b.type === 'h2' });
+      else secs[secs.length - 1].to = i;
+    });
+    return secs;
+  }
+
   function renderBlocks() {
     var box = $('#blocks');
-    box.innerHTML = (state.draft.body || []).map(function (b, i) { return blockHTML(b, i); }).join('');
+    var body = state.draft.body || [];
+    var secs = sections();
+    var num = 0;
+    box.innerHTML = secs.map(function (sec, si) {
+      var label = sec.titled ? 'Раздел ' + (++num) : 'Вступление';
+      var blocks = '';
+      for (var i = sec.from; i <= sec.to; i++) blocks += blockHTML(body[i], i);
+      return '<section class="artsec" data-sec="' + si + '">'
+        + '<div class="artsec-bar"><span class="artsec-n">' + label + '</span>'
+        + '<span class="spacer">'
+        + (si > 0 ? '<button class="rolebtn" data-sec-up title="Раздел выше">↑</button>' : '')
+        + (si < secs.length - 1 ? '<button class="rolebtn" data-sec-down title="Раздел ниже">↓</button>' : '')
+        + '<button class="rolebtn" data-sec-del style="color:#FF3B30">Убрать раздел</button>'
+        + '</span></div>'
+        + blocks
+        + '<div class="artsec-add">'
+        + [['p', '+ абзац'], ['image', '+ фото'], ['quote', '+ цитата'],
+           ['list', '+ список'], ['h3', '+ подзаголовок'], ['rule', '+ разделитель']]
+          .map(function (r) { return '<button class="rolebtn" data-sec-add="' + r[0] + '">' + r[1] + '</button>'; }).join('')
+        + '</div></section>';
+    }).join('') || '<p class="hint">Статья пустая. Нажмите «+ Новый раздел» — появятся заголовок, абзац и место под фото.</p>';
+
     $$('.block', box).forEach(wireBlock);
+    $$('.artsec', box).forEach(wireSection);
     updateHints();
   }
+
+  function newBlock(type) {
+    if (type === 'list') return { type: 'list', items: [] };
+    if (type === 'image') return { type: 'image', src: '', alt: '', caption: '' };
+    if (type === 'rule') return { type: 'rule' };
+    return { type: type, text: '' };
+  }
+
+  function wireSection(el) {
+    var si = +el.dataset.sec;
+    var secs = sections();
+    var sec = secs[si];
+    if (!sec) return;
+    var body = state.draft.body;
+
+    $$('[data-sec-add]', el).forEach(function (b) {
+      b.addEventListener('click', function () {
+        // Новый блок встаёт в конец своего раздела, а не в конец статьи.
+        body.splice(sec.to + 1, 0, newBlock(b.dataset.secAdd));
+        state.dirty = true;
+        renderBlocks();
+        focusBlock(sec.to + 1);
+      });
+    });
+
+    var up = $('[data-sec-up]', el);
+    if (up) up.addEventListener('click', function () {
+      var prev = secs[si - 1];
+      var moved = body.splice(sec.from, sec.to - sec.from + 1);
+      body.splice.apply(body, [prev.from, 0].concat(moved));
+      state.dirty = true; renderBlocks();
+    });
+
+    var down = $('[data-sec-down]', el);
+    if (down) down.addEventListener('click', function () {
+      var next = secs[si + 1];
+      var moved = body.splice(sec.from, sec.to - sec.from + 1);
+      // После выреза следующий раздел сдвинулся влево ровно на длину вырезанного.
+      var at = next.to - moved.length + 1;
+      body.splice.apply(body, [at, 0].concat(moved));
+      state.dirty = true; renderBlocks();
+    });
+
+    $('[data-sec-del]', el).addEventListener('click', function () {
+      var count = sec.to - sec.from + 1;
+      if (!confirm('Удалить раздел целиком? Внутри блоков: ' + count + '.')) return;
+      body.splice(sec.from, count);
+      state.dirty = true; renderBlocks();
+    });
+  }
+
+  function focusBlock(index) {
+    var el = $('.block[data-i="' + index + '"]');
+    if (!el) return;
+    var f = $('[data-text]', el) || $('[data-img-alt]', el);
+    if (f) f.focus();
+    el.scrollIntoView({ block: 'center' });
+  }
+
   function blockHTML(b, i) {
     var value = b.type === 'list' ? (b.items || []).join('\n') : (b.text || '');
     var inner;
@@ -771,14 +866,22 @@
       state.draft.body.splice(i, 1); state.dirty = true; renderBlocks();
     });
   }
+  // «+ Новый раздел» — три блока сразу: заголовок, абзац и место под фото.
+  $('#add-section').addEventListener('click', function () {
+    var at = state.draft.body.length;
+    state.draft.body.push(newBlock('h2'), newBlock('p'), newBlock('image'));
+    state.dirty = true;
+    renderBlocks();
+    focusBlock(at);
+  });
+
   $$('[data-add]').forEach(function (b) {
     b.addEventListener('click', function () {
-      var t = b.dataset.add;
-      var nb = t === 'list' ? { type: 'list', items: [] } : t === 'image' ? { type: 'image', src: '', alt: '', caption: '' }
-        : t === 'rule' ? { type: 'rule' } : { type: t, text: '' };
-      state.draft.body.push(nb); state.dirty = true; renderBlocks();
-      var last = $('#blocks').lastElementChild, ta = last && $('[data-text]', last);
-      if (ta) ta.focus();
+      var at = state.draft.body.length;
+      state.draft.body.push(newBlock(b.dataset.add));
+      state.dirty = true;
+      renderBlocks();
+      focusBlock(at);
     });
   });
 

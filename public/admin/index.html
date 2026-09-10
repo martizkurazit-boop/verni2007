@@ -152,14 +152,19 @@
         </div>
 
         <div class="blocks" id="blocks"></div>
-        <div class="row" style="margin-top:14px">
-          <button class="btn sm" data-add="p">+ Абзац</button>
-          <button class="btn sm" data-add="h2">+ H2</button>
-          <button class="btn sm" data-add="h3">+ H3</button>
-          <button class="btn sm" data-add="quote">+ Цитата</button>
-          <button class="btn sm" data-add="list">+ Список</button>
-          <button class="btn sm" data-add="image">+ Фото</button>
-          <button class="btn sm" data-add="rule">+ Разделитель</button>
+        <div class="row" style="margin-top:16px">
+          <button class="btn primary" id="add-section">+ Новый раздел</button>
+          <span class="hint" style="margin:0">Заголовок, абзац и фото — сразу вместе.</span>
+        </div>
+        <div class="row" style="margin-top:10px">
+          <span class="hint" style="margin:0 4px 0 0">Отдельным блоком в конец:</span>
+          <button class="btn sm" data-add="p">абзац</button>
+          <button class="btn sm" data-add="h2">заголовок H2</button>
+          <button class="btn sm" data-add="h3">подзаголовок</button>
+          <button class="btn sm" data-add="quote">цитата</button>
+          <button class="btn sm" data-add="list">список</button>
+          <button class="btn sm" data-add="image">фото</button>
+          <button class="btn sm" data-add="rule">разделитель</button>
         </div>
         <p class="hint" style="margin-top:10px">Внутри текста работает разметка: <code>**жирный**</code> и
           <code>[ссылка](https://…)</code>. Заголовки H2 попадают в оглавление статьи.</p>

@@ -154,3 +154,15 @@ code{font-family:inherit;font-weight:700;background:#0A0A0A;border:1px solid var
 .imgwait{display:block;width:200px;aspect-ratio:16/9;border:1px dashed var(--strong);background:#171717;
   padding:10px;font-size:11px;line-height:1.4;color:var(--faint)}
 .toast a{color:inherit;text-decoration:underline;text-underline-offset:3px;white-space:nowrap}
+
+/* Раздел статьи: заголовок H2 и всё, что идёт до следующего заголовка.
+   Имя artsec, а не sec: класс sec уже занят заголовками карточек админки. */
+.artsec{border:1px solid var(--border);background:rgba(255,255,255,.02);padding:12px;
+  display:flex;flex-direction:column;gap:10px}
+.artsec-bar{display:flex;align-items:center;gap:8px}
+.artsec-n{font-weight:800;font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--accent)}
+.artsec-bar .spacer{margin-left:auto;display:flex;gap:5px}
+.artsec .block{background:#0A0A0A}
+.artsec-add{display:flex;flex-wrap:wrap;gap:5px;padding-top:2px}
+.artsec-add .rolebtn{border-style:dashed;color:var(--muted)}
+.artsec-add .rolebtn:hover{border-color:var(--accent);color:var(--accent);border-style:solid}
