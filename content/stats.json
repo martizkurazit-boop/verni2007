@@ -1,0 +1,96 @@
+{
+  "updatedAt": "2026-09-10T12:53:07.695Z",
+  "days": 30,
+  "counter": "112450613",
+  "totals": {
+    "visits": 16,
+    "users": 15,
+    "pageviews": 58,
+    "avgSeconds": 481,
+    "bounceRate": 75
+  },
+  "goals": [
+    {
+      "id": 611348816,
+      "name": "Переход на YouTube",
+      "event": "youtube_click",
+      "reaches": 1
+    },
+    {
+      "id": 611348857,
+      "name": "Запуск видео",
+      "event": "video_play",
+      "reaches": 1
+    },
+    {
+      "id": 611348858,
+      "name": "Дочитывание",
+      "event": "read_end",
+      "reaches": 4
+    },
+    {
+      "id": 611348974,
+      "name": "Поиск по сайту",
+      "event": "search",
+      "reaches": 0
+    }
+  ],
+  "sources": [
+    {
+      "name": "Прямые заходы",
+      "visits": 14,
+      "share": 88
+    },
+    {
+      "name": "Внутренние переходы",
+      "visits": 1,
+      "share": 6
+    },
+    {
+      "name": "Переходы из поисковых систем",
+      "visits": 1,
+      "share": 6
+    }
+  ],
+  "geo": [
+    {
+      "name": "США",
+      "visits": 11
+    },
+    {
+      "name": "Таиланд",
+      "visits": 3
+    },
+    {
+      "name": "Канада",
+      "visits": 1
+    },
+    {
+      "name": "Швейцария",
+      "visits": 1
+    }
+  ],
+  "pages": [
+    {
+      "url": "https://vernitemoy2007.ru/",
+      "visits": 15,
+      "goals": {
+        "youtube_click": 1,
+        "video_play": 1,
+        "read_end": 3,
+        "search": 0
+      }
+    },
+    {
+      "url": "https://vernitemoy2007.ru/articles/mihail-gorshenev/",
+      "visits": 1,
+      "goals": {
+        "youtube_click": 0,
+        "video_play": 0,
+        "read_end": 1,
+        "search": 0
+      }
+    }
+  ],
+  "errors": []
+}
