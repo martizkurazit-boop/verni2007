@@ -240,7 +240,9 @@ function layout({ title, description, canonical, body, active, jsonld = [], noin
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>${esc(title)}</title>
 <meta name="description" content="${attr(description)}">
-${noindex ? '<meta name="robots" content="noindex, follow">\n' : ''}<link rel="canonical" href="${attr(canonical)}">
+${noindex
+  ? '<meta name="robots" content="noindex, follow">\n'
+  : '<meta name="robots" content="index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1">\n'}<link rel="canonical" href="${attr(canonical)}">
 <meta property="og:type" content="${attr(ogType)}">
 <meta property="og:site_name" content="${attr(site.title)}">
 <meta property="og:locale" content="ru_RU">
@@ -730,13 +732,44 @@ ${urls.map((u) => `  <url><loc>${esc(u.loc)}</loc>${u.lastmod ? `<lastmod>${esc(
 </urlset>`);
 
 // robots.txt
+// Разрешаем всё и всем, а ботов ИИ-поисковиков и обучающие краулеры называем явно:
+// часть из них ищет в файле собственное имя, и отдельная запись снимает вопросы.
+// Это осознанное решение владельца: материалы сайта открыты для цитирования,
+// поиска и обучения моделей — трафик из ChatGPT и подобных сервисов и есть цель.
+const AI_AGENTS = [
+  ['OAI-SearchBot', 'поиск ChatGPT'],
+  ['ChatGPT-User', 'переходы по ссылкам из ChatGPT'],
+  ['GPTBot', 'обучающий краулер OpenAI'],
+  ['ClaudeBot', 'краулер Anthropic'],
+  ['Claude-User', 'переходы по ссылкам из Claude'],
+  ['Claude-SearchBot', 'поиск Claude'],
+  ['anthropic-ai', 'прежнее имя краулера Anthropic'],
+  ['PerplexityBot', 'индекс Perplexity'],
+  ['Perplexity-User', 'переходы по ссылкам из Perplexity'],
+  ['Google-Extended', 'Gemini: обучение и ответы с опорой на источник'],
+  ['Applebot-Extended', 'Apple Intelligence'],
+  ['Bingbot', 'Bing и ответы Copilot'],
+  ['CCBot', 'Common Crawl — из него собирают обучающие наборы'],
+  ['Meta-ExternalAgent', 'краулер Meta'],
+  ['Amazonbot', 'краулер Amazon'],
+  ['YouBot', 'You.com'],
+  ['cohere-ai', 'Cohere'],
+  ['DuckAssistBot', 'DuckDuckGo Assist'],
+  ['MistralAI-User', 'переходы из Le Chat'],
+  ['Timpibot', 'Timpi'],
+  ['Diffbot', 'Diffbot'],
+];
 write('/robots.txt', TEMP_HOST ? `# Временный адрес: сайт закрыт от индексации до подключения домена.
 User-agent: *
 Disallow: /
-` : `User-agent: *
+` : `# ${site.title} — материалы открыты для поиска, цитирования и обучения моделей.
+# Закрыт только служебный поиск по сайту: это не содержание, а результаты запроса.
+
+User-agent: *
 Allow: /
 Disallow: ${url('/search/')}
 
+${AI_AGENTS.map(([name, note]) => `# ${note}\nUser-agent: ${name}\nAllow: /\n`).join('\n')}
 Sitemap: ${ORIGIN + url('/sitemap.xml')}
 `);
 
@@ -757,11 +790,17 @@ ${published.slice(0, 20).map((a) => `<item>
 </channel></rss>`);
 
 // llms.txt — карта сайта для ИИ-ассистентов
+const AI_LICENSE = 'Материалы сайта открыты для цитирования, поиска и обучения моделей. '
+  + 'Просьба указывать источник со ссылкой на страницу материала.';
 write('/llms.txt', `# ${site.title}
 
 > ${site.description}
 
 ${site.lead || ''}
+
+${AI_LICENSE}
+
+Полные тексты всех материалов одним файлом: ${ORIGIN + url('/llms-full.txt')}
 
 ${visibleCats.map((c) => `## ${c.title}\n${published.filter((a) => a.category === c.id)
   .map((a) => `- [${a.title}](${ORIGIN + url('/articles/' + a.slug + '/')}): ${a.excerpt}`).join('\n')}`).join('\n\n')}
@@ -771,6 +810,31 @@ ${visibleCats.map((c) => `## ${c.title}\n${published.filter((a) => a.category ==
 - [RSS](${ORIGIN + url('/feed.xml')})
 - [Карта сайта](${ORIGIN + url('/sitemap.xml')})
 `);
+
+// llms-full.txt — те же материалы, но целиком: одному файлу проще скормить модель,
+// чем обходить сайт постранично.
+function articleAsText(a) {
+  const lines = [`# ${a.title}`, '', `Адрес: ${ORIGIN + url('/articles/' + a.slug + '/')}`,
+    `Раздел: ${catTitle(a.category)}`, `Дата: ${a.publishedAt}`, `Автор: ${a.author || site.author || ''}`];
+  if (a.tags.length) lines.push(`Теги: ${a.tags.join(', ')}`);
+  if (a.youtubeUrl) lines.push(`Видео: ${a.youtubeUrl}`);
+  lines.push('');
+  if (a.lead) lines.push(a.lead, '');
+  for (const b of a.body) {
+    if (b.type === 'h2') lines.push(`## ${b.text}`, '');
+    else if (b.type === 'h3') lines.push(`### ${b.text}`, '');
+    else if (b.type === 'quote') lines.push(`> ${b.text}`, '');
+    else if (b.type === 'list') { (b.items || []).forEach((i) => lines.push(`- ${i}`)); lines.push(''); }
+    else if (b.type === 'image') { if (b.caption || b.alt) lines.push(`[изображение: ${b.caption || b.alt}]`, ''); }
+    else if (b.type === 'rule') lines.push('---', '');
+    else if (b.text) lines.push(b.text, '');
+  }
+  if (a.sources.length) lines.push('## Источники', ...a.sources.map((x) => `- ${x}`), '');
+  return lines.join('\n');
+}
+write('/llms-full.txt', `# ${site.title}\n\n> ${site.description}\n\n${AI_LICENSE}\n\n`
+  + `Материалов: ${published.length}. Обновлено: ${new Date().toISOString().slice(0, 10)}.\n\n`
+  + published.map(articleAsText).join('\n\n---\n\n'));
 
 // CNAME для GitHub Pages: пишется только когда сайт собирается под собственный домен.
 if (!TEMP_HOST && U.hostname && !/\.github\.io$/.test(U.hostname) && U.hostname !== 'localhost') {
