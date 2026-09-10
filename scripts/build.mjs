@@ -188,6 +188,8 @@ function header(active) {
     </nav>
     <div class="hdr-act">
       <button class="btn-ico" type="button" data-search-toggle aria-expanded="false" aria-controls="searchbar" aria-label="Поиск">⌕</button>
+      ${site.youtubeChannel ? `<a class="btn-yt" href="${attr(site.youtubeChannel)}" target="_blank" rel="noopener"
+        data-yt-header>▶ <span class="yt-our">Наш&nbsp;</span>YouTube<span class="yt-word">&nbsp;канал</span></a>` : ''}
     </div>
   </div>
   <nav class="nav-mob" aria-label="Разделы (мобильные)">
@@ -223,6 +225,7 @@ function footer() {
       <div class="ftr-col"><span class="lbl">Ещё</span>
         <a href="${attr(url('/all/'))}">Все статьи</a>
         <a href="${attr(url('/search/'))}">Поиск</a>
+        ${site.youtubeChannel ? `<a href="${attr(site.youtubeChannel)}" target="_blank" rel="noopener" data-yt-footer>Наш YouTube-канал →</a>` : ''}
       </div>
     </div>
   </div>

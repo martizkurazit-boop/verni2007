@@ -60,6 +60,28 @@ img{max-width:100%}
 .nav-mob a[aria-current=page],.nav-desk a[aria-current=page]{color:var(--accent-2)}
 @media (min-width:860px){.nav-desk{display:flex}.nav-mob{display:none}.hdr-act{margin-left:0}}
 
+/* Кнопка канала: салатовая заливка с чёрным текстом — единственный способ
+   использовать акцент на светлом фоне по правилам системы. */
+.btn-yt{height:40px;padding:0 14px;border:0;background:var(--accent);color:#000;
+  font-weight:800;font-size:11px;letter-spacing:.1em;text-transform:uppercase;white-space:nowrap;
+  display:inline-flex;align-items:center;gap:7px;transition:filter var(--ease),transform var(--ease)}
+.btn-yt:hover{filter:brightness(1.06);transform:translateY(-2px);color:#000}
+/* Слово YouTube остаётся всегда — оно и объясняет, куда ведёт кнопка.
+   Обрамление «Наш …канал» появляется, когда для него есть место. */
+.yt-our,.yt-word{display:none}
+@media (min-width:560px){.yt-our{display:inline}}
+@media (min-width:760px){.yt-word{display:inline}}
+@media (max-width:520px){
+  .hdr-in{gap:10px}
+  .btn-yt{padding:0 10px;letter-spacing:.06em}
+}
+/* Совсем узкие экраны (от 320px): вордмарк уступает место кнопке канала */
+@media (max-width:380px){
+  .mark b,.mark i{font-size:15px}
+  .mark i{padding:2px 5px;margin-left:4px}
+  .hdr-in{gap:8px;padding:0 14px}
+}
+
 /* ── Поиск ───────────────────────────────────────────────────────── */
 .searchbar{border-bottom:1px solid var(--border);background:var(--bg-alt)}
 .searchbar[hidden]{display:none}

@@ -26,6 +26,15 @@
     });
   });
 
+  /* ── Переходы на канал из шапки и футера ───────────────────────── */
+  // Это тот же бизнес-результат, что и ссылка под видео, поэтому цель одна,
+  // а место перехода уходит параметром — в отчёте видно, что сработало.
+  Array.prototype.forEach.call(document.querySelectorAll('[data-yt-header],[data-yt-footer]'), function (a) {
+    a.addEventListener('click', function () {
+      goal('youtube_click', { place: a.hasAttribute('data-yt-header') ? 'header' : 'footer' });
+    });
+  });
+
   /* ── Оглавление: свёрнуто на телефоне ──────────────────────────── */
   var toc = document.querySelector('[data-toc]');
   if (toc) {
