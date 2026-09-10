@@ -1098,6 +1098,13 @@ if (site.about) {
         description: site.description,
         logo: { '@type': 'ImageObject', url: ORIGIN + url('/assets/logo-512.png') },
         ...((site.social || []).length ? { sameAs: site.social } : {}),
+        ...(site.author && (site.people || {})[site.author] ? { founder: authorLd(site.author) } : {}),
+      },
+    }, {
+      '@context': 'https://schema.org', '@type': 'ProfilePage',
+      mainEntity: {
+        ...authorLd(site.author),
+        ...(ab.photo ? { image: ORIGIN + url(ab.photo) } : {}),
       },
     }],
     body: `<main id="main">
@@ -1107,12 +1114,23 @@ if (site.about) {
   </nav>
   <article class="article">
     <h1 class="h1-art">${esc(ab.title)}</h1>
-    ${ab.lead ? `<p class="lead-art">${esc(ab.lead)}</p>` : ''}
+    ${ab.lead ? `<p class="lead-art">${esc(typo(ab.lead))}</p>` : ''}
     <div class="body">
       ${(ab.body || []).map((t) => `<p>${inline(t)}</p>`).join('\n      ')}
-      ${site.youtubeChannel ? `<h2 id="kanal">Наш YouTube-канал</h2>
-      <p>Каждая большая тема выходит и текстом, и видео. Если больше нравится смотреть —
-      <a href="${attr(ytLink(site.youtubeChannel, 'about'))}" target="_blank" rel="noopener" data-yt-about>откройте канал</a>.</p>` : ''}
+
+      <h2 id="avtor">${esc(ab.authorTitle || 'Кто это пишет')}</h2>
+      <div class="author-card">
+        ${ab.photo ? `<img class="author-photo" src="${attr(url(ab.photo))}"
+          alt="${attr(ab.photoAlt || site.author)}" width="800" height="800" loading="lazy" decoding="async">` : ''}
+        <div class="author-text">
+          <span class="author-name">${esc(site.author || 'Автор')}</span>
+          <span class="author-role">${esc(((site.people || {})[site.author] || {}).role || '')}</span>
+          ${site.youtubeChannel ? `<a class="btn-yt author-yt" href="${attr(ytLink(site.youtubeChannel, 'about'))}"
+            target="_blank" rel="noopener" data-yt-about>▶ Наш YouTube-канал</a>` : ''}
+        </div>
+      </div>
+      ${(ab.authorBody || []).map((t) => `<p>${inline(t)}</p>`).join('\n      ')}
+
       <h2 id="kontakty">Связаться</h2>
       <p>Нашли ошибку, хотите предложить тему или сотрудничество — пишите на
       <a href="mailto:${attr(site.email || 'martizkurazit@gmail.com')}">${esc(site.email || 'martizkurazit@gmail.com')}</a>.</p>

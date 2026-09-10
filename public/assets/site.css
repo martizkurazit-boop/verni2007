@@ -439,3 +439,12 @@ img{max-width:100%}
 .popular{background:var(--bg-alt)}
 .rail-pop{margin-top:26px;padding-top:22px;border-top:1px solid var(--border)}
 .rail-pop .eyebrow{margin-bottom:14px}
+
+/* Автор на странице «О проекте» */
+.author-card{margin:26px 0 8px;display:flex;gap:22px;align-items:center;flex-wrap:wrap}
+.author-photo{width:180px;height:180px;object-fit:cover;border:1px solid var(--border);background:var(--accent);flex:0 0 auto}
+.author-text{display:flex;flex-direction:column;gap:6px;min-width:0}
+.author-name{font-weight:900;font-size:26px;line-height:1;letter-spacing:-.02em;text-transform:uppercase}
+.author-role{font-weight:600;font-size:14px;color:var(--muted-2)}
+.author-yt{margin-top:8px;align-self:flex-start}
+@media (max-width:520px){.author-photo{width:140px;height:140px}}
