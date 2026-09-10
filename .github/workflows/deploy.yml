@@ -21,6 +21,9 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+        with:
+          # Нужен предыдущий коммит: по нему считаются изменившиеся статьи для IndexNow.
+          fetch-depth: 2
 
       - name: Configure Pages
         id: pages
@@ -55,3 +58,15 @@ jobs:
     steps:
       - id: deployment
         uses: actions/deploy-pages@v4
+
+      # Сообщаем Яндексу и Bing об изменившихся страницах — они забирают их за минуты.
+      # Шаг никогда не роняет выкладку: сайт к этому моменту уже опубликован.
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 2
+
+      - name: Notify IndexNow
+        continue-on-error: true
+        env:
+          SITE_URL: ${{ vars.SITE_URL != '' && vars.SITE_URL || steps.deployment.outputs.page_url }}
+        run: node scripts/indexnow.mjs
