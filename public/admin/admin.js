@@ -1258,6 +1258,7 @@
       + tile('Визиты за ' + d.days + ' дней', fmt(t.visits), fmt(t.users) + ' посетителей')
       + goalTile('youtube_click', 'Переходы на YouTube')
       + goalTile('read_end', 'Дочитывания')
+      + goalTile('telegram_click', 'Переходы в Telegram')
       + goalTile('video_play', 'Запуски видео')
       + '</div>'
       + '<div class="cols">'

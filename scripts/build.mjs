@@ -96,6 +96,18 @@ function ytLink(link, place) {
   } catch (e) { return link; }
 }
 
+/* Telegram — единственный канал связи на сайте: почтовый ящик из публичной
+   страницы убран, чтобы его не собирали спам-роботы, а вопросы приходили туда,
+   где на них реально отвечают. Кнопка одна и та же везде — в фирменном цвете. */
+const TG_ICON = '<svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path fill="currentColor"'
+  + ' d="M9.04 15.47 8.7 20.2c.5 0 .72-.21.98-.47l2.35-2.25 4.87 3.57c.9.5 1.53.24 1.78-.83l3.22-15.1c.29-1.33-.48-1.85-1.35-1.53L1.62 9.9c-1.3.5-1.28 1.23-.22 1.55l4.9 1.53L17.6 6.1c.53-.35 1.02-.16.62.2z"/></svg>';
+
+function tgButton(label, place, extraClass) {
+  if (!site.telegram) return '';
+  return `<a class="btn-tg${extraClass ? ' ' + extraClass : ''}" href="${attr(site.telegram)}"
+    target="_blank" rel="noopener" data-tg data-tg-place="${attr(place || 'page')}">${TG_ICON}<span>${esc(label || 'Написать в Telegram')}</span></a>`;
+}
+
 function youtubeId(link) {
   if (!link) return '';
   const m = String(link).match(/(?:youtube\.com\/(?:watch\?(?:.*&)?v=|embed\/|shorts\/|live\/)|youtu\.be\/)([\w-]{6,})/);
@@ -317,6 +329,18 @@ function header(active) {
 
 function footer() {
   return `<footer class="ftr">
+  ${site.telegram ? `<div class="ftr-coop">
+    <div class="ftr-coop-in">
+      <div class="ftr-coop-t">
+        <span class="lbl">Сотрудничество</span>
+        <p>Реклама, совместные проекты, предложения по темам — напишите напрямую, отвечаем в течение дня.</p>
+      </div>
+      <div class="ftr-coop-a">
+        <a class="btn-coop" href="${attr(url('/contacts/'))}">Сотрудничество</a>
+        ${tgButton('Telegram', 'footer')}
+      </div>
+    </div>
+  </div>` : ''}
   <div class="ftr-in">
     <div>
       <div class="mark"><b>Верните мой</b><i>2007</i></div>
@@ -331,6 +355,7 @@ function footer() {
         ${videoFeed ? `<a href="${attr(url('/video/'))}">Видео</a>` : ''}
         ${activeHubs().map((h) => `<a href="${attr(url('/' + h.slug + '/'))}">${esc(h.title)}</a>`).join('\n        ')}
         <a href="${attr(url('/about/'))}">О проекте</a>
+        <a href="${attr(url('/contacts/'))}">Контакты</a>
         <a href="${attr(url('/saved/'))}">Читать позже</a>
         <a href="${attr(url('/search/'))}">Поиск</a>
         ${site.youtubeChannel ? `<a href="${attr(ytLink(site.youtubeChannel, 'footer'))}" target="_blank" rel="noopener" data-yt-footer>Наш YouTube-канал →</a>` : ''}
@@ -1134,14 +1159,79 @@ if (site.about) {
       ${(ab.authorBody || []).map((t) => `<p>${inline(t)}</p>`).join('\n      ')}
 
       <h2 id="kontakty">Связаться</h2>
-      <p>Нашли ошибку, хотите предложить тему или сотрудничество — пишите на
-      <a href="mailto:${attr(site.email || 'martizkurazit@gmail.com')}">${esc(site.email || 'martizkurazit@gmail.com')}</a>.</p>
+      <p>Нашли ошибку, хотите предложить тему или сотрудничество — пишите в Telegram.
+      Это самый быстрый способ: там читают каждое сообщение.</p>
+      <div class="tg-row">${tgButton('Написать в Telegram', 'about')}
+        <a class="btn-more" href="${attr(url('/contacts/'))}">Все контакты →</a></div>
     </div>
   </article>
   </div></div>
 </main>`,
   }));
   addUrl(url('/about/'), undefined, '0.5', 'monthly');
+}
+
+// Контакты: отдельная страница нужна и людям (реклама, темы, ошибки), и поисковикам —
+// у сайта должен быть очевидный способ связи, иначе он выглядит анонимным.
+{
+  const cTitle = 'Контакты';
+  const cLead = 'Реклама, сотрудничество, предложения по темам и сообщения об ошибках — всё в Telegram.';
+  write('/contacts/index.html', layout({
+    title: `${cTitle} — ${site.title}`,
+    description: `Как связаться с редакцией «${site.title}»: Telegram для сотрудничества, рекламы и предложений по темам.`,
+    canonical: ORIGIN + url('/contacts/'), active: 'contacts',
+    jsonld: [{
+      '@context': 'https://schema.org', '@type': 'ContactPage',
+      name: cTitle, description: cLead, url: ORIGIN + url('/contacts/'), inLanguage: 'ru-RU',
+      mainEntity: {
+        '@type': 'Organization', name: site.title, url: ORIGIN + url('/'),
+        ...((site.social || []).length ? { sameAs: site.social } : {}),
+        ...(site.telegram ? {
+          contactPoint: {
+            '@type': 'ContactPoint', contactType: 'customer support',
+            url: site.telegram, availableLanguage: 'Russian',
+          },
+        } : {}),
+      },
+    }, {
+      '@context': 'https://schema.org', '@type': 'BreadcrumbList',
+      itemListElement: [
+        { '@type': 'ListItem', position: 1, name: 'Главная', item: ORIGIN + url('/') },
+        { '@type': 'ListItem', position: 2, name: cTitle, item: ORIGIN + url('/contacts/') },
+      ],
+    }],
+    body: `<main id="main">
+  <div class="article-layout"><div class="article-col">
+  <nav class="crumbs" aria-label="Хлебные крошки">
+    <a href="${attr(url('/'))}">Главная</a><span>/</span><span class="cur">${esc(cTitle)}</span>
+  </nav>
+  <article class="article">
+    <h1 class="h1-art">${esc(cTitle)}</h1>
+    <p class="lead-art">${esc(cLead)}</p>
+    <div class="body">
+      <h2 id="sotrudnichestvo">Сотрудничество и реклама</h2>
+      <p>Интеграции, совместные материалы, спецпроекты и размещение — пишите в Telegram,
+      это самый быстрый канал. Расскажите в первом же сообщении, о чём речь: так ответ придёт сразу по делу.</p>
+      <div class="tg-row">${tgButton('Написать в Telegram', 'contacts')}</div>
+
+      <h2 id="temy">Темы и правки</h2>
+      <p>Нашли ошибку или неточность в статье, помните деталь, которой у нас нет,
+      хотите предложить героя или явление для нового материала — тот же адрес.
+      Приложите ссылку на страницу, если речь о правке.</p>
+
+      <h2 id="kanal">YouTube-канал</h2>
+      <p>Те же истории в кадре — на канале. Там же выходят выпуски, из которых вырастают статьи.</p>
+      ${site.youtubeChannel ? `<p class="tg-row"><a class="btn-yt" href="${attr(ytLink(site.youtubeChannel, 'contacts'))}"
+        target="_blank" rel="noopener" data-yt-contacts>▶ Наш YouTube-канал</a></p>` : ''}
+
+      <h2 id="o-proekte">Кто мы</h2>
+      <p>Коротко о проекте и авторе — на странице <a href="${attr(url('/about/'))}">о проекте</a>.</p>
+    </div>
+  </article>
+  </div></div>
+</main>`,
+  }));
+  addUrl(url('/contacts/'), undefined, '0.5', 'monthly');
 }
 
 // «Читать позже»: список хранится в браузере, поэтому страница собирается на месте.

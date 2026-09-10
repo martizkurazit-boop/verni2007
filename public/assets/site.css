@@ -320,6 +320,31 @@ img{max-width:100%}
 .ftr-bot{border-top:1px solid #2A2A2A}
 .ftr-bot div{max-width:1120px;margin:0 auto;padding:16px 20px;font-size:12px;color:var(--muted-2)}
 
+/* Кнопка Telegram — в фирменном цвете мессенджера: её узнают до чтения подписи.
+   Одна и та же во всех местах, чтобы связь с редакцией выглядела единообразно. */
+.btn-tg{display:inline-flex;align-items:center;justify-content:center;gap:8px;padding:13px 20px;
+  background:#2AABEE;border:1px solid #2AABEE;color:#fff;font-weight:800;font-size:12px;
+  letter-spacing:.1em;text-transform:uppercase;line-height:1;
+  transition:background var(--ease),border-color var(--ease)}
+.btn-tg:hover{background:#1f97d6;border-color:#1f97d6;color:#fff}
+.btn-tg svg{width:18px;height:18px;flex:0 0 auto}
+.tg-row{margin:20px 0 0;display:flex;flex-wrap:wrap;gap:10px;align-items:center}
+
+/* Полоса «Сотрудничество» над футером — на каждой странице */
+.ftr-coop{border-bottom:1px solid #2A2A2A}
+.ftr-coop-in{max-width:1120px;margin:0 auto;padding:26px 20px;display:flex;flex-wrap:wrap;gap:18px;
+  align-items:center;justify-content:space-between}
+.ftr-coop .lbl{display:block;font-weight:700;font-size:11px;letter-spacing:.2em;text-transform:uppercase;color:var(--accent)}
+.ftr-coop p{margin:8px 0 0;font-size:14px;line-height:1.6;color:var(--faint);max-width:560px}
+.ftr-coop-a{display:flex;flex-wrap:wrap;gap:10px;align-items:center}
+.btn-coop{display:inline-flex;align-items:center;justify-content:center;padding:13px 20px;line-height:1;
+  background:var(--accent);border:1px solid var(--accent);color:#000;font-weight:800;font-size:12px;
+  letter-spacing:.1em;text-transform:uppercase;transition:background var(--ease),border-color var(--ease)}
+.ftr .btn-coop{color:#000;font-size:12px;font-weight:800}
+.ftr .btn-coop:hover{background:#fff;border-color:#fff;color:#000}
+.ftr .btn-tg{color:#fff;font-size:12px;font-weight:800}
+.ftr .btn-tg:hover{color:#fff}
+
 /* ── 404 / служебное ─────────────────────────────────────────────── */
 .center-box{max-width:760px;margin:0 auto;padding:80px 20px}
 .center-box h1{margin:0;font-weight:900;font-size:clamp(30px,7.2vw,50px);line-height:.96;letter-spacing:-.02em;text-transform:uppercase}

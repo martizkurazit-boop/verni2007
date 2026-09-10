@@ -30,10 +30,20 @@
   // Это тот же бизнес-результат, что и ссылка под видео, поэтому цель одна,
   // а место перехода уходит параметром — в отчёте видно, что сработало.
   var PLACES = [['data-yt-header', 'header'], ['data-yt-footer', 'footer'],
-    ['data-yt-end', 'article-end'], ['data-yt-sticky', 'article-sticky']];
+    ['data-yt-end', 'article-end'], ['data-yt-sticky', 'article-sticky'],
+    ['data-yt-about', 'about'], ['data-yt-contacts', 'contacts']];
   PLACES.forEach(function (pair) {
     Array.prototype.forEach.call(document.querySelectorAll('[' + pair[0] + ']'), function (a) {
       a.addEventListener('click', function () { goal('youtube_click', { place: pair[1] }); });
+    });
+  });
+
+  /* ── Переходы в Telegram ────────────────────────────────────────
+     Связь с редакцией — тоже результат: считаем отдельной целью, а место
+     клика (футер, страница контактов, «о проекте») уходит параметром. */
+  Array.prototype.forEach.call(document.querySelectorAll('[data-tg]'), function (a) {
+    a.addEventListener('click', function () {
+      goal('telegram_click', { place: a.getAttribute('data-tg-place') || '' });
     });
   });
 
