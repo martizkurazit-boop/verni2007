@@ -705,8 +705,14 @@ function articlePage(a) {
   </section>` : ''}
   <div class="share" data-share data-title="${attr(a.title)}">
     <span class="share-l">Поделиться</span>
-    <a class="chip" data-share-tg target="_blank" rel="noopener" href="https://t.me/share/url?url=${attr(encodeURIComponent(canonical))}&text=${attr(encodeURIComponent(a.title))}">Telegram</a>
-    <a class="chip" data-share-vk target="_blank" rel="noopener" href="https://vk.com/share.php?url=${attr(encodeURIComponent(canonical))}">ВКонтакте</a>
+    <a class="chip chip-tg" data-share-tg target="_blank" rel="noopener"
+       href="https://t.me/share/url?url=${attr(encodeURIComponent(canonical))}&text=${attr(encodeURIComponent(a.title))}">
+      <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path fill="currentColor" d="M9.04 15.47 8.7 20.2c.5 0 .72-.21.98-.47l2.35-2.25 4.87 3.57c.9.5 1.53.24 1.78-.83l3.22-15.1c.29-1.33-.48-1.85-1.35-1.53L1.62 9.9c-1.3.5-1.28 1.23-.22 1.55l4.9 1.53L17.6 6.1c.53-.35 1.02-.16.62.2z"/></svg>
+      Telegram</a>
+    <a class="chip chip-vk" data-share-vk target="_blank" rel="noopener"
+       href="https://vk.com/share.php?url=${attr(encodeURIComponent(canonical))}">
+      <span class="vk-mark" aria-hidden="true">VK</span>
+      ВКонтакте</a>
     <button class="chip" type="button" data-share-copy>Скопировать ссылку</button>
     <button class="chip" type="button" data-save aria-pressed="false">Читать позже</button>
   </div>
