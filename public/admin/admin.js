@@ -404,7 +404,8 @@
     return { slug: '', title: '', excerpt: '', lead: '', category: (state.site.categories[0] || {}).id,
       tags: [], youtubeUrl: '', cover: { src: '', alt: '', focus: '50% 50%' }, ogImage: '',
       author: state.site.author || 'Редакция', publishedAt: new Date().toISOString().slice(0, 10),
-      status: 'draft', seoTitle: '', seoDescription: '', body: [{ type: 'p', text: '' }], sources: [], related: [] };
+      status: 'draft', seoTitle: '', seoDescription: '', body: [{ type: 'p', text: '' }],
+      sources: [], related: [], demo: false };
   }
 
   $('#new-article').addEventListener('click', function () { openEditor(null); });
@@ -439,6 +440,9 @@
     $('#f-og').value = d.ogImage || '';
     $('#f-cover-alt').value = (d.cover && d.cover.alt) || '';
     $('#f-sources').value = (d.sources || []).join('\n');
+    var demo = $('#f-demo');
+    demo.setAttribute('aria-pressed', String(!!d.demo));
+    $('.box', demo).textContent = d.demo ? '✓' : '';
     $('#editor-note').hidden = true;
     renderCover();
     renderFocus();
@@ -472,6 +476,12 @@
   bind('#f-cover-alt', 'cover.alt');
   bind('#f-tags', 'tags', function (v) { return v.split(',').map(function (t) { return t.trim(); }).filter(Boolean); });
   bind('#f-sources', 'sources', function (v) { return v.split('\n').map(function (t) { return t.trim(); }).filter(Boolean); });
+  $('#f-demo').addEventListener('click', function () {
+    state.draft.demo = !state.draft.demo;
+    this.setAttribute('aria-pressed', String(!!state.draft.demo));
+    $('.box', this).textContent = state.draft.demo ? '✓' : '';
+    state.dirty = true;
+  });
   $('#f-slug').addEventListener('input', function () {
     var v = this.value.toLowerCase().replace(/[^a-z0-9-]/g, '-').replace(/-+/g, '-');
     this.value = v; state.draft.slug = v; state.dirty = true; updateHints();
