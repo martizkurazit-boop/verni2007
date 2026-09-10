@@ -1,13 +1,13 @@
 {
-  "updatedAt": "2026-09-10T12:53:07.695Z",
+  "updatedAt": "2026-09-10T13:15:41.054Z",
   "days": 30,
   "counter": "112450613",
   "totals": {
-    "visits": 16,
-    "users": 15,
-    "pageviews": 58,
-    "avgSeconds": 481,
-    "bounceRate": 75
+    "visits": 18,
+    "users": 17,
+    "pageviews": 73,
+    "avgSeconds": 500,
+    "bounceRate": 78
   },
   "goals": [
     {
@@ -26,20 +26,26 @@
       "id": 611348858,
       "name": "Дочитывание",
       "event": "read_end",
-      "reaches": 4
+      "reaches": 7
     },
     {
       "id": 611348974,
       "name": "Поиск по сайту",
       "event": "search",
       "reaches": 0
+    },
+    {
+      "id": 611472910,
+      "name": "Переходы в Telegram",
+      "event": "telegram_click",
+      "reaches": 0
     }
   ],
   "sources": [
     {
       "name": "Прямые заходы",
-      "visits": 14,
-      "share": 88
+      "visits": 16,
+      "share": 89
     },
     {
       "name": "Внутренние переходы",
@@ -55,7 +61,7 @@
   "geo": [
     {
       "name": "США",
-      "visits": 11
+      "visits": 13
     },
     {
       "name": "Таиланд",
@@ -73,12 +79,13 @@
   "pages": [
     {
       "url": "https://vernitemoy2007.ru/",
-      "visits": 15,
+      "visits": 17,
       "goals": {
         "youtube_click": 1,
         "video_play": 1,
-        "read_end": 3,
-        "search": 0
+        "read_end": 6,
+        "search": 0,
+        "telegram_click": 0
       }
     },
     {
@@ -88,7 +95,8 @@
         "youtube_click": 0,
         "video_play": 0,
         "read_end": 1,
-        "search": 0
+        "search": 0,
+        "telegram_click": 0
       }
     }
   ],
