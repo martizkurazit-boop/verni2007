@@ -5,7 +5,8 @@
   'use strict';
   var CFG = window.VM2007 || {};
   var API = 'https://api.github.com';
-  var TOKEN_KEY = 'vm2007:token';
+  var VAULT_KEY = 'vm2007:vault';   // {v, login, salt, iv, data} — токен под паролем
+  var OLD_TOKEN_KEY = 'vm2007:token';
   var $ = function (s, r) { return (r || document).querySelector(s); };
   var $$ = function (s, r) { return Array.prototype.slice.call((r || document).querySelectorAll(s)); };
 
@@ -53,6 +54,64 @@
     var bytes = new Uint8Array(buf), bin = '', CH = 0x8000;
     for (var i = 0; i < bytes.length; i += CH) bin += String.fromCharCode.apply(null, bytes.subarray(i, i + CH));
     return btoa(bin);
+  }
+
+  /* ── Сейф с токеном ─────────────────────────────────────────────────
+     Пароль не хранится и никуда не отправляется: из него выводится ключ,
+     которым шифруется токен GitHub. Расшифровать сейф без пароля нельзя,
+     а сам токен в открытом виде не попадает ни в localStorage, ни в репозиторий. */
+  var enc = new TextEncoder(), dec = new TextDecoder();
+  function b64(buf) {
+    var bytes = new Uint8Array(buf), bin = '';
+    for (var i = 0; i < bytes.length; i++) bin += String.fromCharCode(bytes[i]);
+    return btoa(bin);
+  }
+  function unb64(str) {
+    var bin = atob(str), bytes = new Uint8Array(bin.length);
+    for (var i = 0; i < bin.length; i++) bytes[i] = bin.charCodeAt(i);
+    return bytes;
+  }
+  function deriveKey(pass, salt) {
+    return crypto.subtle.importKey('raw', enc.encode(pass), 'PBKDF2', false, ['deriveKey'])
+      .then(function (km) {
+        return crypto.subtle.deriveKey(
+          { name: 'PBKDF2', salt: salt, iterations: 210000, hash: 'SHA-256' },
+          km, { name: 'AES-GCM', length: 256 }, false, ['encrypt', 'decrypt']);
+      });
+  }
+  function sealToken(login, pass, token) {
+    var salt = crypto.getRandomValues(new Uint8Array(16));
+    var iv = crypto.getRandomValues(new Uint8Array(12));
+    return deriveKey(pass, salt)
+      .then(function (key) { return crypto.subtle.encrypt({ name: 'AES-GCM', iv: iv }, key, enc.encode(token)); })
+      .then(function (ct) {
+        localStorage.setItem(VAULT_KEY, JSON.stringify({
+          v: 1, login: login, salt: b64(salt), iv: b64(iv), data: b64(ct),
+        }));
+      });
+  }
+  function openVault(login, pass) {
+    var vault = readVault();
+    if (!vault) return Promise.reject(new Error('Вход на этом устройстве не настроен.'));
+    if (String(login).trim().toLowerCase() !== String(vault.login).toLowerCase()) {
+      return Promise.reject(new Error('Неверный логин или пароль.'));
+    }
+    return deriveKey(pass, unb64(vault.salt))
+      .then(function (key) {
+        return crypto.subtle.decrypt({ name: 'AES-GCM', iv: unb64(vault.iv) }, key, unb64(vault.data));
+      })
+      .then(function (buf) { return dec.decode(buf); })
+      // Неверный пароль ломает проверку целостности AES-GCM — отличить его от
+      // порчи данных нельзя, да и не нужно: сообщение одно.
+      .catch(function () { throw new Error('Неверный логин или пароль.'); });
+  }
+  function readVault() {
+    try {
+      var raw = localStorage.getItem(VAULT_KEY);
+      if (!raw) return null;
+      var v = JSON.parse(raw);
+      return (v && v.salt && v.iv && v.data && v.login) ? v : null;
+    } catch (e) { return null; }
   }
 
   /* ── GitHub API ─────────────────────────────────────────────────── */
@@ -131,43 +190,94 @@
       });
   }
 
-  /* ── Экран входа ────────────────────────────────────────────────── */
+  /* ── Экран входа ──────────────────────────────────────────────────
+     Два режима: обычный вход логином и паролем и первая настройка
+     на устройстве, где вместе с паролем сохраняется токен GitHub. */
   function showLogin(message) {
     $('#app').hidden = true;
     $('#screen-login').hidden = false;
     $('#login-repo').textContent = CFG.repo || '(репозиторий не задан)';
-    var err = $('#login-error');
-    err.hidden = !message; err.textContent = message || '';
+    var vault = readVault();
+    $('#form-unlock').hidden = !vault;
+    $('#form-setup').hidden = !!vault;
+    if (vault) $('#u-login').value = vault.login;
+    var err = $(vault ? '#u-error' : '#s-error');
+    err.hidden = !message;
+    err.textContent = message || '';
+    var first = $(vault ? '#u-pass' : '#s-login');
+    if (first) first.focus();
   }
-  var remember = true;
-  $('#remember').addEventListener('click', function () {
-    remember = !remember;
-    this.setAttribute('aria-pressed', String(remember));
-    $('.box', this).textContent = remember ? '✓' : '';
-  });
-  $('#login-btn').addEventListener('click', function () { login($('#token').value.trim()); });
-  $('#token').addEventListener('keydown', function (e) { if (e.key === 'Enter') login(this.value.trim()); });
-  $('#logout').addEventListener('click', function () {
-    localStorage.removeItem(TOKEN_KEY); sessionStorage.removeItem(TOKEN_KEY);
-    state.token = ''; location.reload();
+
+  $('#form-unlock').addEventListener('submit', function (e) {
+    e.preventDefault();
+    var btn = $('button[type=submit]', this);
+    btn.disabled = true;
+    openVault($('#u-login').value, $('#u-pass').value)
+      .then(function (token) { return enter(token); })
+      .catch(function (err) { showLogin(err.message); })
+      .then(function () { btn.disabled = false; $('#u-pass').value = ''; });
   });
 
-  function login(token) {
-    if (!token) return showLogin('Введите токен.');
-    if (!CFG.repo) return showLogin('В config.js не задан репозиторий. Соберите сайт заново (переменная CONTENT_REPO).');
+  $('#form-setup').addEventListener('submit', function (e) {
+    e.preventDefault();
+    var login = $('#s-login').value.trim();
+    var pass = $('#s-pass').value;
+    var pass2 = $('#s-pass2').value;
+    var token = $('#s-token').value.trim();
+    if (!login) return showLogin('Придумайте логин.');
+    if (pass.length < 8) return showLogin('Пароль короче восьми символов — так не годится.');
+    if (pass !== pass2) return showLogin('Пароли не совпадают.');
+    if (!token) return showLogin('Вставьте токен GitHub.');
+    var btn = $('button[type=submit]', this);
+    btn.disabled = true;
+    // Сначала проверяем токен у GitHub, и только рабочий кладём в сейф.
+    enter(token)
+      .then(function () {
+        return sealToken(login, pass, token).then(function () {
+          try { localStorage.removeItem(OLD_TOKEN_KEY); sessionStorage.removeItem(OLD_TOKEN_KEY); } catch (e) {}
+          toast('Вход настроен. Дальше — только логин и пароль.');
+        });
+      })
+      .catch(function (err) { showLogin(err.message); })
+      .then(function () {
+        btn.disabled = false;
+        $('#s-pass').value = $('#s-pass2').value = $('#s-token').value = '';
+      });
+  });
+
+  $('#u-reset').addEventListener('click', function () {
+    if (!confirm('Сохранённый доступ будет удалён, и вход настраивается заново — понадобится токен GitHub. Продолжить?')) return;
+    try { localStorage.removeItem(VAULT_KEY); } catch (e) {}
+    showLogin('');
+  });
+
+  $('#logout').addEventListener('click', function () {
+    state.token = '';
+    location.reload();
+  });
+
+  /* Проверка токена у GitHub и загрузка контента. Токен живёт только в памяти
+     вкладки: после перезагрузки страницы пароль спрашивается снова. */
+  function enter(token) {
+    if (!CFG.repo) return Promise.reject(new Error('В config.js не задан репозиторий. Соберите сайт заново.'));
     state.token = token;
     progress(10);
-    gh('/user')
+    return gh('/user')
       .then(function (u) { state.user = u.login; return gh(repoPath('')); })
       .then(function (repo) {
-        if (repo.permissions && repo.permissions.push === false) throw new Error('У токена нет прав на запись (Contents: Read and write).');
-        try { (remember ? localStorage : sessionStorage).setItem(TOKEN_KEY, token); } catch (e) {}
+        if (repo.permissions && repo.permissions.push === false) {
+          throw new Error('У токена нет прав на запись (Contents: Read and write).');
+        }
         $('#screen-login').hidden = true;
         $('#app').hidden = false;
         $('#whoami').textContent = state.user + ' · ' + CFG.repo;
         return loadAll().then(function () { route('list'); });
       })
-      .catch(function (e) { progress(0); showLogin(e.message); });
+      .catch(function (e) {
+        progress(0);
+        state.token = '';
+        throw e;
+      });
   }
 
   /* ── Роутинг экранов ────────────────────────────────────────────── */
@@ -869,7 +979,17 @@
   window.addEventListener('beforeunload', function (e) {
     if (state.dirty) { e.preventDefault(); e.returnValue = ''; }
   });
-  var saved = '';
-  try { saved = localStorage.getItem(TOKEN_KEY) || sessionStorage.getItem(TOKEN_KEY) || ''; } catch (e) {}
-  if (saved) login(saved); else showLogin('');
+  // Токен, сохранённый прошлой версией админки открытым текстом, удаляем:
+  // теперь он должен жить только в зашифрованном сейфе.
+  try {
+    if (localStorage.getItem(OLD_TOKEN_KEY) || sessionStorage.getItem(OLD_TOKEN_KEY)) {
+      localStorage.removeItem(OLD_TOKEN_KEY);
+      sessionStorage.removeItem(OLD_TOKEN_KEY);
+    }
+  } catch (e) {}
+  if (!window.crypto || !crypto.subtle) {
+    showLogin('Браузер не поддерживает шифрование в этом окне. Откройте админку по https.');
+  } else {
+    showLogin('');
+  }
 })();

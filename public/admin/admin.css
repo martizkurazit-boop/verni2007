@@ -141,3 +141,10 @@ textarea{resize:vertical;font-weight:500}
 code{font-family:inherit;font-weight:700;background:#0A0A0A;border:1px solid var(--strong);padding:1px 6px;font-size:13px;color:var(--accent)}
 .banner{border:1px solid var(--accent);padding:12px 14px;font-size:13px;font-weight:700;color:var(--accent);margin-top:14px}
 .saving{position:fixed;left:0;top:0;height:3px;background:var(--accent);width:0;transition:width .3s;z-index:80}
+
+/* Ссылка-кнопка на экране входа */
+.linklike{border:0;background:transparent;padding:0;color:var(--accent);font:inherit;font-weight:700;
+  cursor:pointer;text-decoration:underline;text-underline-offset:3px}
+.linklike:hover{color:#fff}
+.login .card ol{margin:0;padding-left:18px;display:flex;flex-direction:column;gap:8px;font-size:14px;
+  line-height:1.6;color:var(--muted)}

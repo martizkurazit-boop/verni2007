@@ -16,25 +16,49 @@
 <section class="login" id="screen-login" hidden>
   <div class="eyebrow"><span class="sl">//</span><span>Доступ</span></div>
   <h1>Вход.</h1>
-  <div class="card">
-    <p class="hint">Админка работает напрямую с репозиторием GitHub: статьи и картинки сохраняются в него,
-      а сайт пересобирается автоматически. Нужен персональный токен с правом записи.</p>
+
+  <!-- Обычный вход: пароль расшифровывает токен, сохранённый на этом устройстве -->
+  <form class="card" id="form-unlock" hidden autocomplete="on">
+    <label class="field"><span>Логин</span>
+      <input type="text" id="u-login" autocomplete="username" spellcheck="false"></label>
+    <label class="field"><span>Пароль</span>
+      <input type="password" id="u-pass" autocomplete="current-password"></label>
+    <p class="hint warn" id="u-error" hidden></p>
+    <div class="row">
+      <button class="btn primary" type="submit">Войти</button>
+      <a class="btn" href="../">Смотреть сайт</a>
+    </div>
+    <p class="hint">Пароль расшифровывает ключ доступа к репозиторию, сохранённый в этом браузере.
+      На другом устройстве вход настраивается заново.</p>
+    <p class="hint"><button type="button" class="linklike" id="u-reset">Забыли пароль или меняете токен →</button></p>
+  </form>
+
+  <!-- Первая настройка на устройстве -->
+  <form class="card" id="form-setup" hidden autocomplete="on">
+    <p class="hint">Первый вход в этом браузере. Нужен токен GitHub — им админка сохраняет статьи
+      в репозиторий, и права по нему проверяет сам GitHub. Дальше он будет храниться здесь
+      зашифрованным, а вы будете входить логином и паролем.</p>
     <ol>
       <li>Откройте <code>github.com → Settings → Developer settings → Personal access tokens → Fine-grained tokens</code>.</li>
       <li>Repository access — только репозиторий <code id="login-repo">—</code>.</li>
       <li>Permissions → Repository permissions → <code>Contents: Read and write</code>.</li>
-      <li>Скопируйте токен и вставьте сюда.</li>
     </ol>
+    <label class="field"><span>Логин (придумайте)</span>
+      <input type="text" id="s-login" autocomplete="username" spellcheck="false"></label>
+    <label class="field"><span>Пароль (придумайте)</span>
+      <input type="password" id="s-pass" autocomplete="new-password"></label>
+    <label class="field"><span>Пароль ещё раз</span>
+      <input type="password" id="s-pass2" autocomplete="new-password"></label>
     <label class="field"><span>Токен GitHub</span>
-      <input type="password" id="token" placeholder="github_pat_…" autocomplete="off"></label>
-    <label class="check" id="remember" aria-pressed="true" role="button" tabindex="0">
-      <span class="box">✓</span><span>Запомнить на этом устройстве</span></label>
-    <p class="hint">Токен хранится только в этом браузере и уходит исключительно на api.github.com.
-      На чужом устройстве снимайте галочку — тогда он забудется при закрытии вкладки.</p>
-    <div class="row"><button class="btn primary" id="login-btn">Войти</button>
-      <a class="btn" href="../">Смотреть сайт</a></div>
-    <p class="hint warn" id="login-error" hidden></p>
-  </div>
+      <input type="password" id="s-token" placeholder="github_pat_…" autocomplete="off"></label>
+    <p class="hint warn" id="s-error" hidden></p>
+    <div class="row">
+      <button class="btn primary" type="submit">Сохранить и войти</button>
+      <a class="btn" href="../">Смотреть сайт</a>
+    </div>
+    <p class="hint">Пароль никуда не отправляется и нигде не сохраняется — из него считается ключ,
+      которым шифруется токен. Забудете пароль — просто настроите вход заново с новым токеном.</p>
+  </form>
 </section>
 
 <!-- Рабочая область -->
