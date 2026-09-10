@@ -172,6 +172,14 @@
       </section>
 
       <section class="card">
+        <h2 class="sec">Частые вопросы</h2>
+        <textarea id="f-faq" rows="6" placeholder="Почему «Короля и Шута» снова слушают?&#10;Сериал 2023 года вернул песни в топы стримингов.&#10;&#10;Следующий вопрос?&#10;И ответ на него."></textarea>
+        <p class="hint" style="margin-top:8px">Первая строка — вопрос, следующие — ответ. Пары разделяются
+          пустой строкой. Блок появляется под статьёй и размечается для поиска: такие ответы занимают
+          больше места в выдаче и часто попадают в ответы нейросетей. Пусто — блока не будет.</p>
+      </section>
+
+      <section class="card">
         <h2 class="sec">Источники</h2>
         <textarea id="f-sources" rows="3" placeholder="По одному источнику в строке"></textarea>
         <p class="hint" style="margin-top:8px">Пусто — блок источников на странице не появится.</p>
@@ -220,6 +228,11 @@
         <div class="stack" style="gap:14px">
           <div class="field"><span>Категория</span><div class="row" id="cat-choices"></div></div>
           <label class="field"><span>Теги через запятую</span><input type="text" id="f-tags"></label>
+          <label class="field"><span>Имена для автоссылок (через запятую)</span>
+            <input type="text" id="f-aliases" placeholder="Горшенёв, Король и Шут">
+            <span class="hint">Как этого героя или предмет называют в других статьях. Первое
+              упоминание в чужом тексте станет ссылкой сюда. Заголовок и его начало
+              до двоеточия учитываются сами.</span></label>
           <label class="field"><span>Ссылка на YouTube (необязательно)</span>
             <input type="text" id="f-youtube" placeholder="https://www.youtube.com/watch?v=…">
             <span class="hint" id="yt-hint">Пусто — блок видео на странице не появится.</span></label>

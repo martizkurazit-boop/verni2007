@@ -472,7 +472,7 @@
       tags: [], youtubeUrl: '', cover: { src: '', alt: '', focus: '50% 50%' }, ogImage: '',
       author: state.site.author || 'Редакция', publishedAt: new Date().toISOString().slice(0, 10),
       status: 'draft', seoTitle: '', seoDescription: '', body: [{ type: 'p', text: '' }],
-      sources: [], related: [], demo: false };
+      sources: [], related: [], aliases: [], faq: [], demo: false };
   }
 
   $('#new-article').addEventListener('click', function () { openEditor(null); });
@@ -499,6 +499,7 @@
     $('#f-excerpt').value = d.excerpt || '';
     $('#f-lead').value = d.lead || '';
     $('#f-tags').value = (d.tags || []).join(', ');
+    $('#f-aliases').value = (d.aliases || []).join(', ');
     $('#f-youtube').value = d.youtubeUrl || '';
     $('#f-author').value = d.author || '';
     $('#f-date').value = d.publishedAt || '';
@@ -507,6 +508,7 @@
     $('#f-og').value = d.ogImage || '';
     $('#f-cover-alt').value = (d.cover && d.cover.alt) || '';
     $('#f-sources').value = (d.sources || []).join('\n');
+    $('#f-faq').value = (d.faq || []).map(function (f) { return f.q + '\n' + f.a; }).join('\n\n');
     var demo = $('#f-demo');
     demo.setAttribute('aria-pressed', String(!!d.demo));
     $('.box', demo).textContent = d.demo ? '✓' : '';
@@ -542,6 +544,13 @@
   bind('#f-og', 'ogImage');
   bind('#f-cover-alt', 'cover.alt');
   bind('#f-tags', 'tags', function (v) { return v.split(',').map(function (t) { return t.trim(); }).filter(Boolean); });
+  bind('#f-aliases', 'aliases', function (v) { return v.split(',').map(function (t) { return t.trim(); }).filter(Boolean); });
+  bind('#f-faq', 'faq', function (v) {
+    return v.split(/\n\s*\n/).map(function (chunk) {
+      var lines = chunk.split('\n').map(function (l) { return l.trim(); }).filter(Boolean);
+      return lines.length >= 2 ? { q: lines[0], a: lines.slice(1).join(' ') } : null;
+    }).filter(Boolean);
+  });
   bind('#f-sources', 'sources', function (v) { return v.split('\n').map(function (t) { return t.trim(); }).filter(Boolean); });
   $('#f-demo').addEventListener('click', function () {
     state.draft.demo = !state.draft.demo;

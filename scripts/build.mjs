@@ -102,6 +102,53 @@ function youtubeId(link) {
   return m ? m[1] : '';
 }
 
+/* Автоматические ссылки на свои же материалы: если в тексте упомянут герой или
+   предмет, о котором есть отдельная статья, первое упоминание становится ссылкой.
+   Ровно одно на статью-цель — иначе текст превращается в решето из ссылок. */
+function autoLink(html, article) {
+  if (!article) return html;
+  const targets = published
+    .filter((x) => x.slug !== article.slug)
+    // Кроме полного заголовка берём его начало до двоеточия: статьи называются
+    // «Децл: как…», а в чужом тексте встречается просто «Децл».
+    .flatMap((x) => {
+      const short = String(x.title).split(/[:—–]/)[0].trim();
+      return [x.title, short, ...(x.aliases || [])]
+        .filter(Boolean)
+        .filter((n, i, arr) => arr.indexOf(n) === i)
+        .map((name) => ({ name, slug: x.slug }));
+    })
+    // Длинные названия проверяем первыми: «Виктор Цой» важнее, чем «Цой».
+    .sort((a, b) => b.name.length - a.name.length)
+    // Имя собственное и не короче четырёх букв — иначе в ссылки полезут предлоги.
+    .filter((t) => t.name.length >= 4 && t.name[0] === t.name[0].toUpperCase());
+  const used = article._autoLinked || (article._autoLinked = new Set());
+  // Больше четырёх автоссылок на статью — уже решето, читать мешает.
+  const LIMIT = 4;
+  let out = html;
+  for (const t of targets) {
+    if (used.size >= LIMIT) break;
+    if (used.has(t.slug)) continue;
+    const safe = t.name.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    // Мимо содержимого тегов и уже проставленных ссылок.
+    // Регистр важен: «Кино» — группа, «кино» — просто кино. Без этого обычные
+    // слова в тексте превращались в ссылки на статьи о героях.
+    const re = new RegExp('(^|[^\\w<>/-])(' + safe + ')(?![\\w-])', 'u');
+    const m = re.exec(out);
+    if (!m) continue;
+    if (/<a[^>]*>[^<]*$/.test(out.slice(0, m.index))) continue;
+    // В начале предложения заглавная буква ничего не значит: «Кино просто
+    // закрепило доверие» — это кино, а не группа. Такие совпадения пропускаем.
+    const before = out.slice(0, m.index + m[1].length).replace(/<[^>]*>/g, '').trimEnd();
+    if (!before || /[.!?…:»)]$/.test(before)) continue;
+    used.add(t.slug);
+    out = out.slice(0, m.index) + m[1]
+      + `<a class="autolink" href="${url('/articles/' + t.slug + '/')}">${m[2]}</a>`
+      + out.slice(m.index + m[0].length);
+  }
+  return out;
+}
+
 /* Инлайновая разметка внутри текста: **жирный**, [ссылка](url) */
 function inline(text) {
   let out = esc(text);
@@ -122,6 +169,7 @@ function loadArticles() {
     a.tags = Array.isArray(a.tags) ? a.tags : [];
     a.related = Array.isArray(a.related) ? a.related : [];
     a.sources = Array.isArray(a.sources) ? a.sources : [];
+    a.faq = Array.isArray(a.faq) ? a.faq.filter((f) => f && f.q && f.a) : [];
     return a;
   }).sort((x, y) => String(y.publishedAt || '').localeCompare(String(x.publishedAt || '')));
 }
@@ -140,6 +188,15 @@ const catById = new Map((site.categories || []).map((c) => [c.id, c]));
 const countIn = (id) => published.filter((a) => a.category === id).length;
 const visibleCats = (site.categories || []).filter((c) => c.enabled !== false && countIn(c.id) > 0);
 const catTitle = (id) => (catById.get(id) || {}).title || '';
+
+/* Хаб показывается только тогда, когда в нём есть материалы: пустых разделов
+   посетитель видеть не должен. */
+function activeHubs() {
+  return (site.hubs || []).filter((h) => {
+    const wanted = (h.tags || []).map((t) => t.toLowerCase());
+    return published.some((a) => a.tags.some((t) => wanted.includes(t.toLowerCase())));
+  });
+}
 
 const tagIndex = new Map();
 for (const a of published) {
@@ -207,6 +264,7 @@ function header(active) {
       ${visibleCats.map((c) => link('/category/' + c.id + '/', c.title, 'cat:' + c.id)).join('\n      ')}
       <a class="all" href="${attr(url('/all/'))}"${active === 'all' ? ' aria-current="page"' : ''}>Все статьи</a>
       ${videoFeed ? `<a class="all" href="${attr(url('/video/'))}"${active === 'video' ? ' aria-current="page"' : ''}>Видео</a>` : ''}
+      ${activeHubs().map((h) => `<a class="all" href="${attr(url('/' + h.slug + '/'))}"${active === 'hub:' + h.slug ? ' aria-current="page"' : ''}>${esc(h.title)}</a>`).join('')}
     </nav>
     <div class="hdr-act">
       <button class="btn-ico" type="button" data-search-toggle aria-expanded="false" aria-controls="searchbar" aria-label="Поиск">⌕</button>
@@ -218,6 +276,7 @@ function header(active) {
     <div class="nav-mob-in">
       <a href="${attr(url('/all/'))}"${active === 'all' ? ' aria-current="page"' : ''}>Все</a>
       ${videoFeed ? `<a href="${attr(url('/video/'))}"${active === 'video' ? ' aria-current="page"' : ''}>Видео</a>` : ''}
+      ${activeHubs().map((h) => `<a href="${attr(url('/' + h.slug + '/'))}"${active === 'hub:' + h.slug ? ' aria-current="page"' : ''}>${esc(h.title)}</a>`).join('')}
       ${visibleCats.map((c) => link('/category/' + c.id + '/', c.title, 'cat:' + c.id)).join('\n      ')}
     </div>
   </nav>
@@ -248,6 +307,8 @@ function footer() {
       <div class="ftr-col"><span class="lbl">Ещё</span>
         <a href="${attr(url('/all/'))}">Все статьи</a>
         ${videoFeed ? `<a href="${attr(url('/video/'))}">Видео</a>` : ''}
+        ${activeHubs().map((h) => `<a href="${attr(url('/' + h.slug + '/'))}">${esc(h.title)}</a>`).join('\n        ')}
+        <a href="${attr(url('/about/'))}">О проекте</a>
         <a href="${attr(url('/search/'))}">Поиск</a>
         ${site.youtubeChannel ? `<a href="${attr(ytLink(site.youtubeChannel, 'footer'))}" target="_blank" rel="noopener" data-yt-footer>Наш YouTube-канал →</a>` : ''}
       </div>
@@ -485,7 +546,7 @@ function renderBody(a, inlineRel) {
           + `${b.caption ? `<figcaption>${esc(b.caption)}</figcaption>` : ''}</figure>`);
         break;
       }
-      default: out.push(`<p>${inline(b.text || '')}</p>`);
+      default: out.push(`<p>${autoLink(inline(b.text || ''), a)}</p>`);
     }
   }
   return out.join('\n');
@@ -567,6 +628,18 @@ function articlePage(a) {
       ],
     },
   ];
+  // Вопросы и ответы: занимают больше места в выдаче и часто попадают в ответы
+  // ИИ дословно. Размечаем только то, что действительно есть на странице.
+  if (a.faq.length) {
+    jsonld.push({
+      '@context': 'https://schema.org', '@type': 'FAQPage',
+      mainEntity: a.faq.map((f) => ({
+        '@type': 'Question', name: f.q,
+        acceptedAnswer: { '@type': 'Answer', text: f.a },
+      })),
+    });
+  }
+
   // VideoObject — только при полных достоверных данных о ролике.
   const v = a.video || {};
   if (vid && v.name && v.uploadDate && v.thumbnailUrl && v.duration) {
@@ -616,6 +689,13 @@ function articlePage(a) {
     <ol id="toc-list">${toc.map((t) => `<li><a href="#${attr(t.id)}">${esc(t.text)}</a></li>`).join('')}</ol>
   </nav>` : ''}
   <div class="body">${renderBody(a, sideItems[0] || null)}</div>
+  ${a.faq.length ? `<section class="faq">
+    <h2 id="voprosy">Частые вопросы</h2>
+    ${a.faq.map((f) => `<details class="faq-item">
+      <summary>${esc(f.q)}</summary>
+      <div class="faq-a">${inline(f.a)}</div>
+    </details>`).join('\n    ')}
+  </section>` : ''}
   ${a.sources.length ? `<section class="sources">
     <div class="eyebrow"><span class="sl">//</span><span>Источники</span></div>
     <ul>${a.sources.map((s) => `<li>${inline(s)}</li>`).join('')}</ul>
@@ -766,6 +846,26 @@ for (const c of visibleCats) {
   for (let p = 2; p <= pages; p++) addUrl(url('/category/' + c.id + '/page/' + p + '/'), undefined, '0.4', 'weekly');
 }
 
+// Хабы по десятилетиям: под «девяностые» и «нулевые» ищут в разы чаще, чем по
+// именам героев, — это точка входа, с которой человек расходится по статьям.
+for (const hub of site.hubs || []) {
+  const wanted = (hub.tags || []).map((t) => t.toLowerCase());
+  const list = published.filter((a) => a.tags.some((t) => wanted.includes(t.toLowerCase())));
+  if (!list.length) continue;
+  writeFeed({
+    list, basePath: '/' + hub.slug + '/', eyebrow: 'Эпоха', h1: hub.title + '.',
+    lead: hub.description || '', active: 'hub:' + hub.slug,
+    title: hub.seoTitle || `${hub.title} — ${site.title}`,
+    description: hub.seoDescription || hub.description || '',
+    jsonldFor: () => [{ '@context': 'https://schema.org', '@type': 'CollectionPage',
+      name: hub.title, description: hub.description || '', url: ORIGIN + url('/' + hub.slug + '/'),
+      inLanguage: 'ru-RU' }],
+  });
+  addUrl(url('/' + hub.slug + '/'), undefined, '0.8', 'weekly');
+  const pages = Math.ceil(list.length / (site.pageSize || 4));
+  for (let p = 2; p <= pages; p++) addUrl(url('/' + hub.slug + '/page/' + p + '/'), undefined, '0.4', 'weekly');
+}
+
 // Теги
 for (const t of topTags) {
   writeFeed({
@@ -874,6 +974,49 @@ if (videoFeed) {
 </main>`,
   }));
   addUrl(url('/video/'), (videoFeed.videos[0] || {}).published, '0.8', 'daily');
+}
+
+// О проекте: страница нужна и читателю, и поисковику — Google отдельно смотрит,
+// понятно ли, кто пишет и почему ему верить.
+if (site.about) {
+  const ab = site.about;
+  write('/about/index.html', layout({
+    title: `${ab.title} — ${site.title}`,
+    description: ab.lead || site.description,
+    canonical: ORIGIN + url('/about/'), active: 'about',
+    jsonld: [{
+      '@context': 'https://schema.org', '@type': 'AboutPage',
+      name: ab.title, description: ab.lead || site.description,
+      url: ORIGIN + url('/about/'), inLanguage: 'ru-RU',
+      mainEntity: {
+        '@type': 'Organization', name: site.title, url: ORIGIN + url('/'),
+        description: site.description,
+        logo: { '@type': 'ImageObject', url: ORIGIN + url('/assets/logo-512.png') },
+        ...((site.social || []).length ? { sameAs: site.social } : {}),
+      },
+    }],
+    body: `<main id="main">
+  <div class="article-layout"><div class="article-col">
+  <nav class="crumbs" aria-label="Хлебные крошки">
+    <a href="${attr(url('/'))}">Главная</a><span>/</span><span class="cur">${esc(ab.title)}</span>
+  </nav>
+  <article class="article">
+    <h1 class="h1-art">${esc(ab.title)}</h1>
+    ${ab.lead ? `<p class="lead-art">${esc(ab.lead)}</p>` : ''}
+    <div class="body">
+      ${(ab.body || []).map((t) => `<p>${inline(t)}</p>`).join('\n      ')}
+      ${site.youtubeChannel ? `<h2 id="kanal">Наш YouTube-канал</h2>
+      <p>Каждая большая тема выходит и текстом, и видео. Если больше нравится смотреть —
+      <a href="${attr(ytLink(site.youtubeChannel, 'about'))}" target="_blank" rel="noopener" data-yt-about>откройте канал</a>.</p>` : ''}
+      <h2 id="kontakty">Связаться</h2>
+      <p>Нашли ошибку, хотите предложить тему или сотрудничество — пишите на
+      <a href="mailto:${attr(site.email || 'martizkurazit@gmail.com')}">${esc(site.email || 'martizkurazit@gmail.com')}</a>.</p>
+    </div>
+  </article>
+  </div></div>
+</main>`,
+  }));
+  addUrl(url('/about/'), undefined, '0.5', 'monthly');
 }
 
 // 404
@@ -1003,6 +1146,10 @@ function articleAsText(a) {
     else if (b.type === 'image') { if (b.caption || b.alt) lines.push(`[изображение: ${b.caption || b.alt}]`, ''); }
     else if (b.type === 'rule') lines.push('---', '');
     else if (b.text) lines.push(b.text, '');
+  }
+  if (a.faq.length) {
+    lines.push('## Частые вопросы', '');
+    a.faq.forEach((f) => lines.push(`**${f.q}**`, f.a, ''));
   }
   if (a.sources.length) lines.push('## Источники', ...a.sources.map((x) => `- ${x}`), '');
   return lines.join('\n');

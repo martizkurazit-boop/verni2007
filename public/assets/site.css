@@ -381,3 +381,19 @@ img{max-width:100%}
 .videos-strip .btn-more{border-color:#383838;color:#E8E8E8;background:transparent}
 .videos-strip .btn-more:hover{background:var(--accent);border-color:var(--accent);color:#000}
 .meta .upd{color:var(--accent-2)}
+
+/* Автоматическая ссылка на свой материал — пунктиром, чтобы отличалась
+   от ссылки, которую автор поставил осознанно */
+.body a.autolink{border-bottom:1px dashed var(--accent)}
+
+/* Частые вопросы */
+.faq{margin-top:44px}
+.faq h2{margin:0 0 6px;font-weight:900;font-size:clamp(22px,5vw,30px);line-height:1.06;
+  letter-spacing:-.015em;text-transform:uppercase;scroll-margin-top:120px}
+.faq-item{border-bottom:1px solid var(--border)}
+.faq-item summary{cursor:pointer;padding:16px 0;font-weight:800;font-size:17px;line-height:1.3;
+  list-style:none;display:flex;justify-content:space-between;gap:14px;align-items:baseline}
+.faq-item summary::-webkit-details-marker{display:none}
+.faq-item summary::after{content:'+';color:var(--accent-2);font-weight:800;font-size:18px}
+.faq-item[open] summary::after{content:'−'}
+.faq-a{padding:0 0 18px;font-weight:500;font-size:17px;line-height:1.6;color:var(--body)}
