@@ -727,6 +727,11 @@ ${visibleCats.map((c) => `## ${c.title}\n${published.filter((a) => a.category ==
 - [Карта сайта](${ORIGIN + url('/sitemap.xml')})
 `);
 
+// CNAME для GitHub Pages: пишется только когда сайт собирается под собственный домен.
+if (!TEMP_HOST && U.hostname && !/\.github\.io$/.test(U.hostname) && U.hostname !== 'localhost') {
+  write('/CNAME', U.hostname + '\n');
+}
+
 // Конфиг админки (репозиторий и ветка для GitHub API)
 write('/admin/config.js', `window.VM2007 = ${JSON.stringify({
   repo: process.env.CONTENT_REPO || site.repo || '',
