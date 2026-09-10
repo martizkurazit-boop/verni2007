@@ -153,3 +153,4 @@ code{font-family:inherit;font-weight:700;background:#0A0A0A;border:1px solid var
 /* Картинка загружена, но сайт ещё не пересобран */
 .imgwait{display:block;width:200px;aspect-ratio:16/9;border:1px dashed var(--strong);background:#171717;
   padding:10px;font-size:11px;line-height:1.4;color:var(--faint)}
+.toast a{color:inherit;text-decoration:underline;text-underline-offset:3px;white-space:nowrap}

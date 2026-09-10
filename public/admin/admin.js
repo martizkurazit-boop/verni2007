@@ -20,10 +20,20 @@
   };
 
   /* ── Мелочи ─────────────────────────────────────────────────────── */
-  function toast(msg, isError) {
+  function toast(msg, isError, link) {
     var t = document.createElement('div');
     t.className = 'toast' + (isError ? ' err' : '');
     t.textContent = msg;
+    if (link) {
+      t.appendChild(document.createTextNode(' '));
+      var a = document.createElement('a');
+      a.href = link.href;
+      a.target = '_blank';
+      a.rel = 'noopener';
+      a.textContent = link.text;
+      a.addEventListener('click', function (e) { e.stopPropagation(); });
+      t.appendChild(a);
+    }
     document.body.appendChild(t);
     setTimeout(function () { t.remove(); }, isError ? 14000 : 3500);
     t.addEventListener('click', function () { t.remove(); });
@@ -956,9 +966,16 @@
         state.dirty = false;
         progress(0);
         fillEditor();
-        toast(status === 'published'
-          ? 'Опубликовано. Сайт пересобирается — статья появится через минуту.'
-          : 'Черновик сохранён. На сайте он не появится.');
+        if (status === 'published') {
+          // Ссылка с меткой времени: браузер держит HTML до десяти минут, и обычное
+          // обновление подсовывает старую версию страницы. С меткой она всегда свежая.
+          toast('Опубликовано. Сайт пересобирается, статья появится примерно через минуту.', false, {
+            text: 'Открыть статью →',
+            href: (CFG.siteUrl || '') + '/articles/' + d.slug + '/?v=' + Date.now(),
+          });
+        } else {
+          toast('Черновик сохранён. На сайте он не появится.');
+        }
       })
       .catch(function (e) { progress(0); toast(e.message, true); });
   }
