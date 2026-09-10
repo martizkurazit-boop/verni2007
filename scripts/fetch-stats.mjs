@@ -36,6 +36,8 @@ async function api(url) {
 function stat(params) {
   const q = new URLSearchParams(Object.assign({
     ids: COUNTER, date1: DAYS + 'daysAgo', date2: 'today', accuracy: 'full',
+    // Без lang API отдаёт названия источников и стран по-английски.
+    lang: 'ru',
   }, params));
   return api(API + '/stat/v1/data?' + q);
 }
@@ -52,11 +54,13 @@ const out = {
    поэтому сначала спрашиваем список и сопоставляем по имени события. */
 let goals = [];
 try {
-  const r = await api(`${API}/management/v1/counter/${COUNTER}/goals`);
+  const r = await api(`${API}/management/v1/counter/${COUNTER}/goals?lang=ru`);
   goals = (r.goals || []).map((g) => ({
     id: g.id,
     name: g.name,
-    event: (g.conditions || []).map((c) => c.value).filter(Boolean)[0] || '',
+    // У «целевого события» идентификатор лежит в поле url — не в value,
+    // как можно подумать по названию. Берём оба на всякий случай.
+    event: (g.conditions || []).map((c) => c.url || c.value).filter(Boolean)[0] || '',
   }));
   console.log('Цели в счётчике: ' + (goals.map((g) => g.name + ' (' + g.event + ')').join(', ') || 'нет'));
 } catch (e) {
