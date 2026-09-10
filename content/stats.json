@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-09-10T12:08:29.233Z",
+  "updatedAt": "2026-09-10T12:12:40.959Z",
   "days": 30,
   "counter": "112450613",
   "totals": {
@@ -13,60 +13,60 @@
     {
       "id": 611348816,
       "name": "Переход на YouTube",
-      "event": "",
+      "event": "youtube_click",
       "reaches": 0
     },
     {
       "id": 611348857,
       "name": "Запуск видео",
-      "event": "",
+      "event": "video_play",
       "reaches": 1
     },
     {
       "id": 611348858,
       "name": "Дочитывание",
-      "event": "",
+      "event": "read_end",
       "reaches": 3
     },
     {
       "id": 611348974,
       "name": "Поиск по сайту",
-      "event": "",
+      "event": "search",
       "reaches": 0
     }
   ],
   "sources": [
     {
-      "name": "Direct traffic",
+      "name": "Прямые заходы",
       "visits": 12,
       "share": 86
     },
     {
-      "name": "Internal traffic",
+      "name": "Внутренние переходы",
       "visits": 1,
       "share": 7
     },
     {
-      "name": "Search engine traffic",
+      "name": "Переходы из поисковых систем",
       "visits": 1,
       "share": 7
     }
   ],
   "geo": [
     {
-      "name": "United States",
+      "name": "США",
       "visits": 9
     },
     {
-      "name": "Thailand",
+      "name": "Таиланд",
       "visits": 3
     },
     {
-      "name": "Canada",
+      "name": "Канада",
       "visits": 1
     },
     {
-      "name": "Switzerland",
+      "name": "Швейцария",
       "visits": 1
     }
   ],
@@ -75,20 +75,20 @@
       "url": "https://vernitemoy2007.ru/",
       "visits": 13,
       "goals": {
-        "Переход на YouTube": 0,
-        "Запуск видео": 1,
-        "Дочитывание": 2,
-        "Поиск по сайту": 0
+        "youtube_click": 0,
+        "video_play": 1,
+        "read_end": 2,
+        "search": 0
       }
     },
     {
       "url": "https://vernitemoy2007.ru/articles/mihail-gorshenev/",
       "visits": 1,
       "goals": {
-        "Переход на YouTube": 0,
-        "Запуск видео": 0,
-        "Дочитывание": 1,
-        "Поиск по сайту": 0
+        "youtube_click": 0,
+        "video_play": 0,
+        "read_end": 1,
+        "search": 0
       }
     }
   ],
