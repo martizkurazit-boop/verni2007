@@ -126,6 +126,14 @@ function loadArticles() {
   }).sort((x, y) => String(y.publishedAt || '').localeCompare(String(x.publishedAt || '')));
 }
 
+/* Список выпусков канала — его наполняет отдельный workflow из публичной
+   RSS-ленты YouTube. Нет файла — страницы видео просто не будет. */
+let videoFeed = null;
+try {
+  videoFeed = JSON.parse(fs.readFileSync(path.join(CONTENT, 'videos.json'), 'utf8'));
+  if (!videoFeed.videos || !videoFeed.videos.length) videoFeed = null;
+} catch (e) { videoFeed = null; }
+
 const allArticles = loadArticles();
 const published = allArticles.filter((a) => a.status === 'published');
 const catById = new Map((site.categories || []).map((c) => [c.id, c]));
@@ -198,6 +206,7 @@ function header(active) {
     <nav class="nav-desk" aria-label="Разделы">
       ${visibleCats.map((c) => link('/category/' + c.id + '/', c.title, 'cat:' + c.id)).join('\n      ')}
       <a class="all" href="${attr(url('/all/'))}"${active === 'all' ? ' aria-current="page"' : ''}>Все статьи</a>
+      ${videoFeed ? `<a class="all" href="${attr(url('/video/'))}"${active === 'video' ? ' aria-current="page"' : ''}>Видео</a>` : ''}
     </nav>
     <div class="hdr-act">
       <button class="btn-ico" type="button" data-search-toggle aria-expanded="false" aria-controls="searchbar" aria-label="Поиск">⌕</button>
@@ -208,6 +217,7 @@ function header(active) {
   <nav class="nav-mob" aria-label="Разделы (мобильные)">
     <div class="nav-mob-in">
       <a href="${attr(url('/all/'))}"${active === 'all' ? ' aria-current="page"' : ''}>Все</a>
+      ${videoFeed ? `<a href="${attr(url('/video/'))}"${active === 'video' ? ' aria-current="page"' : ''}>Видео</a>` : ''}
       ${visibleCats.map((c) => link('/category/' + c.id + '/', c.title, 'cat:' + c.id)).join('\n      ')}
     </div>
   </nav>
@@ -237,6 +247,7 @@ function footer() {
       </div>
       <div class="ftr-col"><span class="lbl">Ещё</span>
         <a href="${attr(url('/all/'))}">Все статьи</a>
+        ${videoFeed ? `<a href="${attr(url('/video/'))}">Видео</a>` : ''}
         <a href="${attr(url('/search/'))}">Поиск</a>
         ${site.youtubeChannel ? `<a href="${attr(ytLink(site.youtubeChannel, 'footer'))}" target="_blank" rel="noopener" data-yt-footer>Наш YouTube-канал →</a>` : ''}
       </div>
@@ -356,6 +367,31 @@ function nextCard(a) {
 </a>`;
 }
 
+function videoCard(v, place) {
+  const href = ytLink('https://www.youtube.com/watch?v=' + v.id, place);
+  return `<article class="vcard">
+  <a class="vcover" href="${attr(href)}" target="_blank" rel="noopener" data-yt-video>
+    <img src="https://i.ytimg.com/vi/${attr(v.id)}/hqdefault.jpg" alt="Превью выпуска «${attr(v.title)}»"
+         width="480" height="360" loading="lazy" decoding="async">
+    <span class="vplay">▶</span>
+  </a>
+  <div class="vbody">
+    ${v.published ? `<time class="readtime" datetime="${attr(v.published)}">${esc(ruDate(v.published.slice(0, 10)))}</time>` : ''}
+    <h3><a href="${attr(href)}" target="_blank" rel="noopener" data-yt-video>${esc(v.title)}</a></h3>
+  </div>
+</article>`;
+}
+
+function latestVideosBlock() {
+  if (!videoFeed) return '';
+  return `<section class="more videos-strip">
+  <div class="eyebrow"><span class="sl">//</span><span>Новые выпуски</span></div>
+  <div class="grid vgrid">${videoFeed.videos.slice(0, 3).map((v) => videoCard(v, 'home-strip')).join('\n')}</div>
+  <div class="back"><a class="btn-accent" href="${attr(url('/video/'))}">Все выпуски →</a>
+    <a class="btn-more" href="${attr(ytLink(videoFeed.channelUrl, 'home-strip-channel'))}" target="_blank" rel="noopener" data-yt-video>Открыть канал</a></div>
+</section>`;
+}
+
 /* ── Лента (главная, категория, тег, «все») ──────────────────────── */
 /* Переключатели над лентой: вся лента или только материалы с выпуском.
    Показываются там, где это осмысленно — на главной, «Все статьи» и в самой ленте с видео. */
@@ -395,6 +431,7 @@ function feedPage({ items, total, page, pages, basePath, eyebrow, h1, lead, titl
       <span class="page-status" data-status>Показано ${shownTo} из ${total} · страница ${page} из ${pages}</span>
     </div>` : ''}
   </section>
+  ${active === 'home' && page === 1 ? latestVideosBlock() : ''}
 </main>`;
   const seq = (page > 1 ? `<link rel="prev" href="${attr(ORIGIN + pageLink(page - 1))}">\n` : '')
     + (page < pages ? `<link rel="next" href="${attr(ORIGIN + pageLink(page + 1))}">\n` : '');
@@ -764,6 +801,51 @@ write('/search/index.html', layout({
   </section>
 </main>`,
 }));
+
+// Страница выпусков канала
+if (videoFeed) {
+  const vids = videoFeed.videos;
+  write('/video/index.html', layout({
+    title: `Видео — ${site.title}`,
+    description: `Выпуски YouTube-канала «${site.title}»: истории о людях, вещах и явлениях 90-х и 2000-х.`,
+    canonical: ORIGIN + url('/video/'), active: 'video',
+    jsonld: [{
+      '@context': 'https://schema.org', '@type': 'ItemList',
+      itemListElement: vids.map((v, i) => ({
+        '@type': 'ListItem', position: i + 1,
+        item: {
+          '@type': 'VideoObject', name: v.title,
+          description: v.description || site.description,
+          uploadDate: v.published,
+          thumbnailUrl: [`https://i.ytimg.com/vi/${v.id}/hqdefault.jpg`],
+          embedUrl: `https://www.youtube-nocookie.com/embed/${v.id}`,
+          contentUrl: `https://www.youtube.com/watch?v=${v.id}`,
+        },
+      })),
+    }],
+    body: `<main id="main">
+  <section class="head-sec">
+    <div class="eyebrow"><span class="sl">//</span><span>Выпуски канала</span></div>
+    <h1 class="h1-feed">Видео.</h1>
+    <p class="lead-feed">Те же истории, но в кадре. Последние выпуски канала — их ${vids.length}
+      ${plural(vids.length, 'штука', 'штуки', 'штук')}; полный архив на YouTube.</p>
+    <div class="feed-chips">
+      <a class="feed-chip on" href="${attr(ytLink(videoFeed.channelUrl, 'video-page-top'))}"
+         target="_blank" rel="noopener" data-yt-video>▶ Смотреть на канале</a>
+      <a class="feed-chip" href="${attr(url('/with-video/'))}">Статьи с выпусками</a>
+    </div>
+    <div class="rule-accent"></div>
+  </section>
+  <section class="feed">
+    <div class="grid vgrid">${vids.map((v) => videoCard(v, 'video-page')).join('\n')}</div>
+    <div class="pager"><a class="btn-accent" href="${attr(ytLink(videoFeed.channelUrl, 'video-page-bottom'))}"
+      target="_blank" rel="noopener" data-yt-video>Открыть канал на YouTube →</a>
+      <span class="page-status">Список обновляется автоматически из ленты канала.</span></div>
+  </section>
+</main>`,
+  }));
+  addUrl(url('/video/'), (videoFeed.videos[0] || {}).published, '0.8', 'daily');
+}
 
 // 404
 write('/404.html', layout({
