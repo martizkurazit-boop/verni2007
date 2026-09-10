@@ -434,3 +434,8 @@ img{max-width:100%}
 .chip-vk{background:#0077FF;border-color:#0077FF;color:#fff;font-weight:800}
 .chip-vk:hover{background:#0067dd;border-color:#0067dd;color:#fff}
 .vk-mark{font-weight:900;font-size:13px;letter-spacing:-.02em;line-height:1}
+
+/* Читают сейчас */
+.popular{background:var(--bg-alt)}
+.rail-pop{margin-top:26px;padding-top:22px;border-top:1px solid var(--border)}
+.rail-pop .eyebrow{margin-bottom:14px}

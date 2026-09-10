@@ -166,3 +166,14 @@ code{font-family:inherit;font-weight:700;background:#0A0A0A;border:1px solid var
 .artsec-add{display:flex;flex-wrap:wrap;gap:5px;padding-top:2px}
 .artsec-add .rolebtn{border-style:dashed;color:var(--muted)}
 .artsec-add .rolebtn:hover{border-color:var(--accent);color:var(--accent);border-style:solid}
+
+/* Чек-лист готовности статьи */
+.checklist{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:9px}
+.checklist li{display:flex;gap:10px;align-items:flex-start;font-size:13px;line-height:1.45}
+.checklist .mark{flex:0 0 auto;width:16px;font-weight:900;line-height:1.45}
+.checklist li.ok{color:var(--muted)}
+.checklist li.ok .mark{color:var(--accent)}
+.checklist li.bad{color:var(--text)}
+.checklist li.bad .mark{color:var(--danger)}
+.checklist li.soft{color:var(--faint)}
+.checklist li.soft .mark{color:var(--faint)}

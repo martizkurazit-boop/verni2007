@@ -149,11 +149,28 @@ function autoLink(html, article) {
   return out;
 }
 
+/* Типографика: то, что вручную соблюдать невозможно, а глазом видно сразу.
+   Кавычки-ёлочки, длинные тире, неразрывные пробелы после коротких слов и
+   перед тире — чтобы предлог не оставался в конце строки, а тире не начинало её. */
+function typo(text) {
+  let t = String(text);
+  t = t.replace(/(^|[\s(«"'])"([^"]*)"/g, '$1«$2»');     // «ёлочки» вместо машинописных кавычек
+  t = t.replace(/\.\.\./g, '…');
+  t = t.replace(/(\s)[-–](\s)/g, '$1—$2');               // тире вместо дефиса между словами
+  t = t.replace(/(\d)\s*[-–]\s*(\d)/g, '$1–$2');        // диапазон лет пишется коротким тире
+  // Короткое слово не должно оставаться в конце строки в одиночестве.
+  t = t.replace(/(^|[\s(«])([А-Яа-яЁёA-Za-z]{1,2})\s+/g, '$1$2\u00A0');
+  t = t.replace(/\s+—/g, '\u00A0—');                     // тире не начинает строку
+  return t;
+}
+
 /* Инлайновая разметка внутри текста: **жирный**, [ссылка](url) */
 function inline(text) {
-  let out = esc(text);
+  // Типографику применяем только к тексту: внутри адресов ссылок она сломала бы их.
+  const parts = String(text).split(/(\[[^\]]+\]\((?:https?:\/\/[^\s)]+|\/[^\s)]*)\))/g);
+  let out = parts.map((chunk, i) => (i % 2 ? esc(chunk) : esc(typo(chunk)))).join('');
   out = out.replace(/\[([^\]]+)\]\((https?:\/\/[^\s)]+|\/[^\s)]*)\)/g,
-    (_, t, href) => `<a href="${attr(href)}"${href.startsWith('http') ? ' target="_blank" rel="noopener"' : ''}>${t}</a>`);
+    (_, t, href) => `<a href="${attr(href)}"${href.startsWith('http') ? ' target="_blank" rel="noopener"' : ''}>${typo(t)}</a>`);
   out = out.replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>');
   return out;
 }
@@ -181,6 +198,11 @@ try {
   videoFeed = JSON.parse(fs.readFileSync(path.join(CONTENT, 'videos.json'), 'utf8'));
   if (!videoFeed.videos || !videoFeed.videos.length) videoFeed = null;
 } catch (e) { videoFeed = null; }
+
+/* Статистика Метрики, если её уже забирал workflow. По ней строится блок
+   «Читают сейчас»: живой сигнал, а не ручной выбор редакции. */
+let siteStats = null;
+try { siteStats = JSON.parse(fs.readFileSync(path.join(CONTENT, 'stats.json'), 'utf8')); } catch (e) {}
 
 const allArticles = loadArticles();
 const published = allArticles.filter((a) => a.status === 'published');
@@ -319,7 +341,8 @@ function footer() {
 </footer>`;
 }
 
-function layout({ title, description, canonical, body, active, jsonld = [], noindex = false, ogImage, ogType = 'website', extraHead = '' }) {
+function layout({ title, description, canonical, body, active, jsonld = [], noindex = false, ogImage,
+                  ogType = 'website', extraHead = '', preconnectYt = false }) {
   if (TEMP_HOST) noindex = true;
   const img = ogImage || (site.defaultOgImage ? url(site.defaultOgImage) : '');
   return `<!doctype html>
@@ -346,7 +369,7 @@ ${(site.verification && site.verification.yandex) ? `<meta name="yandex-verifica
 <link rel="icon" href="${attr(url('/favicon.svg'))}" type="image/svg+xml">
 <link rel="apple-touch-icon" href="${attr(url('/apple-touch-icon.png'))}">
 <link rel="alternate" type="application/rss+xml" title="${attr(site.title)}" href="${attr(url('/feed.xml'))}">
-<link rel="preload" href="${attr(url('/fonts/gilroy-900.woff2'))}" as="font" type="font/woff2" crossorigin>
+${preconnectYt ? '<link rel="preconnect" href="https://i.ytimg.com" crossorigin>\n<link rel="preconnect" href="https://www.youtube-nocookie.com">\n' : ''}<link rel="preload" href="${attr(url('/fonts/gilroy-900.woff2'))}" as="font" type="font/woff2" crossorigin>
 <link rel="preload" href="${attr(url('/fonts/gilroy-500.woff2'))}" as="font" type="font/woff2" crossorigin>
 <link rel="stylesheet" href="${attr(ver('/assets/site.css'))}">
 ${jsonld.map((j) => `<script type="application/ld+json">${JSON.stringify(j).replace(/</g, '\\u003c')}</script>`).join('\n')}
@@ -379,7 +402,7 @@ function card(a, i) {
       <time class="readtime" datetime="${attr(a.publishedAt)}">${esc(ruDate(a.publishedAt))}</time>
     </div>
     <h2><a href="${attr(href)}">${esc(a.title)}</a></h2>
-    <p>${esc(a.excerpt)}</p>
+    <p>${esc(typo(a.excerpt))}</p>
     <a class="read-more" href="${attr(href)}">Читать →</a>
   </div>
 </article>`;
@@ -446,6 +469,32 @@ function videoCard(v, place) {
 </article>`;
 }
 
+/* Самые читаемые материалы за последний месяц. Берём страницы входа из отчёта
+   Метрики и оставляем те, что до сих пор опубликованы. */
+function popularArticles(limit) {
+  if (!siteStats || !Array.isArray(siteStats.pages)) return [];
+  const bySlug = new Map(published.map((a) => [a.slug, a]));
+  const out = [];
+  for (const row of siteStats.pages) {
+    const m = String(row.url || '').match(/\/articles\/([^/?#]+)/);
+    if (!m) continue;
+    const a = bySlug.get(m[1]);
+    if (a && !out.includes(a)) out.push(a);
+    if (out.length >= limit) break;
+  }
+  return out;
+}
+
+function popularBlock() {
+  const list = popularArticles(3);
+  // Меньше трёх — статистики ещё нет или сайт слишком молодой: блок промолчит.
+  if (list.length < 3) return '';
+  return `<section class="more popular">
+  <div class="eyebrow"><span class="sl">//</span><span>Читают сейчас</span></div>
+  <div class="grid">${list.map(relatedCard).join('\n')}</div>
+</section>`;
+}
+
 function latestVideosBlock() {
   if (!videoFeed) return '';
   return `<section class="more videos-strip">
@@ -468,11 +517,15 @@ function feedFilters(active) {
     + `${chip('/with-video/', '▶ Только с видео', active === 'with-video')}</div>`;
 }
 
-function feedPage({ items, total, page, pages, basePath, eyebrow, h1, lead, title, description, canonicalPath, active, jsonld, noindex }) {
+function feedPage({ items, total, page, pages, basePath, eyebrow, h1, lead, title, description,
+                    canonicalPath, active, jsonld, noindex, crumb, preconnectYt }) {
   const pageLink = (n) => url(n === 1 ? basePath : basePath + 'page/' + n + '/');
   const perPage = site.pageSize || 4;
   const shownTo = Math.min(page * perPage, total);
   const body = `<main id="main">
+  ${crumb ? `<nav class="crumbs crumbs-feed" aria-label="Хлебные крошки">
+    <a href="${attr(url('/'))}">Главная</a><span>/</span><span class="cur">${esc(crumb.name)}</span>
+  </nav>` : ''}
   <section class="head-sec">
     <div class="eyebrow"><span class="sl">//</span><span>${esc(eyebrow)}</span></div>
     <h1 class="h1-feed">${esc(h1)}</h1>
@@ -495,13 +548,22 @@ function feedPage({ items, total, page, pages, basePath, eyebrow, h1, lead, titl
       <span class="page-status" data-status>Показано ${shownTo} из ${total} · страница ${page} из ${pages}</span>
     </div>` : ''}
   </section>
-  ${active === 'home' && page === 1 ? latestVideosBlock() : ''}
+  ${active === 'home' && page === 1 ? popularBlock() + latestVideosBlock() : ''}
 </main>`;
   const seq = (page > 1 ? `<link rel="prev" href="${attr(ORIGIN + pageLink(page - 1))}">\n` : '')
     + (page < pages ? `<link rel="next" href="${attr(ORIGIN + pageLink(page + 1))}">\n` : '');
-  return layout({ title, description, canonical: ORIGIN + canonicalPath, body, active, jsonld, noindex, extraHead: seq });
+  const crumbLd = crumb ? [{
+    '@context': 'https://schema.org', '@type': 'BreadcrumbList',
+    itemListElement: [
+      { '@type': 'ListItem', position: 1, name: 'Главная', item: ORIGIN + url('/') },
+      { '@type': 'ListItem', position: 2, name: crumb.name, item: ORIGIN + url(crumb.path) },
+    ],
+  }] : [];
+  return layout({ title, description, canonical: ORIGIN + canonicalPath, body, active,
+    jsonld: (jsonld || []).concat(crumbLd), noindex, extraHead: seq, preconnectYt });
 }
-function writeFeed({ list, basePath, eyebrow, h1, lead, title, description, active, jsonldFor, noindex }) {
+function writeFeed(opts) {
+  const { list, basePath, eyebrow, h1, lead, title, description, active, jsonldFor, noindex } = opts;
   const perPage = site.pageSize || 4;
   const pages = Math.max(1, Math.ceil(list.length / perPage));
   for (let p = 1; p <= pages; p++) {
@@ -509,6 +571,7 @@ function writeFeed({ list, basePath, eyebrow, h1, lead, title, description, acti
     const rel = p === 1 ? basePath : basePath + 'page/' + p + '/';
     const html = feedPage({
       items, total: list.length, page: p, pages, basePath, eyebrow, h1, lead,
+      crumb: opts.crumb, preconnectYt: opts.preconnectYt,
       title: p > 1 ? `${title} — страница ${p}` : title,
       description, canonicalPath: url(rel), active,
       jsonld: jsonldFor ? jsonldFor(items, p) : [], noindex,
@@ -546,7 +609,7 @@ function renderBody(a, inlineRel) {
           ? `<img src="${attr(src)}" alt="${attr(b.alt || b.caption || '')}"`
             + `${w && h ? ` width="${w}" height="${h}"` : ''} loading="lazy" decoding="async">`
           : `<div class="fr"><span class="ph">${esc(b.alt || 'Изображение')}</span></div>`}`
-          + `${b.caption ? `<figcaption>${esc(b.caption)}</figcaption>` : ''}</figure>`);
+          + `${b.caption ? `<figcaption>${esc(typo(b.caption))}</figcaption>` : ''}</figure>`);
         break;
       }
       default: out.push(`<p>${autoLink(inline(b.text || ''), a)}</p>`);
@@ -590,6 +653,24 @@ function ogCardPath(a) {
   return rel;
 }
 
+/* Кто автор материала. По умолчанию — редакция как организация. Если имя описано
+   в site.json → people, автор размечается как человек: Google ценит связку
+   «человек → его канал → сайт», она усиливает доверие ко всем трём. */
+function authorLd(name) {
+  const who = String(name || site.author || site.title);
+  const p = (site.people || {})[who] || {};
+  if (p.type === 'Organization' || !Object.keys(p).length) {
+    return { '@type': 'Organization', name: who, url: ORIGIN + url('/') };
+  }
+  return {
+    '@type': 'Person', name: who,
+    ...(p.description ? { description: p.description } : {}),
+    ...(p.role ? { jobTitle: p.role } : {}),
+    ...(p.sameAs && p.sameAs.length ? { sameAs: p.sameAs } : {}),
+    url: p.url || ORIGIN + url('/about/'),
+  };
+}
+
 function articlePage(a) {
   const cat = catById.get(a.category) || { id: a.category, title: '' };
   const canonicalPath = url('/articles/' + a.slug + '/');
@@ -612,7 +693,7 @@ function articlePage(a) {
       headline: a.title, description: desc,
       mainEntityOfPage: { '@type': 'WebPage', '@id': canonical },
       datePublished: a.publishedAt, dateModified: a.updatedAt || a.publishedAt,
-      author: { '@type': 'Organization', name: a.author || site.author || site.title },
+      author: authorLd(a.author),
       publisher: {
         '@type': 'Organization', name: site.title,
         logo: { '@type': 'ImageObject', url: ORIGIN + url('/assets/logo-512.png'), width: 512, height: 512 },
@@ -665,7 +746,7 @@ function articlePage(a) {
 <article class="article">
   <a class="kicker" href="${attr(url('/category/' + cat.id + '/'))}">${esc(cat.title)}</a>
   <h1 class="h1-art">${esc(a.title)}</h1>
-  ${a.lead ? `<p class="lead-art">${esc(a.lead)}</p>` : ''}
+  ${a.lead ? `<p class="lead-art">${esc(typo(a.lead))}</p>` : ''}
   <div class="meta">
     <span class="who">${esc(a.author || site.author || 'Редакция')}</span>
     <span><time datetime="${attr(a.publishedAt)}">${esc(ruDate(a.publishedAt))}</time></span>
@@ -744,6 +825,10 @@ ${sideItems.length ? `<aside class="rail" aria-label="Другие матери�
     <div class="eyebrow"><span class="sl">//</span><span>Ещё по теме</span></div>
     <ul class="rail-list">${sideItems.map(asideCard).join('\n')}</ul>
     <a class="rail-all" href="${attr(url('/all/'))}">Все статьи →</a>
+    ${popularArticles(3).filter((x) => x.slug !== a.slug).length >= 3 ? `<div class="rail-pop">
+      <div class="eyebrow"><span class="sl">//</span><span>Читают сейчас</span></div>
+      <ul class="rail-list">${popularArticles(4).filter((x) => x.slug !== a.slug).slice(0, 3).map(asideCard).join('')}</ul>
+    </div>` : ''}
   </div>
 </aside>` : ''}
 </div>
@@ -762,6 +847,7 @@ ${vid ? `<a class="yt-sticky" href="${attr(ytLink(a.youtubeUrl, 'article-sticky'
   return layout({
     title: a.seoTitle || `${a.title} — ${site.title}`,
     description: desc, canonical, body, active: 'cat:' + cat.id, jsonld, ogType: 'article',
+    preconnectYt: !!vid,
     ogImage: a.ogImage
       ? (a.ogImage.startsWith('http') ? a.ogImage : url(a.ogImage))
       : (cover ? cover.src : url(ogCardPath(a))),
@@ -831,7 +917,7 @@ if (withVideo.length) {
       + `${plural(withVideo.length, 'штука', 'штуки', 'штук')}.`,
     title: `Статьи с видео — ${site.title}`,
     description: `Материалы «${site.title}», к которым есть выпуск на YouTube-канале.`,
-    active: 'with-video',
+    active: 'with-video', crumb: { name: 'Статьи с видео', path: '/with-video/' }, preconnectYt: true,
   });
   addUrl(url('/with-video/'), undefined, '0.7', 'weekly');
 }
@@ -852,6 +938,7 @@ for (const c of visibleCats) {
   writeFeed({
     list, basePath: '/category/' + c.id + '/', eyebrow: 'Раздел', h1: c.title + '.',
     lead: c.description || '', active: 'cat:' + c.id,
+    crumb: { name: c.title, path: '/category/' + c.id + '/' },
     title: c.seoTitle || `${c.title} — ${site.title}`,
     description: c.seoDescription || c.description || `${c.title}: материалы «${site.title}» о культуре 90-х и 2000-х.`,
     jsonldFor: (items) => [{ '@context': 'https://schema.org', '@type': 'CollectionPage', name: c.title,
@@ -871,6 +958,7 @@ for (const hub of site.hubs || []) {
   writeFeed({
     list, basePath: '/' + hub.slug + '/', eyebrow: 'Эпоха', h1: hub.title + '.',
     lead: hub.description || '', active: 'hub:' + hub.slug,
+    crumb: { name: hub.title, path: '/' + hub.slug + '/' },
     title: hub.seoTitle || `${hub.title} — ${site.title}`,
     description: hub.seoDescription || hub.description || '',
     jsonldFor: () => [{ '@context': 'https://schema.org', '@type': 'CollectionPage',
@@ -887,6 +975,7 @@ for (const t of topTags) {
   writeFeed({
     list: t.items, basePath: '/tag/' + t.slug + '/', eyebrow: 'Тег', h1: t.label + '.',
     lead: `Материалы по теме «${t.label}».`, active: '',
+    crumb: { name: t.label, path: '/tag/' + t.slug + '/' },
     title: `${t.label} — ${site.title}`,
     description: `Все материалы «${site.title}» по теме «${t.label}».`,
   });
@@ -953,7 +1042,7 @@ if (videoFeed) {
   write('/video/index.html', layout({
     title: `Видео — ${site.title}`,
     description: `Выпуски YouTube-канала «${site.title}»: истории о людях, вещах и явлениях 90-х и 2000-х.`,
-    canonical: ORIGIN + url('/video/'), active: 'video',
+    canonical: ORIGIN + url('/video/'), active: 'video', preconnectYt: true,
     jsonld: [{
       '@context': 'https://schema.org', '@type': 'ItemList',
       itemListElement: vids.map((v, i) => ({
@@ -1059,16 +1148,32 @@ write('/saved/index.html', layout({
 </main>`,
 }));
 
-// 404
+// 404: не тупик, а вход в сайт — поиск, свежие материалы и разделы.
 write('/404.html', layout({
   title: `Страница не найдена — ${site.title}`, description: 'Такой страницы нет.',
   canonical: ORIGIN + url('/404.html'), noindex: true, active: '',
-  body: `<main id="main"><div class="center-box">
+  body: `<main id="main">
+  <section class="head-sec">
     <div class="eyebrow"><span class="sl">//</span><span>Ошибка 404</span></div>
-    <h1>Такой страницы нет.</h1>
-    <p>Адрес устарел или в нём опечатка. Загляните в ленту — там всё живое.</p>
-    <p><a class="btn-accent" href="${attr(url('/'))}">← Вернуться в ленту</a></p>
-  </div></main>`,
+    <h1 class="h1-feed">Такой страницы нет.</h1>
+    <p class="lead-feed">Адрес устарел или в нём опечатка. Поищите — или загляните
+      в свежие материалы, они ниже.</p>
+    <form class="search-row" style="max-width:640px;margin-top:22px" action="${attr(url('/search/'))}" method="get" role="search">
+      <input type="search" name="q" placeholder="Герой, фильм, вещь, год…" aria-label="Поиск по сайту">
+      <button type="submit" style="background:#CCFF04;border-color:#CCFF04">Найти</button>
+    </form>
+    <div class="feed-chips">
+      <a class="feed-chip" href="${attr(url('/all/'))}">Все статьи</a>
+      ${visibleCats.map((c) => `<a class="feed-chip" href="${attr(url('/category/' + c.id + '/'))}">${esc(c.title)}</a>`).join('')}
+      ${activeHubs().map((h) => `<a class="feed-chip" href="${attr(url('/' + h.slug + '/'))}">${esc(h.title)}</a>`).join('')}
+    </div>
+    <div class="rule-accent"></div>
+  </section>
+  <section class="feed">
+    <div class="eyebrow"><span class="sl">//</span><span>Свежее</span></div>
+    <div class="grid">${published.slice(0, 3).map(card).join('\n')}</div>
+  </section>
+</main>`,
 }));
 
 // Индекс для поиска

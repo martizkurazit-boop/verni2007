@@ -584,11 +584,60 @@
     var chars = (d.body || []).map(blockText).join(' ').length;
     $('#content-stats').textContent = 'Символов: ' + chars + ' · примерное время чтения '
       + Math.max(1, Math.round(words / 180)) + ' мин';
+    renderChecklist();
     if (state.originalSlug && state.originalStatus === 'published' && d.slug !== state.originalSlug) {
       $('#editor-note').hidden = false;
       $('#editor-note').textContent = 'Адрес меняется: со старого /articles/' + state.originalSlug + ' будет поставлен редирект.';
     }
   }
+  /* Чек-лист готовности: то, что легко забыть и что потом дорого исправлять.
+     Строгие пункты — про SEO и читателя, мягкие — про удобство. */
+  function renderChecklist() {
+    var d = state.draft;
+    if (!d) return;
+    var body = d.body || [];
+    var text = body.map(blockText).join(' ');
+    var h2 = body.filter(function (b) { return b.type === 'h2'; }).length;
+    var images = body.filter(function (b) { return b.type === 'image' && b.src; });
+    var noAlt = images.filter(function (b) { return !(b.alt || '').trim(); }).length;
+    var chars = text.length;
+    var seoDesc = (d.seoDescription || '').trim();
+    var checks = [
+      { hard: true, ok: !!(d.title || '').trim(), text: 'Заголовок' },
+      { hard: true, ok: !!(d.slug || '').trim(), text: 'Адрес статьи' },
+      { hard: true, ok: !!(d.excerpt || '').trim(), text: 'Краткий анонс — из него собирается карточка в ленте' },
+      { hard: true, ok: !!(d.lead || '').trim(), text: 'Лид под заголовком' },
+      { hard: true, ok: h2 >= 2,
+        text: h2 ? 'Подзаголовков H2: ' + h2 + ' — нужно хотя бы два'
+                 : 'Ни одного подзаголовка H2: нет оглавления, и для поиска текст выглядит однородной простынёй' },
+      { hard: true, ok: chars >= 1500,
+        text: 'Объём текста: ' + chars + ' знаков' + (chars < 1500 ? ' — короткие статьи поиск считает слабыми' : '') },
+      { hard: true, ok: !!(d.cover && d.cover.src), text: 'Обложка' },
+      { hard: true, ok: !(d.cover && d.cover.src) || !!(d.cover.alt || '').trim(), text: 'Alt-текст обложки' },
+      { hard: true, ok: noAlt === 0,
+        text: noAlt ? 'Без alt-текста картинок: ' + noAlt : 'У всех картинок есть alt-текст' },
+      { hard: true, ok: seoDesc.length > 0 && seoDesc.length <= 160,
+        text: !seoDesc ? 'SEO-описание пустое — в выдаче Google допишет своё'
+                       : 'SEO-описание: ' + seoDesc.length + ' знаков' + (seoDesc.length > 160 ? ' — обрежется' : '') },
+      { hard: false, ok: (d.tags || []).length >= 2,
+        text: 'Теги: ' + (d.tags || []).length + ' — по ним собираются подборки и хабы по эпохам' },
+      { hard: false, ok: (d.aliases || []).length > 0,
+        text: 'Имена для автоссылок — без них другие статьи не сошлются на эту' },
+      { hard: false, ok: !!(d.youtubeUrl || '').trim(), text: 'Ссылка на выпуск YouTube' },
+      { hard: false, ok: (d.faq || []).length > 0, text: 'Частые вопросы — занимают больше места в выдаче' },
+      { hard: false, ok: images.length > 0, text: 'Хотя бы одна картинка в тексте' },
+    ];
+    var bad = checks.filter(function (c) { return c.hard && !c.ok; }).length;
+    $('#checklist').innerHTML = checks.map(function (c) {
+      var cls = c.ok ? 'ok' : (c.hard ? 'bad' : 'soft');
+      return '<li class="' + cls + '"><span class="mark">' + (c.ok ? '✓' : '✕') + '</span>'
+        + '<span>' + esc(c.text) + '</span></li>';
+    }).join('');
+    var head = $('#checklist-card').querySelector('.sec');
+    head.textContent = bad ? 'Готовность: не хватает ' + bad : 'Готовность: всё на месте';
+    head.style.color = bad ? 'var(--danger)' : 'var(--accent)';
+  }
+
   function blockText(b) {
     if (!b) return '';
     if (b.type === 'list') return (b.items || []).join(' ');
