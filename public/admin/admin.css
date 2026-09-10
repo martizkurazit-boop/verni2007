@@ -133,7 +133,8 @@ textarea{resize:vertical;font-weight:500}
 .modal h2{margin:0;font-weight:900;font-size:22px;text-transform:uppercase;color:#fff}
 .modal p{margin:12px 0 0;font-size:15px;line-height:1.6;color:var(--muted)}
 .toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%);z-index:70;background:var(--card);
-  border:1px solid var(--accent);color:var(--accent);padding:14px 18px;font-size:13px;font-weight:700;max-width:90vw}
+  border:1px solid var(--accent);color:var(--accent);padding:14px 18px;font-size:13px;font-weight:700;
+  max-width:min(640px,92vw);line-height:1.5;cursor:pointer}
 .toast.err{border-color:var(--danger);color:var(--danger)}
 .login{max-width:520px;margin:0 auto;padding:60px 20px}
 .login .card{margin-top:22px;display:flex;flex-direction:column;gap:16px}

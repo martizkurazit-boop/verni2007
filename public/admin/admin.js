@@ -22,7 +22,8 @@
     t.className = 'toast' + (isError ? ' err' : '');
     t.textContent = msg;
     document.body.appendChild(t);
-    setTimeout(function () { t.remove(); }, isError ? 7000 : 3500);
+    setTimeout(function () { t.remove(); }, isError ? 14000 : 3500);
+    t.addEventListener('click', function () { t.remove(); });
   }
   function progress(p) { $('#progress').style.width = (p ? p + '%' : '0'); }
   var TRANSLIT = { а:'a',б:'b',в:'v',г:'g',д:'d',е:'e',ё:'e',ж:'zh',з:'z',и:'i',й:'y',к:'k',л:'l',м:'m',н:'n',о:'o',
@@ -130,6 +131,20 @@
         if (!r.ok) return r.text().then(function (t) {
           var msg = t;
           try { msg = JSON.parse(t).message || t; } catch (e) {}
+          // 403 на запись почти всегда значит одно: у токена нет права Contents: write.
+          // Пишем по-человечески, что именно чинить, — иначе фраза от GitHub ни о чём.
+          if (r.status === 403 && /not accessible by personal access token/i.test(msg)) {
+            throw new Error('У токена нет прав на запись в репозиторий. Откройте на GitHub '
+              + 'Settings → Developer settings → Personal access tokens → Fine-grained tokens, '
+              + 'проверьте у токена: Repository access — «Only select repositories» и выбран '
+              + CFG.repo + '; Permissions → Repository permissions → Contents: Read and write. '
+              + 'Если стоит «Public Repositories (read-only)» — выпустите новый токен и войдите заново '
+              + 'через «Забыли пароль или меняете токен».');
+          }
+          if (r.status === 401) {
+            throw new Error('GitHub не принял токен: он отозван или истёк. '
+              + 'Выпустите новый и войдите заново через «Забыли пароль или меняете токен».');
+          }
           throw new Error('GitHub ' + r.status + ': ' + msg);
         });
         if (r.status === 204) return null;
