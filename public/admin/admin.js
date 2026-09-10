@@ -14,6 +14,9 @@
     token: '', user: '', articles: [], site: null, siteSha: '', filter: 'all',
     draft: null, editingPath: null, editingSha: null, originalSlug: null, originalStatus: null,
     pendingCover: null, chunks: [], dirty: false,
+    // Загруженные в этой сессии картинки: на сайте они появятся только после
+    // пересборки, а показать их нужно сразу. Ключ — путь вида /uploads/файл.webp.
+    localPreviews: {},
   };
 
   /* ── Мелочи ─────────────────────────────────────────────────────── */
@@ -26,6 +29,14 @@
     t.addEventListener('click', function () { t.remove(); });
   }
   function progress(p) { $('#progress').style.width = (p ? p + '%' : '0'); }
+  /* Адрес картинки для показа в админке: свежезагруженная берётся из памяти,
+     остальные — с сайта. */
+  function mediaUrl(src) {
+    if (!src) return '';
+    var path = src.charAt(0) === '/' ? src : '/uploads/' + src;
+    return state.localPreviews[path] || (CFG.base || '') + path;
+  }
+
   var TRANSLIT = { а:'a',б:'b',в:'v',г:'g',д:'d',е:'e',ё:'e',ж:'zh',з:'z',и:'i',й:'y',к:'k',л:'l',м:'m',н:'n',о:'o',
     п:'p',р:'r',с:'s',т:'t',у:'u',ф:'f',х:'h',ц:'c',ч:'ch',ш:'sh',щ:'sch',ъ:'',ы:'y',ь:'',э:'e',ю:'yu',я:'ya' };
   function slugify(s) {
@@ -154,11 +165,15 @@
   var repoPath = function (p) { return '/repos/' + CFG.repo + p; };
   var contentPath = function (rel) { return (CFG.contentPath || 'content') + '/' + rel; };
 
-  /* Один атомарный коммит на несколько файлов (Git Data API). */
-  function commitFiles(files, message, deletions) {
+  /* Один атомарный коммит на несколько файлов (Git Data API).
+     Коммиты, идущие подряд, иногда сталкиваются: ссылку на ветку GitHub отдаёт
+     из кэша, и запись отклоняется как «not a fast forward». Это не ошибка данных —
+     достаточно перечитать ветку и собрать коммит заново поверх свежего состояния. */
+  function commitFiles(files, message, deletions, attempt) {
+    attempt = attempt || 0;
     var branch = CFG.branch || 'main';
     var headSha, treeSha;
-    return gh(repoPath('/git/ref/heads/' + branch))
+    return gh(repoPath('/git/ref/heads/' + branch + '?_=' + Date.now()))
       .then(function (ref) { headSha = ref.object.sha; return gh(repoPath('/git/commits/' + headSha)); })
       .then(function (c) {
         treeSha = c.tree.sha;
@@ -177,6 +192,14 @@
       })
       .then(function (commit) {
         return gh(repoPath('/git/refs/heads/' + branch), { method: 'PATCH', body: { sha: commit.sha } });
+      })
+      .catch(function (e) {
+        if (attempt < 4 && /fast forward|is at .* but expected/i.test(e.message)) {
+          var wait = 700 * (attempt + 1);
+          return new Promise(function (r) { setTimeout(r, wait); })
+            .then(function () { return commitFiles(files, message, deletions, attempt + 1); });
+        }
+        throw e;
       });
   }
 
@@ -334,7 +357,7 @@
     });
     box.innerHTML = items.length ? items.map(function (a, i) {
       var d = a.data;
-      var cover = d.cover && d.cover.src ? (CFG.base || '') + (d.cover.src.charAt(0) === '/' ? d.cover.src : '/uploads/' + d.cover.src) : '';
+      var cover = mediaUrl(d.cover && d.cover.src);
       return '<div class="item" data-idx="' + i + '">'
         + (cover ? '<img class="thumb" src="' + esc(cover) + '" alt="">' : '<div class="thumb"></div>')
         + '<div class="main"><div class="row" style="gap:8px">'
@@ -565,9 +588,7 @@
   /* Обложка */
   function renderCover() {
     var img = $('#cover-img'), cap = $('#cover-cap');
-    var src = state.pendingCover ? state.pendingCover.preview
-      : (state.draft.cover && state.draft.cover.src
-        ? (CFG.base || '') + (state.draft.cover.src.charAt(0) === '/' ? state.draft.cover.src : '/uploads/' + state.draft.cover.src) : '');
+    var src = state.pendingCover ? state.pendingCover.preview : mediaUrl(state.draft.cover && state.draft.cover.src);
     var note = $('#cover-note');
     if (src) {
       img.src = src; img.hidden = false; cap.textContent = '';
@@ -658,9 +679,12 @@
     var inner;
     if (b.type === 'rule') inner = '<div class="hint">Горизонтальный разделитель</div>';
     else if (b.type === 'image') {
-      var src = b.src ? (CFG.base || '') + (b.src.charAt(0) === '/' ? b.src : '/uploads/' + b.src) : '';
+      var src = mediaUrl(b.src);
       inner = '<div class="imgbox">'
-        + (src ? '<img src="' + esc(src) + '" alt="">' : '<img alt="" style="background:#171717">')
+        + (src ? '<img src="' + esc(src) + '" alt="" data-shot'
+              + ' onerror="this.hidden=true;this.nextElementSibling.hidden=false">'
+              + '<span class="imgwait" hidden>Файл загружен. На сайте появится после сборки, через минуту.</span>'
+            : '<img alt="" style="background:#171717">')
         + '<div class="stack" style="gap:8px;flex:1 1 220px">'
         + '<input type="text" data-img-src placeholder="/uploads/файл-1600.webp" value="' + esc(b.src || '') + '">'
         + '<input type="text" data-img-alt placeholder="Alt-текст (обязателен)" value="' + esc(b.alt || '') + '">'
@@ -750,9 +774,11 @@
           return commitFiles([{ path: contentPath('uploads/' + name), base64: b64bytes(buf) }],
             'Загрузка изображения: ' + name);
         }).then(function () {
-          state.draft.body[index].src = '/uploads/' + name;
+          var path = '/uploads/' + name;
+          state.localPreviews[path] = URL.createObjectURL(blob);
+          state.draft.body[index].src = path;
           state.dirty = true; renderBlocks();
-          toast('Изображение загружено.');
+          toast('Изображение загружено. На сайте появится после сборки, примерно через минуту.');
         });
       }).catch(function (e) { toast(e.message || 'Не удалось загрузить изображение.', true); });
     });
@@ -866,7 +892,10 @@
           return v.blob.arrayBuffer().then(function (buf) {
             files.push({ path: contentPath('uploads/' + stem + '-' + v.w + '.webp'), base64: b64bytes(buf) });
           });
-        })).then(function () { d.cover.src = '/uploads/' + stem + '-1600.webp'; });
+        })).then(function () {
+          d.cover.src = '/uploads/' + stem + '-1600.webp';
+          state.localPreviews[d.cover.src] = state.pendingCover.preview;
+        });
       })
       .then(function () {
         newPath = contentPath('articles/' + d.slug + '.json');
@@ -914,8 +943,7 @@
     var w = window.open('', '_blank');
     if (!w) return toast('Браузер заблокировал окно предпросмотра.', true);
     var d = state.draft, css = new URL('../assets/site.css', location.href).href;
-    var cover = state.pendingCover ? state.pendingCover.preview
-      : (d.cover && d.cover.src ? (CFG.base || '') + d.cover.src : '');
+    var cover = state.pendingCover ? state.pendingCover.preview : mediaUrl(d.cover && d.cover.src);
     var id = youtubeId(d.youtubeUrl);
     var body = (d.body || []).map(function (b) {
       if (b.type === 'h2') return '<h2>' + esc(b.text) + '</h2>';
@@ -924,7 +952,7 @@
       if (b.type === 'rule') return '<hr>';
       if (b.type === 'list') return '<ul>' + (b.items || []).map(function (i) { return '<li>' + esc(i) + '</li>'; }).join('') + '</ul>';
       if (b.type === 'image') return '<figure><div class="fr">' + (b.src
-        ? '<img src="' + esc((CFG.base || '') + b.src) + '" alt="' + esc(b.alt || '') + '">' : '')
+        ? '<img src="' + esc(mediaUrl(b.src)) + '" alt="' + esc(b.alt || '') + '">' : '')
         + '</div>' + (b.caption ? '<figcaption>' + esc(b.caption) + '</figcaption>' : '') + '</figure>';
       return '<p>' + esc(b.text || '') + '</p>';
     }).join('');

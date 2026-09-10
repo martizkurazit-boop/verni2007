@@ -149,3 +149,7 @@ code{font-family:inherit;font-weight:700;background:#0A0A0A;border:1px solid var
 .linklike:hover{color:#fff}
 .login .card ol{margin:0;padding-left:18px;display:flex;flex-direction:column;gap:8px;font-size:14px;
   line-height:1.6;color:var(--muted)}
+
+/* Картинка загружена, но сайт ещё не пересобран */
+.imgwait{display:block;width:200px;aspect-ratio:16/9;border:1px dashed var(--strong);background:#171717;
+  padding:10px;font-size:11px;line-height:1.4;color:var(--faint)}
