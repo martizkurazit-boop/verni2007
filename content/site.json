@@ -13,7 +13,8 @@
   "contentPath": "content",
   "analytics": {
     "yandexMetrika": "",
-    "ga4": ""
+    "ga4": "",
+    "webvisor": false
   },
   "categories": [
     {
@@ -65,5 +66,9 @@
       "seoDescription": ""
     }
   ],
-  "redirects": {}
+  "redirects": {},
+  "verification": {
+    "yandex": "",
+    "google": ""
+  }
 }

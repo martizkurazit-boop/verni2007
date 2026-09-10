@@ -141,7 +141,8 @@ function analyticsSnippet() {
     out += `<script>(function(m,e,t,r,i,k,a){m[i]=m[i]||function(){(m[i].a=m[i].a||[]).push(arguments)};`
       + `k=e.createElement(t),a=e.getElementsByTagName(t)[0],k.async=1,k.src=r,a.parentNode.insertBefore(k,a)})`
       + `(window,document,"script","https://mc.yandex.ru/metrika/tag.js","ym");`
-      + `ym(${JSON.stringify(ya)},"init",{clickmap:true,trackLinks:true,accurateTrackBounce:true,webvisor:false});</script>`
+      + `ym(${JSON.stringify(ya)},"init",{clickmap:true,trackLinks:true,accurateTrackBounce:true,`
+      + `webvisor:${site.analytics.webvisor ? 'true' : 'false'}});</script>`
       + `<noscript><div><img src="https://mc.yandex.ru/watch/${attr(ya)}" style="position:absolute;left:-9999px" alt=""></div></noscript>`;
   }
   if (ga) {
@@ -229,6 +230,7 @@ ${img ? `<meta property="og:image" content="${attr(img.startsWith('http') ? img 
 <meta name="twitter:title" content="${attr(title)}">
 <meta name="twitter:description" content="${attr(description)}">
 ${img ? `<meta name="twitter:image" content="${attr(img.startsWith('http') ? img : ORIGIN + img)}">\n` : ''}<meta name="theme-color" content="#0A0A0A">
+${(site.verification && site.verification.yandex) ? `<meta name="yandex-verification" content="${attr(site.verification.yandex)}">\n` : ''}${(site.verification && site.verification.google) ? `<meta name="google-site-verification" content="${attr(site.verification.google)}">\n` : ''}
 <link rel="icon" href="${attr(url('/favicon.svg'))}" type="image/svg+xml">
 <link rel="alternate" type="application/rss+xml" title="${attr(site.title)}" href="${attr(url('/feed.xml'))}">
 <link rel="preload" href="${attr(url('/fonts/gilroy-900.woff2'))}" as="font" type="font/woff2" crossorigin>
