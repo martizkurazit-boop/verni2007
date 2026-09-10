@@ -17,6 +17,12 @@ const DIST = path.join(ROOT, 'dist');
 const site = JSON.parse(fs.readFileSync(path.join(CONTENT, 'site.json'), 'utf8'));
 const RAW_URL = (process.env.SITE_URL || site.url || 'http://localhost:8000').replace(/\/+$/, '');
 const U = new URL(RAW_URL);
+// Настройки Pages отдают адрес по http, пока не включён Enforce HTTPS, а сайт всё равно
+// будет жить на https. Канонический адрес обязан совпадать с реальным, поэтому схему
+// поднимаем сами — кроме локальной сборки, где https неоткуда взять.
+if (U.protocol === 'http:' && !/^(localhost|127\.|0\.0\.0\.0|\[::1\])/.test(U.hostname)) {
+  U.protocol = 'https:';
+}
 const BASE = U.pathname.replace(/\/+$/, '');          // '' или '/repo-name' для project pages
 const ORIGIN = U.origin;
 const url = (p) => (BASE + (p.startsWith('/') ? p : '/' + p)) || '/';
