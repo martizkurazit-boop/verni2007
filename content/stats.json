@@ -1,12 +1,12 @@
 {
-  "updatedAt": "2026-09-10T12:12:40.959Z",
+  "updatedAt": "2026-09-10T12:40:54.918Z",
   "days": 30,
   "counter": "112450613",
   "totals": {
     "visits": 14,
     "users": 13,
-    "pageviews": 33,
-    "avgSeconds": 347,
+    "pageviews": 39,
+    "avgSeconds": 505,
     "bounceRate": 71
   },
   "goals": [
@@ -14,7 +14,7 @@
       "id": 611348816,
       "name": "Переход на YouTube",
       "event": "youtube_click",
-      "reaches": 0
+      "reaches": 1
     },
     {
       "id": 611348857,
@@ -75,7 +75,7 @@
       "url": "https://vernitemoy2007.ru/",
       "visits": 13,
       "goals": {
-        "youtube_click": 0,
+        "youtube_click": 1,
         "video_play": 1,
         "read_end": 2,
         "search": 0
