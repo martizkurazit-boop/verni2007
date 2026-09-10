@@ -166,11 +166,23 @@
   var contentPath = function (rel) { return (CFG.contentPath || 'content') + '/' + rel; };
 
   /* Один атомарный коммит на несколько файлов (Git Data API).
-     Коммиты, идущие подряд, иногда сталкиваются: ссылку на ветку GitHub отдаёт
-     из кэша, и запись отклоняется как «not a fast forward». Это не ошибка данных —
-     достаточно перечитать ветку и собрать коммит заново поверх свежего состояния. */
-  function commitFiles(files, message, deletions, attempt) {
-    attempt = attempt || 0;
+     Две защиты от столкновений:
+     1. Очередь. Записи идут строго по одной: параллельные вызовы (сохранение статьи
+        и загрузка картинки, два быстрых клика) читали одно состояние ветки и
+        отменяли друг друга.
+     2. Повтор. Ветка могла уехать и снаружи — из другой вкладки или от меня же;
+        плюс GitHub отдаёт ссылку на ветку с задержкой. Тогда коммит пересобирается
+        поверх свежего состояния. */
+  var writeQueue = Promise.resolve();
+  function commitFiles(files, message, deletions) {
+    var run = function () { return commitOnce(files, message, deletions, 0); };
+    // Ошибка одной записи не должна ломать очередь для следующих.
+    var result = writeQueue.then(run, run);
+    writeQueue = result.catch(function () {});
+    return result;
+  }
+
+  function commitOnce(files, message, deletions, attempt) {
     var branch = CFG.branch || 'main';
     var headSha, treeSha;
     return gh(repoPath('/git/ref/heads/' + branch + '?_=' + Date.now()))
@@ -194,10 +206,17 @@
         return gh(repoPath('/git/refs/heads/' + branch), { method: 'PATCH', body: { sha: commit.sha } });
       })
       .catch(function (e) {
-        if (attempt < 4 && /fast forward|is at .* but expected/i.test(e.message)) {
-          var wait = 700 * (attempt + 1);
+        var collision = /fast forward|is at .* but expected|reference already exists/i.test(e.message);
+        if (collision && attempt < 6) {
+          // Пауза растёт: 0.6с, 1.2с, 2.4с… — GitHub успевает отдать свежую ветку.
+          var wait = Math.min(600 * Math.pow(2, attempt), 6000);
           return new Promise(function (r) { setTimeout(r, wait); })
-            .then(function () { return commitFiles(files, message, deletions, attempt + 1); });
+            .then(function () { return commitOnce(files, message, deletions, attempt + 1); });
+        }
+        if (collision) {
+          throw new Error('Репозиторий изменился во время сохранения, и шесть попыток подряд не помогли. '
+            + 'Скорее всего, открыта вторая вкладка админки — закройте её и нажмите сохранение ещё раз. '
+            + 'Ничего не потеряно: текст остался в форме.');
         }
         throw e;
       });
