@@ -723,6 +723,140 @@ function paragraphs(text) {
     .filter(Boolean);
 }
 
+/* ── Автоматическое оформление текста ─────────────────────────────
+   Три приёма, которые расставляются сами: первое предложение главы крупнее,
+   первая дата в абзаце под маркером и одна вынесенная фраза на главу.
+   Выключаются по отдельности в site.json → textStyle. */
+const TEXT_STYLE = Object.assign(
+  { firstSentence: true, dates: true, pull: true }, site.textStyle || {});
+
+function sentences(t) {
+  return String(t || '').match(/[^.!?…]+(?:[.!?…]+["»”)\]]*|$)\s*/g) || [String(t || '')];
+}
+
+// Правка только текста: внутрь тегов и атрибутов лезть нельзя — сломаются ссылки.
+function inText(html, fn) {
+  return String(html).split(/(<[^>]+>)/).map((part, i) => (i % 2 ? part : fn(part))).join('');
+}
+
+/* Даты эпохи: «4 октября 1984 года», «в 1999 году», «1985-го», «1990-х».
+   Подсвечиваем первую в абзаце — иначе статья превращается в ёлку. */
+const DATE_RE = new RegExp(
+  // Диапазон целиком: «2002–2003», иначе подсветится только первый год.
+  '(?<!\\d)(?:19|20)\\d{2}\\s*[–—-]\\s*(?:19|20)?\\d{2}(?:-х|-е|\\s+год[а-яё]*)?(?!\\d)'
+  + '|\\d{1,2}\\s+(?:январ|феврал|март|апрел|ма[йя]|июн|июл|август|сентябр|октябр|ноябр|декабр)[а-яё]{0,3}'
+  + '(?:\\s+(?:19|20)\\d{2}(?:\\s*-\\s*го|\\s+года)?)?'
+  + '|(?<!\\d)(?:19|20)\\d{2}(?!\\d)(?:\\s*-\\s*(?:го|м|й|х|е)|\\s+год[а-яё]*)?', 'u');
+
+function markDates(html) {
+  if (!TEXT_STYLE.dates) return html;
+  let done = false;
+  return inText(html, (t) => {
+    if (done || !t) return t;
+    // Год внутри «кавычек» — часть названия: «Верните мой 2007», «Лето 2003».
+    // Подсвечивать его значит красить чужое имя, а не дату события.
+    const quoted = [];
+    const q = /«[^»]*»/gu;
+    let qm;
+    while ((qm = q.exec(t))) quoted.push([qm.index, qm.index + qm[0].length]);
+    let from = 0, m;
+    while ((m = DATE_RE.exec(t.slice(from)))) {
+      const at = from + m.index;
+      if (quoted.some(([a, b]) => at >= a && at < b)) { from = at + m[0].length; continue; }
+      done = true;
+      return t.slice(0, at) + `<mark class="hl">${m[0]}</mark>` + t.slice(at + m[0].length);
+    }
+    return t;
+  });
+}
+
+/* Насколько фраза годится в врезку. Машина не понимает смысла, поэтому судим
+   по признакам, которые у сильной фразы обычно есть: она умещается в три
+   строки крупным кеглем, содержит слово-поворот и не начинается с местоимения,
+   за которым стоит выброшенный контекст. */
+const PULL_TURN = /(^|[\s(«])(но|однако|зато|именно|впервые|никогда|тогда ещё|в итоге|на самом деле|оказал[оа]?с|так и не|больше не|с тех пор|в результате|поэтому|главн|всё изменил|перестал|стал[аои]? )/iu;
+// Граница слова \b в JS считает буквой только латиницу, поэтому после
+// кириллического слова её нет: проверяем «дальше не буква» явно.
+const PULL_BAD_START = /^(он|она|они|оно|это|этот|эта|эти|там|тогда|так|такой|такая|его|её|их|потом|затем|кроме того|например|кстати)(?![а-яёa-z])/iu;
+// Указание на то, что осталось в предыдущем абзаце: «между этими датами…»,
+// «в тот год…». Крупной фразой такое читается как обрывок.
+const PULL_REFER = /(^|\s)(эт[оаиуымх][а-яё]*|т[ое][а-яё]{0,3}|тогда|там|потом|затем)(?![а-яёa-z])/iu;
+
+function scorePull(s) {
+  const t = s.trim();
+  const len = t.length;
+  if (len < 60 || len > 170) return 0;
+  if (/\[|\]\(|<a\b|https?:/i.test(t)) return 0;
+  let score = len <= 150 ? 3 : 1;
+  if (PULL_TURN.test(t)) score += 3;
+  if (/[:—–]/.test(t)) score += 1;
+  if (/\?$/.test(t)) score += 1;
+  // Имя собственное в середине фразы — признак конкретности.
+  if (/\s[А-ЯЁ][а-яё]{2,}/u.test(t)) score += 1;
+  if (/\d/.test(t)) score -= 2;          // фраза с датой — это факт, а не мысль
+  if (PULL_BAD_START.test(t)) score -= 4;          // без предыдущего абзаца непонятно
+  if (PULL_REFER.test(t.slice(0, 30))) score -= 4; // «между этими датами…»
+  return score;
+}
+
+const PULL_MIN_SCORE = 6;   // ниже — глава остаётся без врезки, и это нормально
+const PULL_MIN_GAP = 3;     // абзацев между врезками
+
+/* Разметка глав: что сделать крупным и какую фразу вынести. Работаем по
+   плоскому списку кусков — только так видно главу целиком. */
+function decorate(units) {
+  let chapter = [];
+  let lastPull = -99;
+  let chapters = 0;
+  const flush = () => {
+    const paras = chapter.filter((u) => u.kind === 'p');
+    if (!paras.length) { chapter = []; return; }
+    // Вступление до первого заголовка не трогаем: над ним уже стоит лид,
+    // и вторая крупная фраза подряд читается как сбой вёрстки.
+    if (TEXT_STYLE.firstSentence && chapters > 0) {
+      const first = paras[0];
+      const [head] = sentences(first.text);
+      // Слишком длинное первое предложение крупным кеглем — это уже не «вход»,
+      // а стена: такой абзац оставляем как есть.
+      if (head && head.trim().length >= 25 && head.trim().length <= 180
+          && (paras[0].text.length > head.trim().length || head.trim().length <= 120)) {
+        first.head = head.trim();
+        first.tail = first.text.slice(head.length).trim();
+      }
+    }
+    if (TEXT_STYLE.pull && paras.length >= 3) {
+      let best = null;
+      paras.forEach((u, i) => {
+        if (i === 0) return;                       // первый абзац уже выделен
+        if (u.index - lastPull < PULL_MIN_GAP) return;
+        const ss = sentences(u.text);
+        if (ss.length < 2) return;                 // абзац не должен опустеть
+        const last = ss[ss.length - 1].trim();
+        const score = scorePull(last);
+        if (score >= PULL_MIN_SCORE && (!best || score > best.score)) {
+          best = { u: u, score: score, text: last, rest: ss.slice(0, -1).join('').trim() };
+        }
+      });
+      if (best) {
+        best.u.text = best.rest;
+        best.u.pull = best.text;
+        lastPull = best.u.index;
+        if (best.u.head && best.u.tail !== undefined) {
+          // Абзац мог быть и первым в главе: пересобираем его хвост.
+          best.u.tail = best.rest.slice(best.u.head.length).trim();
+        }
+      }
+    }
+    chapter = [];
+  };
+  units.forEach((u, i) => {
+    u.index = i;
+    if (u.kind === 'h2') { flush(); chapters++; return; }
+    chapter.push(u);
+  });
+  flush();
+}
+
 function renderBody(a, inlineRel) {
   const out = [];
   let h2seen = 0, pending = false;
@@ -730,10 +864,20 @@ function renderBody(a, inlineRel) {
   <span class="lbl">Читайте также</span>
   <a href="${attr(url('/articles/' + inlineRel.slug + '/'))}">${esc(inlineRel.title)}</a>
 </aside>` : '';
+  // Тело раскладывается в плоский список: абзацы отдельно от блоков — иначе
+  // не видно ни границ главы, ни того, какой абзац в ней первый.
+  const units = [];
   for (const b of a.body) {
-    if (b.type === 'h2' && ++h2seen === 2) pending = true;
+    if (!b.type || b.type === 'p') paragraphs(b.text).forEach((t) => units.push({ kind: 'p', text: t }));
+    else units.push({ kind: b.type, b });
+  }
+  decorate(units);
+
+  for (const u of units) {
+    const b = u.b || {};
+    if (u.kind === 'h2' && ++h2seen === 2) pending = true;
     else if (pending && inlineBlock) { pending = false; out.push(inlineBlock); }
-    switch (b.type) {
+    switch (u.kind) {
       case 'h2': out.push(`<h2 id="${attr(b.anchor || slugify(b.text))}">${inline(b.text)}</h2>`); break;
       case 'h3': out.push(`<h3 id="${attr(b.anchor || slugify(b.text))}">${inline(b.text)}</h3>`); break;
       case 'quote': out.push(`<blockquote>${inline(b.text)}</blockquote>`); break;
@@ -754,9 +898,14 @@ function renderBody(a, inlineRel) {
           + `${b.caption ? `<figcaption>${esc(typo(b.caption))}</figcaption>` : ''}</figure>`);
         break;
       }
-      // Пустая строка внутри блока — граница абзаца. Раньше весь блок уезжал
-      // в один <p>, и глава читалась на телефоне сплошным полотном.
-      default: for (const part of paragraphs(b.text)) out.push(`<p>${autoLink(inline(part), a)}</p>`);
+      default: {
+        const body = u.head
+          ? `<span class="lead-s">${markDates(autoLink(inline(u.head), a))}</span>`
+            + (u.tail ? ' ' + markDates(autoLink(inline(u.tail), a)) : '')
+          : markDates(autoLink(inline(u.text), a));
+        if (body.trim()) out.push(`<p>${body}</p>`);
+        if (u.pull) out.push(`<p class="pull-line">${inline(u.pull)}</p>`);
+      }
     }
   }
   return out.join('\n');

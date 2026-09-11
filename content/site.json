@@ -134,5 +134,10 @@
     "Редакция": {
       "type": "Organization"
     }
+  },
+  "textStyle": {
+    "firstSentence": true,
+    "dates": true,
+    "pull": true
   }
 }

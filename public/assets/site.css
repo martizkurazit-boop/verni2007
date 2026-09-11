@@ -212,6 +212,28 @@ img{max-width:100%}
 .body p{margin:18px 0 0;font-weight:500;font-size:19px;line-height:1.65;color:var(--body);text-wrap:pretty}
 .body a{border-bottom:1px solid var(--accent)}
 .body strong{font-weight:800}
+
+/* ── Автоматическое оформление текста ────────────────────────────
+   Три приёма, которые расставляет сборка: вход в главу, маркер на дате
+   и вынесенная фраза. Все трое живут в цветах системы: салатовый и чёрный. */
+
+/* Первое предложение главы — «вход»: глаз цепляется, дальше читается ровно. */
+.body .lead-s{font-weight:800;font-size:1.1em;color:var(--ink)}
+
+/* Маркер на дате: неровные края и лёгкий наклон — как настоящим
+   текстовыделителем. Ровная заливка в тексте выглядит как ошибка вёрстки. */
+.body mark.hl{color:inherit;font-weight:700;padding:2px 4px;margin:0 -2px;border-radius:2px;
+  background-color:transparent;
+  background-image:linear-gradient(104deg,rgba(204,255,4,0) .5%,rgba(204,255,4,.8) 2%,
+    rgba(204,255,4,.62) 96%,rgba(204,255,4,0) 99%);
+  box-decoration-break:clone;-webkit-box-decoration-break:clone}
+
+/* Фраза, вынесенная из абзаца: разбивает длинную главу и цепляет при
+   перелистывании. Это авторский текст, а не цитата, поэтому не blockquote. */
+.body p.pull-line{margin:30px 0 6px;padding:14px 0 14px 22px;border-left:5px solid var(--accent);
+  font-weight:800;font-size:clamp(20px,4.6vw,25px);line-height:1.25;letter-spacing:-.01em;
+  color:var(--ink)}
+.body p.pull-line mark.hl{background-image:none;background-color:rgba(204,255,4,.55)}
 .body blockquote{margin:28px 0 0;padding:4px 0 4px 20px;border-left:4px solid var(--accent);font-style:italic;
   font-weight:500;font-size:20px;line-height:1.5;color:var(--ink)}
 .body ul{margin:20px 0 0;padding:0 0 0 20px;display:flex;flex-direction:column;gap:10px}
