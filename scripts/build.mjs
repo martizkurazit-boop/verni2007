@@ -727,6 +727,19 @@ function paragraphs(text) {
    Три приёма, которые расставляются сами: первое предложение главы крупнее,
    первая дата в абзаце под маркером и одна вынесенная фраза на главу.
    Выключаются по отдельности в site.json → textStyle. */
+/* Описание для выдачи. Обрывок на полуслове («…две девушки в школьной фор»)
+   в сниппете читается как брак, поэтому режем по границе предложения, а если
+   её рядом нет — по границе слова и ставим многоточие. */
+function clip(text, max = 160) {
+  const t = String(text || '').replace(/\s+/g, ' ').trim();
+  if (t.length <= max) return t;
+  const cut = t.slice(0, max);
+  const dot = Math.max(cut.lastIndexOf('. '), cut.lastIndexOf('! '), cut.lastIndexOf('? '));
+  if (dot > max * 0.55) return cut.slice(0, dot + 1);
+  const space = cut.lastIndexOf(' ');
+  return (space > 0 ? cut.slice(0, space) : cut).replace(/[\s,;:—–-]+$/, '') + '…';
+}
+
 const TEXT_STYLE = Object.assign(
   { firstSentence: true, dates: true, pull: true }, site.textStyle || {});
 
@@ -978,7 +991,7 @@ function articlePage(a) {
   const rest = related.slice(5, 11);
   const bottomItems = rest.length >= 3 ? rest : related.slice(0, 6);
   const cover = coverData(a);
-  const desc = a.seoDescription || a.excerpt || a.lead || '';
+  const desc = clip(a.seoDescription || a.excerpt || a.lead || '');
 
   const jsonld = [
     {
@@ -994,6 +1007,10 @@ function articlePage(a) {
       inLanguage: 'ru-RU',
       ...(cover ? { image: [cover.src.startsWith('http') ? cover.src : ORIGIN + cover.src] } : {}),
       ...(a.tags.length ? { keywords: a.tags.join(', ') } : {}),
+      // Герой материала как сущность: поисковику и ИИ важно понимать, о ком
+      // текст, а не только какие слова в нём встречаются.
+      ...(String(a.subject || '').trim()
+        ? { about: { '@type': 'Person', name: String(a.subject).trim() } } : {}),
       articleSection: cat.title,
     },
     {
@@ -1017,13 +1034,28 @@ function articlePage(a) {
     });
   }
 
-  // VideoObject — только при полных достоверных данных о ролике.
+  // VideoObject — только при достоверных данных. Заполненные вручную идут
+  // первыми, иначе берём их из ленты канала: там настоящие название, дата
+  // и описание ролика. Длительность не выдумываем — её в ленте нет, а
+  // недостоверная разметка хуже отсутствующей.
   const v = a.video || {};
-  if (vid && v.name && v.uploadDate && v.thumbnailUrl && v.duration) {
+  const feedVideo = vid && videoFeed
+    ? (videoFeed.videos || []).find((x) => x.id === vid) : null;
+  const videoLd = (v.name && v.uploadDate && v.thumbnailUrl)
+    ? {
+      name: v.name, description: v.description || desc, uploadDate: v.uploadDate,
+      thumbnailUrl: v.thumbnailUrl, ...(v.duration ? { duration: v.duration } : {}),
+    }
+    : (feedVideo ? {
+      name: feedVideo.title,
+      description: feedVideo.description || desc,
+      uploadDate: feedVideo.published,
+      thumbnailUrl: `https://i.ytimg.com/vi/${vid}/maxresdefault.jpg`,
+    } : null);
+  if (videoLd) {
     jsonld.push({
       '@context': 'https://schema.org', '@type': 'VideoObject',
-      name: v.name, description: v.description || desc, uploadDate: v.uploadDate,
-      duration: v.duration, thumbnailUrl: v.thumbnailUrl,
+      ...videoLd,
       embedUrl: `https://www.youtube-nocookie.com/embed/${vid}`, contentUrl: a.youtubeUrl,
     });
   }
@@ -1574,6 +1606,9 @@ const AI_AGENTS = [
   ['PerplexityBot', 'индекс Perplexity'],
   ['Perplexity-User', 'переходы по ссылкам из Perplexity'],
   ['Google-Extended', 'Gemini: обучение и ответы с опорой на источник'],
+  ['Googlebot', 'поиск Google'],
+  ['Yandex', 'Яндекс: поиск и Нейро'],
+  ['YandexBot', 'основной робот Яндекса'],
   ['Applebot-Extended', 'Apple Intelligence'],
   ['Bingbot', 'Bing и ответы Copilot'],
   ['CCBot', 'Common Crawl — из него собирают обучающие наборы'],
@@ -1612,7 +1647,7 @@ ${published.slice(0, 20).map((a) => `<item>
   <link>${esc(ORIGIN + url('/articles/' + a.slug + '/'))}</link>
   <guid isPermaLink="true">${esc(ORIGIN + url('/articles/' + a.slug + '/'))}</guid>
   <pubDate>${new Date(a.publishedAt).toUTCString()}</pubDate>
-  <description>${esc(a.excerpt || a.lead)}</description>
+  <description>${esc(clip(a.excerpt || a.lead, 300))}</description>
 </item>`).join('\n')}
 </channel></rss>`);
 
@@ -1630,7 +1665,7 @@ ${AI_LICENSE}
 Полные тексты всех материалов одним файлом: ${ORIGIN + url('/llms-full.txt')}
 
 ${visibleCats.map((c) => `## ${c.title}\n${published.filter((a) => a.category === c.id)
-  .map((a) => `- [${a.title}](${ORIGIN + url('/articles/' + a.slug + '/')}): ${a.excerpt}`).join('\n')}`).join('\n\n')}
+  .map((a) => `- [${a.title}](${ORIGIN + url('/articles/' + a.slug + '/')}): ${clip(a.excerpt, 220)}`).join('\n')}`).join('\n\n')}
 
 ## Служебное
 - [Все статьи](${ORIGIN + url('/all/')})

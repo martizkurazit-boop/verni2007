@@ -319,6 +319,11 @@
         <div class="stack" style="gap:14px">
           <div class="field"><span>Категория</span><div class="row" id="cat-choices"></div></div>
           <label class="field"><span>Теги через запятую</span><input type="text" id="f-tags"></label>
+          <label class="field"><span>Герой статьи (имя, необязательно)</span>
+            <input type="text" id="f-subject" placeholder="Михаил Горшенёв">
+            <span class="hint">О ком материал. Уходит в разметку как отдельная сущность:
+              поисковик и нейросети понимают, что статья о человеке, а не просто содержит его имя.
+              Если статья о вещи или явлении — оставьте пусто.</span></label>
           <label class="field"><span>Имена для автоссылок (через запятую)</span>
             <input type="text" id="f-aliases" placeholder="Горшенёв, Король и Шут">
             <span class="hint">Как этого героя или предмет называют в других статьях. Первое

@@ -61,6 +61,19 @@
 
   var TRANSLIT = { а:'a',б:'b',в:'v',г:'g',д:'d',е:'e',ё:'e',ж:'zh',з:'z',и:'i',й:'y',к:'k',л:'l',м:'m',н:'n',о:'o',
     п:'p',р:'r',с:'s',т:'t',у:'u',ф:'f',х:'h',ц:'c',ч:'ch',ш:'sh',щ:'sch',ъ:'',ы:'y',ь:'',э:'e',ю:'yu',я:'ya' };
+  /* Обрезка для анонса и описания в выдаче: по границе предложения, иначе по
+     границе слова. Обрывок на полуслове в сниппете выглядит как брак. */
+  function clip(text, max) {
+    var t = String(text || '').replace(/\s+/g, ' ').trim();
+    max = max || 160;
+    if (t.length <= max) return t;
+    var cut = t.slice(0, max);
+    var dot = Math.max(cut.lastIndexOf('. '), cut.lastIndexOf('! '), cut.lastIndexOf('? '));
+    if (dot > max * 0.55) return cut.slice(0, dot + 1);
+    var space = cut.lastIndexOf(' ');
+    return (space > 0 ? cut.slice(0, space) : cut).replace(/[\s,;:—–-]+$/, '') + '…';
+  }
+
   function slugify(s) {
     return String(s || '').toLowerCase().split('').map(function (c) { return TRANSLIT[c] !== undefined ? TRANSLIT[c] : c; })
       .join('').replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '').slice(0, 80);
@@ -485,7 +498,7 @@
       tags: [], youtubeUrl: '', cover: { src: '', alt: '', focus: '50% 50%' }, ogImage: '',
       author: state.site.author || 'Редакция', publishedAt: new Date().toISOString().slice(0, 10),
       status: 'draft', seoTitle: '', seoDescription: '', body: [{ type: 'p', text: '' }],
-      sources: [], related: [], aliases: [], faq: [], demo: false };
+      sources: [], related: [], aliases: [], faq: [], subject: '', demo: false };
   }
 
   $('#new-article').addEventListener('click', function () { openEditor(null); });
@@ -513,6 +526,7 @@
     $('#f-lead').value = d.lead || '';
     $('#f-tags').value = (d.tags || []).join(', ');
     $('#f-aliases').value = (d.aliases || []).join(', ');
+    $('#f-subject').value = d.subject || '';
     $('#f-youtube').value = d.youtubeUrl || '';
     $('#f-author').value = d.author || '';
     $('#f-date').value = d.publishedAt || '';
@@ -557,6 +571,7 @@
   bind('#f-og', 'ogImage');
   bind('#f-cover-alt', 'cover.alt');
   bind('#f-tags', 'tags', function (v) { return v.split(',').map(function (t) { return t.trim(); }).filter(Boolean); });
+  bind('#f-subject', 'subject');
   bind('#f-aliases', 'aliases', function (v) { return v.split(',').map(function (t) { return t.trim(); }).filter(Boolean); });
   bind('#f-faq', 'faq', parseFaq);
   bind('#f-sources', 'sources', function (v) { return v.split('\n').map(function (t) { return t.trim(); }).filter(Boolean); });
@@ -1046,7 +1061,7 @@
     var d = state.draft, body = [];
     state.chunks.forEach(function (c) {
       if (c.role === 'title') { d.title = c.text; if (!d.slug) d.slug = slugify(c.text); }
-      else if (c.role === 'lead') { d.lead = c.text; if (!d.excerpt) d.excerpt = c.text.slice(0, 200); }
+      else if (c.role === 'lead') { d.lead = c.text; if (!d.excerpt) d.excerpt = clip(c.text, 200); }
       else if (c.role === 'list') body.push({ type: 'list', items: c.text.split('\n').map(function (t) {
         return t.replace(/^\s*[-•—]\s*/, '').trim(); }).filter(Boolean) });
       else if (c.role === 'quote') body.push({ type: 'quote', text: c.text.replace(/^[«"]|[»"]$/g, '') });
@@ -1054,7 +1069,7 @@
     });
     if (body.length) d.body = body;
     if (!d.seoTitle) d.seoTitle = d.title;
-    if (!d.seoDescription) d.seoDescription = (d.excerpt || d.lead || '').slice(0, 160);
+    if (!d.seoDescription) d.seoDescription = clip(d.excerpt || d.lead, 160);
     state.chunks = []; state.dirty = true;
     $('#import-panel').hidden = true; $('#toggle-import').classList.remove('on');
     fillEditor();
@@ -1359,12 +1374,15 @@
         d.title = title;
         d.slug = slug;
         d.lead = parsed.lead || '';
-        d.excerpt = (parsed.lead || (parsed.blocks.find(function (b) { return b.type === 'p'; }) || {}).text || '').slice(0, 200).trim();
+        d.excerpt = clip(parsed.lead || (parsed.blocks.find(function (b) { return b.type === 'p'; }) || {}).text || '', 200);
         d.category = $('#auto-cat').value || d.category;
         d.youtubeUrl = $('#auto-youtube').value.trim();
         d.faq = parseFaq($('#auto-faq').value);
+        // «Михаил Горшенёв: как мальчик…» — до двоеточия почти всегда имя героя.
+        var head = title.split(':')[0].trim();
+        if (head !== title && /^[А-ЯЁ][а-яё-]+(?:\s+[А-ЯЁ][а-яё-]+){0,2}$/u.test(head)) d.subject = head;
         d.seoTitle = title;
-        d.seoDescription = d.excerpt.slice(0, 160);
+        d.seoDescription = clip(d.excerpt, 160);
         var blocks = parsed.blocks.map(function (b) {
           return b.type === 'list' ? { type: 'list', items: b.items.slice() } : { type: b.type, text: b.text };
         });
@@ -1529,7 +1547,7 @@
     d.status = status;
     d.updatedAt = new Date().toISOString().slice(0, 10);
     if (!d.seoTitle) d.seoTitle = d.title;
-    if (!d.seoDescription) d.seoDescription = (d.excerpt || d.lead || '').slice(0, 160);
+    if (!d.seoDescription) d.seoDescription = clip(d.excerpt || d.lead, 160);
     d.cover = d.cover || { src: '', alt: '', focus: '50% 50%' };
 
     var files = [], deletions = [], msgs = [], newPath;
