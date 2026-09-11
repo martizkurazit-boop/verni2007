@@ -1,13 +1,13 @@
 {
-  "updatedAt": "2026-09-11T16:26:09.728Z",
+  "updatedAt": "2026-09-11T20:56:00.643Z",
   "days": 30,
   "counter": "112450613",
   "totals": {
-    "visits": 42,
-    "users": 32,
-    "pageviews": 145,
-    "avgSeconds": 420,
-    "bounceRate": 60
+    "visits": 44,
+    "users": 33,
+    "pageviews": 164,
+    "avgSeconds": 419,
+    "bounceRate": 59
   },
   "goals": [
     {
@@ -26,7 +26,7 @@
       "id": 611348858,
       "name": "Дочитывание",
       "event": "read_end",
-      "reaches": 14
+      "reaches": 15
     },
     {
       "id": 611348974,
@@ -56,8 +56,8 @@
   "sources": [
     {
       "name": "Прямые заходы",
-      "visits": 35,
-      "share": 85
+      "visits": 37,
+      "share": 86
     },
     {
       "name": "Внутренние переходы",
@@ -73,11 +73,11 @@
   "geo": [
     {
       "name": "США",
-      "visits": 18
+      "visits": 19
     },
     {
       "name": "Таиланд",
-      "visits": 14
+      "visits": 15
     },
     {
       "name": "Франция",
@@ -103,11 +103,11 @@
   "pages": [
     {
       "url": "https://vernitemoy2007.ru/",
-      "visits": 29,
+      "visits": 31,
       "goals": {
         "youtube_click": 1,
         "video_play": 1,
-        "read_end": 11,
+        "read_end": 12,
         "search": 0,
         "telegram_click": 0,
         "Автоцель: переход в соц.сеть": 0,
