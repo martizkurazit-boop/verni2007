@@ -1073,11 +1073,38 @@
   function autoChunks(raw) {
     var t = String(raw || '').replace(/\r\n?/g, '\n').replace(/\u00a0/g, ' ').trim();
     if (!t) return [];
-    var byBlank = t.split(/\n\s*\n/).map(function (x) { return x.trim(); }).filter(Boolean);
+    var byBlank = t.split(/\n[ \t]*\n/).map(function (x) { return x.trim(); }).filter(Boolean);
     if (byBlank.length >= 3) return byBlank;
-    var byLine = t.split(/\n/).map(function (x) { return x.trim(); }).filter(Boolean);
-    return byLine.length > byBlank.length ? byLine : byBlank;
+    var lines = t.split(/\n/).map(function (x) { return x.trim(); }).filter(Boolean);
+    if (lines.length < 3) return byBlank;
+    return unwrapLines(lines);
   }
+
+  /* Текст без пустых строк бывает двух видов, и путать их нельзя.
+     Либо каждая строка — отдельный абзац (так выходит из Word и заметок),
+     либо документ свёрстан по ширине и строка обрывается на семидесятом
+     знаке посреди фразы. Во втором случае разбивать по переносам — значит
+     нарезать статью на обрывки, поэтому смотрим на концы строк: если
+     длинные строки в основном не заканчиваются точкой, это жёсткая вёрстка,
+     и абзац кончается там, где строка заметно короче остальных. */
+  function unwrapLines(lines) {
+    var longest = 0;
+    lines.forEach(function (l) { if (l.length > longest) longest = l.length; });
+    var long = lines.filter(function (l) { return l.length > longest * 0.7; });
+    var ended = long.filter(function (l) { return /[.!?…:»"]$/.test(l); }).length;
+    var hardWrapped = long.length >= 3 && ended / long.length < 0.5;
+    if (!hardWrapped) return lines;
+    var out = [], buf = '';
+    lines.forEach(function (l) {
+      buf = buf ? buf + ' ' + l : l;
+      if (l.length < longest * 0.75) { out.push(buf); buf = ''; }
+    });
+    if (buf) out.push(buf);
+    return out;
+  }
+
+  // Внутри одного куска перенос строки — вёрстка исходника, а не новая мысль.
+  function flat(t) { return String(t || '').replace(/\s*\n\s*/g, ' ').trim(); }
 
   // Заголовок главы: короткая строка, которая не заканчивается точкой.
   // Вопрос заголовком быть может («Кто писал песни Децла?»), перечисление — нет.
@@ -1124,30 +1151,31 @@
 
     var i = 0;
     // Заголовок статьи — первая строка, если она похожа на заголовок.
-    var first = chunks[0].replace(/^#{1,6}\s*/, '').trim();
+    var first = flat(chunks[0].replace(/^#{1,6}\s*/, ''));
     if (looksLikeHeading(first) || /^#{1,6}\s/.test(chunks[0])) { out.title = first; i = 1; }
     // Лид — следующий абзац, если он не слишком длинный.
-    if (i < chunks.length && !looksLikeHeading(chunks[i]) && chunks[i].length <= 520
+    if (i < chunks.length && !looksLikeHeading(flat(chunks[i])) && flat(chunks[i]).length <= 520
         && !/^\s*([-–—•*]|\d+[.)])\s/.test(chunks[i])) {
-      out.lead = chunks[i]; i += 1;
+      out.lead = flat(chunks[i]); i += 1;
     }
 
     for (; i < chunks.length; i++) {
       var c = chunks[i];
       if (/^#{1,6}\s/.test(c)) {
-        out.blocks.push({ type: c.indexOf('###') === 0 ? 'h3' : 'h2', text: c.replace(/^#{1,6}\s*/, '').trim() });
+        out.blocks.push({ type: c.indexOf('###') === 0 ? 'h3' : 'h2', text: flat(c.replace(/^#{1,6}\s*/, '')) });
         continue;
       }
-      if (/^\s*>/.test(c)) { out.blocks.push({ type: 'quote', text: c.replace(/^\s*>\s?/gm, '').trim() }); continue; }
+      if (/^\s*>/.test(c)) { out.blocks.push({ type: 'quote', text: flat(c.replace(/^\s*>\s?/gm, '')) }); continue; }
       var lines = c.split('\n').map(function (x) { return x.trim(); }).filter(Boolean);
       var isList = lines.length > 1 && lines.every(function (l) { return /^([-–—•*]|\d+[.)])\s+/.test(l); });
       if (isList) {
         out.blocks.push({ type: 'list', items: lines.map(function (l) { return l.replace(/^([-–—•*]|\d+[.)])\s+/, ''); }) });
         continue;
       }
-      if (looksLikeHeading(c)) { out.blocks.push({ type: 'h2', text: c }); continue; }
-      if (/^[«"].{0,300}[»"]$/.test(c)) { out.blocks.push({ type: 'quote', text: c.replace(/^[«"]|[»"]$/g, '') }); continue; }
-      splitLong(c).forEach(function (part) { out.blocks.push({ type: 'p', text: part }); });
+      var one = flat(c);
+      if (looksLikeHeading(one)) { out.blocks.push({ type: 'h2', text: one }); continue; }
+      if (/^[«"].{0,300}[»"]$/.test(one)) { out.blocks.push({ type: 'quote', text: one.replace(/^[«"]|[»"]$/g, '') }); continue; }
+      splitLong(one).forEach(function (part) { out.blocks.push({ type: 'p', text: part }); });
     }
 
     // Если своих заголовков нет — расставляем сами, по три абзаца на главу,
