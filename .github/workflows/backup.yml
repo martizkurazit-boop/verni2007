@@ -1,0 +1,31 @@
+name: Резервная копия содержимого
+
+# Статьи и картинки живут в истории репозитория — оттуда их можно достать
+# всегда. Этот архив нужен для другого случая: когда репозитория не стало
+# совсем (удалили, потеряли доступ к аккаунту). Файл лежит отдельно от веток
+# и скачивается одной кнопкой со страницы запуска.
+on:
+  schedule:
+    - cron: '25 4 * * 1'   # каждый понедельник, 04:25 UTC
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  backup:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Собрать архив
+        run: |
+          mkdir -p backup
+          tar -czf "backup/content-$(date -u +%Y-%m-%d).tar.gz" content
+          ls -lh backup
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: content-backup
+          path: backup/*.tar.gz
+          retention-days: 90

@@ -3,6 +3,18 @@
    после чего GitHub Actions пересобирает статический сайт. localStorage хранит только токен. */
 (function () {
   'use strict';
+
+  /* Админку нельзя открывать внутри чужой страницы: невидимый фрейм поверх
+     чужой кнопки — классический способ заставить нажать «Удалить» чужими
+     руками. Запретить фреймы заголовком на GitHub Pages негде, поэтому
+     проверяем сами. */
+  if (window.top !== window.self) {
+    document.documentElement.innerHTML = '<body style="background:#0A0A0A;color:#E8E8E8;'
+      + 'font:600 15px system-ui,sans-serif;padding:40px">Админка открыта внутри чужой страницы '
+      + 'и остановлена. Откройте её в отдельной вкладке.</body>';
+    return;
+  }
+
   var CFG = window.VM2007 || {};
   var API = 'https://api.github.com';
   var VAULT_KEY = 'vm2007:vault';   // {v, login, salt, iv, data} — токен под паролем

@@ -4,6 +4,19 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="robots" content="noindex, nofollow">
+<!-- Замок на странице, которая держит токен GitHub. Даже если в админку каким-то
+     образом попадёт чужой скрипт, увести токен ему будет некуда: сеть разрешена
+     только к api.github.com, картинки — только свои, формы никуда не
+     отправляются. Запрет на чужие фреймы сюда не входит: frame-ancestors
+     работает только HTTP-заголовком, которого на GitHub Pages не задать, —
+     эту дыру закрывает проверка в начале admin.js. -->
+<meta http-equiv="Content-Security-Policy" content="default-src 'self';
+  connect-src 'self' https://api.github.com;
+  img-src 'self' data: blob:;
+  style-src 'self' 'unsafe-inline';
+  script-src 'self' 'unsafe-inline';
+  font-src 'self';
+  object-src 'none'; base-uri 'none'; form-action 'none'">
 <title>Админка — Верните мой 2007</title>
 <link rel="icon" href="../favicon.svg" type="image/svg+xml">
 <link rel="stylesheet" href="admin.css">
