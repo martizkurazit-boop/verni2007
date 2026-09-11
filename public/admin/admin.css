@@ -211,3 +211,8 @@ code{font-family:inherit;font-weight:700;background:#0A0A0A;border:1px solid var
   .pic-body{flex:1 1 100%;order:3}
   .pic-act{flex-direction:row;margin-left:auto}
 }
+.outline li.vid{border-left-color:#FF3B30}
+.outline li.vid .role{color:#FF3B30}
+.outline li.cov{border-left-color:#CCFF04}
+.outline li.cov .role{color:#CCFF04}
+#auto-cover-drop{aspect-ratio:16/9}

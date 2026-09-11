@@ -1059,7 +1059,7 @@
      выходит готовый черновик. Разбор — правила, а не магия: их видно в
      колонке «Что получится», и всё, что собралось, остаётся править руками. */
 
-  var AUTO = { pics: [], parsed: null };
+  var AUTO = { pics: [], cover: null, parsed: null };
 
   // Куски текста. Обычно абзацы разделены пустой строкой; если текст пришёл
   // из документа, где её нет, — разделителем становится обычный перенос.
@@ -1184,9 +1184,7 @@
     if (parsed.title && (!titleField.value.trim() || titleField.dataset.auto === '1')) {
       titleField.value = parsed.title; titleField.dataset.auto = '1';
     }
-    var useCover = $('#auto-cover').checked && AUTO.pics.length;
-    var inline = Math.max(0, AUTO.pics.length - (useCover ? 1 : 0));
-    var slots = imageSlots(parsed.blocks, inline);
+    var slots = imageSlots(parsed.blocks, AUTO.pics.length);
     var box = $('#auto-outline');
     if (!parsed.blocks.length && !parsed.lead) {
       box.innerHTML = '<p class="hint">Вставьте текст — здесь появится разбор.</p>';
@@ -1195,6 +1193,12 @@
     var heads = parsed.blocks.filter(function (b) { return b.type === 'h2' || b.type === 'h3'; }).length;
     var paras = parsed.blocks.filter(function (b) { return b.type === 'p'; }).length;
     var rows = [];
+    if (AUTO.cover) rows.push({ cls: 'cov', role: 'Обложка', txt: AUTO.cover.name });
+    var yt = $('#auto-youtube').value.trim();
+    if (yt) {
+      rows.push({ cls: 'vid', role: 'Видео', txt: youtubeId(yt)
+        ? 'проигрыватель встанет над текстом' : 'ссылка не распознана — проверьте её' });
+    }
     if (parsed.lead) rows.push({ cls: '', role: 'Лид', txt: parsed.lead });
     parsed.blocks.forEach(function (b, i) {
       rows.push({
@@ -1208,7 +1212,7 @@
       }
     });
     box.innerHTML = '<p class="outline-sum">Глав: ' + heads + ' · абзацев: ' + paras
-      + ' · картинок: ' + AUTO.pics.length + (useCover ? ' (первая — в обложку)' : '')
+      + ' · картинок в тексте: ' + AUTO.pics.length + (AUTO.cover ? ' · обложка есть' : ' · обложки нет')
       + '</p>'
       + (parsed.guessed ? '<p class="hint warn" style="margin:-8px 0 12px">Заголовков в тексте не нашлось — '
         + parsed.guessed + ' придуманы автоматически, их точно стоит переписать.</p>' : '')
@@ -1253,7 +1257,7 @@
     list.forEach(function (f) {
       AUTO.pics.push({ file: f, name: f.name, alt: '', url: URL.createObjectURL(f) });
     });
-    renderPics(); autoRefresh();
+    renderPics(); renderAutoCover(); autoRefresh();
   }
 
   // Уменьшение до 1600 px и WebP — как у картинок в редакторе: кадр не режем,
@@ -1282,9 +1286,8 @@
       return toast('Статья с адресом /' + slug + '/ уже есть — измените заголовок.', true);
     }
 
-    var useCover = $('#auto-cover').checked && AUTO.pics.length > 0;
-    var coverPic = useCover ? AUTO.pics[0] : null;
-    var inlinePics = useCover ? AUTO.pics.slice(1) : AUTO.pics.slice();
+    var coverPic = AUTO.cover;
+    var inlinePics = AUTO.pics.slice();
     var btn = $('#auto-build');
     btn.disabled = true; btn.textContent = 'Собираем…';
     progress(8);
@@ -1315,6 +1318,7 @@
         d.lead = parsed.lead || '';
         d.excerpt = (parsed.lead || (parsed.blocks.find(function (b) { return b.type === 'p'; }) || {}).text || '').slice(0, 200).trim();
         d.category = $('#auto-cat').value || d.category;
+        d.youtubeUrl = $('#auto-youtube').value.trim();
         d.seoTitle = title;
         d.seoDescription = d.excerpt.slice(0, 160);
         var blocks = parsed.blocks.map(function (b) {
@@ -1338,7 +1342,7 @@
         state.dirty = true;
         var after = Promise.resolve();
         if (coverPic) {
-          d.cover = { src: '', alt: coverPic.alt || '', focus: '50% 50%' };
+          d.cover = { src: '', alt: $('#auto-cover-alt').value.trim(), focus: '50% 50%' };
           after = createImageBitmap(coverPic.file).then(function (bmp) {
             state.pendingCover = { bitmap: bmp, name: coverPic.name };
             return reprocessCover();
@@ -1351,7 +1355,8 @@
           btn.disabled = false; btn.textContent = 'Собрать статью';
           var msg = 'Собрано: ' + blocks.filter(function (b) { return b.type === 'h2'; }).length + ' глав, '
             + blocks.filter(function (b) { return b.type === 'p'; }).length + ' абзацев, '
-            + prepped.length + ' картинок в тексте' + (coverPic ? ' и обложка' : '') + '. Проверьте и сохраните.';
+            + prepped.length + ' картинок в тексте' + (coverPic ? ', обложка' : '')
+            + (d.youtubeUrl ? ', видео' : '') + '. Проверьте и сохраните.';
           toast(msg);
         });
       })
@@ -1367,18 +1372,69 @@
     sel.innerHTML = (state.site.categories || []).filter(function (c) { return c.enabled !== false; })
       .map(function (c) { return '<option value="' + esc(c.id) + '">' + esc(c.title) + '</option>'; }).join('');
     renderPics();
+    renderAutoCover();
     autoRefresh();
   }
 
   $('#auto-text').addEventListener('input', autoRefresh);
   $('#auto-title').addEventListener('input', function () { this.dataset.auto = '0'; });
-  $('#auto-cover').addEventListener('change', autoRefresh);
+  function renderAutoCover() {
+    var img = $('#auto-cover-img'), cap = $('#auto-cover-cap');
+    if (AUTO.cover) {
+      img.src = AUTO.cover.url; img.hidden = false;
+      cap.textContent = '';
+    } else {
+      img.hidden = true; img.removeAttribute('src');
+      cap.textContent = 'Перетащите обложку или нажмите — кадр 16:9 сделается сам';
+    }
+    $('#auto-cover-first').disabled = !AUTO.pics.length;
+    $('#auto-cover-clear').disabled = !AUTO.cover;
+  }
+  function setAutoCover(file) {
+    if (!file) return;
+    if (OK_TYPES.indexOf(file.type) < 0) return toast('Нужен PNG, JPEG, WebP или AVIF.', true);
+    if (file.size > 15 * 1024 * 1024) return toast('Файл больше 15 МБ — уменьшите его.', true);
+    if (AUTO.cover) URL.revokeObjectURL(AUTO.cover.url);
+    AUTO.cover = { file: file, name: file.name, url: URL.createObjectURL(file) };
+    renderAutoCover(); autoRefresh();
+  }
+  $('#auto-cover-drop').addEventListener('click', function () { $('#auto-cover-file').click(); });
+  $('#auto-cover-file').addEventListener('change', function () { setAutoCover(this.files[0]); this.value = ''; });
+  ['dragenter', 'dragover'].forEach(function (ev) {
+    $('#auto-cover-drop').addEventListener(ev, function (e) { e.preventDefault(); this.classList.add('over'); });
+  });
+  ['dragleave', 'drop'].forEach(function (ev) {
+    $('#auto-cover-drop').addEventListener(ev, function (e) { e.preventDefault(); this.classList.remove('over'); });
+  });
+  $('#auto-cover-drop').addEventListener('drop', function (e) {
+    if (e.dataTransfer && e.dataTransfer.files) setAutoCover(e.dataTransfer.files[0]);
+  });
+  // Частый случай: первая фотография из пачки и есть обложка — забираем её
+  // из списка целиком, чтобы в тексте она вторым экземпляром не повторялась.
+  $('#auto-cover-first').addEventListener('click', function () {
+    if (!AUTO.pics.length) return;
+    var pic = AUTO.pics.shift();
+    if (AUTO.cover) URL.revokeObjectURL(AUTO.cover.url);
+    AUTO.cover = { file: pic.file, name: pic.name, url: pic.url };
+    if (pic.alt && !$('#auto-cover-alt').value.trim()) $('#auto-cover-alt').value = pic.alt;
+    renderPics(); renderAutoCover(); autoRefresh();
+  });
+  $('#auto-cover-clear').addEventListener('click', function () {
+    if (AUTO.cover) URL.revokeObjectURL(AUTO.cover.url);
+    AUTO.cover = null; $('#auto-cover-alt').value = '';
+    renderAutoCover(); autoRefresh();
+  });
+  $('#auto-youtube').addEventListener('input', autoRefresh);
   $('#auto-build').addEventListener('click', autoBuild);
   $('#auto-reset').addEventListener('click', function () {
     if (!confirm('Очистить текст и картинки?')) return;
     AUTO.pics.forEach(function (p) { URL.revokeObjectURL(p.url); });
     AUTO.pics = [];
+    if (AUTO.cover) URL.revokeObjectURL(AUTO.cover.url);
+    AUTO.cover = null; $('#auto-cover-alt').value = '';
+    renderAutoCover();
     $('#auto-text').value = ''; $('#auto-title').value = ''; $('#auto-title').dataset.auto = '1';
+    $('#auto-youtube').value = '';
     renderPics(); autoRefresh();
   });
   $('#auto-drop').addEventListener('click', function () { $('#auto-files').click(); });
