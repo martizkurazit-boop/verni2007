@@ -1,13 +1,13 @@
 {
-  "updatedAt": "2026-09-10T20:49:50.455Z",
+  "updatedAt": "2026-09-11T04:36:16.569Z",
   "days": 30,
   "counter": "112450613",
   "totals": {
-    "visits": 24,
-    "users": 23,
-    "pageviews": 91,
-    "avgSeconds": 454,
-    "bounceRate": 71
+    "visits": 27,
+    "users": 25,
+    "pageviews": 94,
+    "avgSeconds": 405,
+    "bounceRate": 70
   },
   "goals": [
     {
@@ -56,8 +56,8 @@
   "sources": [
     {
       "name": "Прямые заходы",
-      "visits": 21,
-      "share": 91
+      "visits": 24,
+      "share": 92
     },
     {
       "name": "Внутренние переходы",
@@ -73,11 +73,11 @@
   "geo": [
     {
       "name": "США",
-      "visits": 15
+      "visits": 17
     },
     {
       "name": "Таиланд",
-      "visits": 5
+      "visits": 6
     },
     {
       "name": "Швейцария",
@@ -95,7 +95,7 @@
   "pages": [
     {
       "url": "https://vernitemoy2007.ru/",
-      "visits": 19,
+      "visits": 22,
       "goals": {
         "youtube_click": 1,
         "video_play": 1,
