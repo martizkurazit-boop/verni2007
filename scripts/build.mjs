@@ -712,6 +712,13 @@ function writeFeed(opts) {
 }
 
 /* ── Статья ──────────────────────────────────────────────────────── */
+/* Текст блока → отдельные абзацы. Пустая строка (а на практике и одиночный
+   перенос) означает новый абзац: на телефоне это разница между читаемой
+   главой и стеной текста. */
+function paragraphs(text) {
+  return String(text || '').split(/\n+/).map((s) => s.trim()).filter(Boolean);
+}
+
 function renderBody(a, inlineRel) {
   const out = [];
   let h2seen = 0, pending = false;
@@ -743,7 +750,9 @@ function renderBody(a, inlineRel) {
           + `${b.caption ? `<figcaption>${esc(typo(b.caption))}</figcaption>` : ''}</figure>`);
         break;
       }
-      default: out.push(`<p>${autoLink(inline(b.text || ''), a)}</p>`);
+      // Пустая строка внутри блока — граница абзаца. Раньше весь блок уезжал
+      // в один <p>, и глава читалась на телефоне сплошным полотном.
+      default: for (const part of paragraphs(b.text)) out.push(`<p>${autoLink(inline(part), a)}</p>`);
     }
   }
   return out.join('\n');
@@ -877,7 +886,7 @@ function articlePage(a) {
 <article class="article">
   <a class="kicker" href="${attr(url('/category/' + cat.id + '/'))}">${esc(cat.title)}</a>
   <h1 class="h1-art">${esc(a.title)}</h1>
-  ${a.lead ? `<p class="lead-art">${esc(typo(a.lead))}</p>` : ''}
+  ${paragraphs(a.lead).map((t) => `<p class="lead-art">${esc(typo(t))}</p>`).join('\n  ')}
   <div class="meta">
     <span class="who">${esc(a.author || site.author || 'Редакция')}</span>
     <span><time datetime="${attr(a.publishedAt)}">${esc(ruDate(a.publishedAt))}</time></span>
