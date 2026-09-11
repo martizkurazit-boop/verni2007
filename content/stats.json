@@ -1,13 +1,13 @@
 {
-  "updatedAt": "2026-09-11T04:36:16.569Z",
+  "updatedAt": "2026-09-11T11:17:08.659Z",
   "days": 30,
   "counter": "112450613",
   "totals": {
-    "visits": 27,
-    "users": 25,
-    "pageviews": 94,
-    "avgSeconds": 405,
-    "bounceRate": 70
+    "visits": 31,
+    "users": 26,
+    "pageviews": 127,
+    "avgSeconds": 545,
+    "bounceRate": 65
   },
   "goals": [
     {
@@ -26,7 +26,7 @@
       "id": 611348858,
       "name": "Дочитывание",
       "event": "read_end",
-      "reaches": 8
+      "reaches": 12
     },
     {
       "id": 611348974,
@@ -56,28 +56,28 @@
   "sources": [
     {
       "name": "Прямые заходы",
-      "visits": 24,
-      "share": 92
+      "visits": 27,
+      "share": 90
     },
     {
       "name": "Внутренние переходы",
-      "visits": 1,
-      "share": 4
+      "visits": 2,
+      "share": 7
     },
     {
       "name": "Переходы из поисковых систем",
       "visits": 1,
-      "share": 4
+      "share": 3
     }
   ],
   "geo": [
     {
       "name": "США",
-      "visits": 17
+      "visits": 18
     },
     {
       "name": "Таиланд",
-      "visits": 6
+      "visits": 9
     },
     {
       "name": "Швейцария",
@@ -95,11 +95,11 @@
   "pages": [
     {
       "url": "https://vernitemoy2007.ru/",
-      "visits": 22,
+      "visits": 25,
       "goals": {
         "youtube_click": 1,
         "video_play": 1,
-        "read_end": 7,
+        "read_end": 11,
         "search": 0,
         "telegram_click": 0,
         "Автоцель: переход в соц.сеть": 0,
@@ -134,6 +134,19 @@
     },
     {
       "url": "https://vernitemoy2007.ru/articles/decl-kak-kirill-tolmackiy-stal-zvezdoy-nulevyh-i-nachal-vse-zanovo/",
+      "visits": 1,
+      "goals": {
+        "youtube_click": 0,
+        "video_play": 0,
+        "read_end": 0,
+        "search": 0,
+        "telegram_click": 0,
+        "Автоцель: переход в соц.сеть": 0,
+        "all_messengers": 0
+      }
+    },
+    {
+      "url": "https://vernitemoy2007.ru/articles/tatu-kak-poyavilas-gruppa-i-pochemu-raspalsya-duet/",
       "visits": 1,
       "goals": {
         "youtube_click": 0,
