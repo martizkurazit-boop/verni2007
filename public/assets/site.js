@@ -39,17 +39,20 @@
     });
   });
 
-  /* ── Поиск ─────────────────────────────────────────────────────── */
-  var bar = document.getElementById('searchbar');
+  /* ── Поиск ───────────────────────────────────────────────────────
+     Имя переменной здесь не случайно длинное: var не ограничен блоком,
+     и короткое bar ниже по файлу уже перетирало эту ссылку — на странице
+     статьи кнопка поиска переставала работать. */
+  var searchBar = document.getElementById('searchbar');
   Array.prototype.forEach.call(document.querySelectorAll('[data-search-toggle]'), function (b) {
     b.addEventListener('click', function () {
-      if (!bar) return;
-      var open = bar.hidden;
-      bar.hidden = !open;
+      if (!searchBar) return;
+      var open = searchBar.hidden;
+      searchBar.hidden = !open;
       document.querySelectorAll('[data-search-toggle][aria-expanded]').forEach(function (t) {
         t.setAttribute('aria-expanded', String(open));
       });
-      if (open) { var i = bar.querySelector('input'); if (i) i.focus(); }
+      if (open) { var field = searchBar.querySelector('input'); if (field) field.focus(); }
     });
   });
 
@@ -225,13 +228,13 @@
   var articleBody = document.querySelector('.article');
   if (progress && articleBody) {
     progress.hidden = false;
-    var bar = progress.firstElementChild, pTicking = false;
+    var progressFill = progress.firstElementChild, pTicking = false;
     var drawProgress = function () {
       pTicking = false;
       var box = articleBody.getBoundingClientRect();
       var total = box.height - window.innerHeight;
       var done = total > 0 ? Math.min(1, Math.max(0, -box.top / total)) : 0;
-      bar.style.width = (done * 100).toFixed(1) + '%';
+      progressFill.style.width = (done * 100).toFixed(1) + '%';
     };
     window.addEventListener('scroll', function () {
       if (!pTicking) { pTicking = true; window.requestAnimationFrame(drawProgress); }
@@ -359,23 +362,21 @@
 
   /* ── Страница поиска ───────────────────────────────────────────── */
   var results = document.querySelector('[data-search-results]');
-  if (results) {
-    var q = new URLSearchParams(location.search).get('q') || '';
+  var query = new URLSearchParams(location.search).get('q') || '';
+  if (results && query) {
     var input = document.querySelector('[data-search-input]');
-    if (input) input.value = q;
-    var title = document.querySelector('[data-search-title]');
-    var lead = document.querySelector('[data-search-lead]');
-    var empty = document.querySelector('[data-search-empty]');
-    if (!q) return;
-    if (title) title.textContent = '«' + q + '»';
-    var base = document.body.getAttribute('data-base') || '';
+    if (input) input.value = query;
+    var qTitle = document.querySelector('[data-search-title]');
+    var qLead = document.querySelector('[data-search-lead]');
+    var qEmpty = document.querySelector('[data-search-empty]');
+    if (qTitle) qTitle.textContent = '«' + query + '»';
     fetch(new URL('search-index.json', new URL('../', BASE)).href).then(function (r) { return r.json(); }).then(function (items) {
-      var needle = q.toLowerCase().trim();
+      var needle = query.toLowerCase().trim();
       var found = items.filter(function (a) {
         return (a.title + ' ' + a.excerpt + ' ' + a.tags.join(' ') + ' ' + a.category).toLowerCase().indexOf(needle) >= 0;
       });
-      if (lead) lead.textContent = 'Найдено материалов: ' + found.length;
-      if (!found.length) { if (empty) empty.hidden = false; return; }
+      if (qLead) qLead.textContent = 'Найдено материалов: ' + found.length;
+      if (!found.length) { if (qEmpty) qEmpty.hidden = false; return; }
       results.innerHTML = found.map(function (a) {
         return '<article class="card">'
           + '<a class="cover" href="' + a.href + '" tabindex="-1" aria-hidden="true">'
@@ -387,7 +388,7 @@
           + '<h2><a href="' + a.href + '">' + a.title + '</a></h2><p>' + a.excerpt + '</p>'
           + '<a class="read-more" href="' + a.href + '">Читать →</a></div></article>';
       }).join('');
-      goal('search', { query: q, results: found.length });
-    }).catch(function () { if (empty) empty.hidden = false; });
+      goal('search', { query: query, results: found.length });
+    }).catch(function () { if (qEmpty) qEmpty.hidden = false; });
   }
 })();
