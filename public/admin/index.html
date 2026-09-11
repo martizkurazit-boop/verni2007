@@ -318,7 +318,10 @@
         <h2 class="sec">Публикация</h2>
         <div class="stack" style="gap:14px">
           <div class="field"><span>Категория</span><div class="row" id="cat-choices"></div></div>
-          <label class="field"><span>Теги через запятую</span><input type="text" id="f-tags"></label>
+          <label class="field"><span>Теги через запятую</span>
+            <input type="text" id="f-tags" list="tag-list" autocomplete="off">
+            <datalist id="tag-list"></datalist>
+            <span class="hint" id="tag-hint"></span></label>
           <label class="field"><span>Герой статьи (имя, необязательно)</span>
             <input type="text" id="f-subject" placeholder="Михаил Горшенёв">
             <span class="hint">О ком материал. Уходит в разметку как отдельная сущность:

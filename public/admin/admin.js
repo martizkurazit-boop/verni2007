@@ -527,6 +527,7 @@
     $('#f-tags').value = (d.tags || []).join(', ');
     $('#f-aliases').value = (d.aliases || []).join(', ');
     $('#f-subject').value = d.subject || '';
+    renderTagHints();
     $('#f-youtube').value = d.youtubeUrl || '';
     $('#f-author').value = d.author || '';
     $('#f-date').value = d.publishedAt || '';
@@ -668,6 +669,32 @@
   }
 
   /* Категории и связанные */
+  /* Подсказка по уже использованным тегам. Без неё в списке заводятся
+     «Горшок» и «горшок», «МакSим» и «Максим» — разные страницы про одно и то же. */
+  function allTags() {
+    var seen = {}, out = [];
+    state.articles.forEach(function (a) {
+      (a.data.tags || []).forEach(function (t) {
+        var k = String(t).toLowerCase().trim();
+        if (k && !seen[k]) { seen[k] = 1; out.push(String(t).trim()); }
+      });
+    });
+    return out.sort(function (a, b) { return a.localeCompare(b, 'ru'); });
+  }
+
+  function renderTagHints() {
+    var tags = allTags();
+    var dl = $('#tag-list');
+    if (dl) dl.innerHTML = tags.map(function (t) { return '<option value="' + esc(t) + '">'; }).join('');
+    var hint = $('#tag-hint');
+    if (hint) {
+      hint.textContent = tags.length
+        ? 'Уже в ходу: ' + tags.slice(0, 12).join(', ') + (tags.length > 12 ? '…' : '')
+          + '. Берите существующий тег, а не новое написание того же.'
+        : 'Первые теги сайта — дальше они будут подсказываться.';
+    }
+  }
+
   function renderCatChoices() {
     $('#cat-choices').innerHTML = (state.site.categories || []).map(function (c) {
       return '<button class="btn sm' + (c.id === state.draft.category ? ' on' : '') + '" data-cat="' + esc(c.id) + '">'

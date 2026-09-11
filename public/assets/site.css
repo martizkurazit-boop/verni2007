@@ -8,7 +8,8 @@
 @font-face{font-family:Gilroy;src:url(../fonts/gilroy-italic.woff2) format('woff2');font-weight:500;font-style:italic;font-display:swap}
 
 :root{
-  --bg:#FFFFFF; --bg-alt:#F5F5F3; --ink:#0A0A0A; --body:#1A1A1A; --body-2:#333333;
+  --bg:#FFFFFF; --bg-alt:#F5F5F3; --surface:#FFFFFF; --hdr-bg:rgba(255,255,255,.92);
+  --ink:#0A0A0A; --body:#1A1A1A; --body-2:#333333;
   --muted:#5A5A5A; --muted-2:#6A6A6A; --faint:#9A9A9A; --placeholder:#A6A6A0;
   --border:#E2E2DE; --border-cover:#DCDCD8; --cover-bg:#EDEDE9; --cover-bg-2:#E4E4E0;
   --accent:#CCFF04; --accent-2:#FF3B30;
@@ -33,7 +34,7 @@ img{max-width:100%}
 .wrap-narrow{max-width:760px;margin:0 auto;padding:0 20px}
 
 /* ── Шапка ───────────────────────────────────────────────────────── */
-.hdr{position:sticky;top:0;z-index:40;background:rgba(255,255,255,.92);
+.hdr{position:sticky;top:0;z-index:40;background:var(--hdr-bg);
   backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);border-bottom:1px solid var(--border)}
 .hdr-in{max-width:1120px;margin:0 auto;padding:0 20px;display:flex;align-items:center;gap:18px;height:64px}
 .mark{display:flex;align-items:baseline;flex:0 0 auto}
@@ -45,11 +46,11 @@ img{max-width:100%}
 .nav-desk a{font-weight:700;font-size:13px;letter-spacing:.08em;text-transform:uppercase}
 .nav-desk a.all{color:var(--muted-2)}
 .hdr-act{margin-left:auto;display:flex;gap:8px;align-items:center}
-.btn-ico{width:40px;height:40px;min-width:40px;border:1px solid var(--border);background:#fff;cursor:pointer;
+.btn-ico{width:40px;height:40px;min-width:40px;border:1px solid var(--border);background:var(--surface);cursor:pointer;
   font-size:15px;font-weight:700;color:var(--ink);display:inline-flex;align-items:center;justify-content:center;
   font-family:inherit;transition:border-color var(--ease)}
 .btn-ico:hover{border-color:var(--ink)}
-.btn-line{height:40px;padding:0 14px;border:1px solid var(--border);background:#fff;cursor:pointer;font-family:inherit;
+.btn-line{height:40px;padding:0 14px;border:1px solid var(--border);background:var(--surface);cursor:pointer;font-family:inherit;
   font-size:11px;font-weight:800;letter-spacing:.12em;text-transform:uppercase;color:var(--muted-2);white-space:nowrap;
   display:inline-flex;align-items:center;transition:border-color var(--ease),color var(--ease)}
 .btn-line:hover{border-color:var(--ink);color:var(--ink)}
@@ -88,14 +89,14 @@ img{max-width:100%}
 .searchbar[hidden]{display:none}
 .searchbar-in{max-width:1120px;margin:0 auto;padding:20px}
 .search-row{display:flex;gap:10px}
-.search-row input{flex:1;min-width:0;height:52px;padding:0 16px;border:1px solid #383838;background:#fff;
+.search-row input{flex:1;min-width:0;height:52px;padding:0 16px;border:1px solid #383838;background:var(--surface);
   font-family:inherit;font-size:16px;font-weight:600;color:var(--ink);outline-color:var(--accent-2)}
-.search-row button{height:52px;padding:0 18px;border:1px solid var(--border);background:#fff;font-family:inherit;
+.search-row button{height:52px;padding:0 18px;border:1px solid var(--border);background:var(--surface);font-family:inherit;
   font-weight:800;font-size:12px;letter-spacing:.1em;text-transform:uppercase;cursor:pointer;
   display:inline-flex;align-items:center;justify-content:center}
 .tagrow{margin-top:12px;display:flex;flex-wrap:wrap;gap:8px;align-items:center}
 .tagrow .lbl{font-size:11px;font-weight:800;letter-spacing:.12em;text-transform:uppercase;color:var(--muted-2)}
-.chip{padding:6px 10px;border:1px solid var(--border);background:#fff;font-family:inherit;font-size:12px;
+.chip{padding:6px 10px;border:1px solid var(--border);background:var(--surface);font-family:inherit;font-size:12px;
   font-weight:700;cursor:pointer;color:var(--ink);display:inline-flex;align-items:center;justify-content:center;
   gap:7px;transition:border-color var(--ease)}
 .chip:hover{border-color:var(--ink);color:var(--ink)}
@@ -113,7 +114,7 @@ img{max-width:100%}
 /* ── Лента ───────────────────────────────────────────────────────── */
 .feed{max-width:1120px;margin:0 auto;padding:0 20px 40px}
 .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:28px}
-.card{display:flex;flex-direction:column;background:#fff}
+.card{display:flex;flex-direction:column;background:var(--surface)}
 .cover{display:block;position:relative;width:100%;aspect-ratio:16/9;background:var(--cover-bg);
   border:1px solid var(--border);overflow:hidden}
 .cover img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block}
@@ -142,14 +143,14 @@ img{max-width:100%}
 /* ── Пагинация ───────────────────────────────────────────────────── */
 .pager{margin-top:44px;padding-top:26px;border-top:1px solid var(--border);display:flex;flex-direction:column;
   gap:16px;align-items:center}
-.btn-more{height:50px;padding:0 26px;border:1px solid var(--ink);background:#fff;font-family:inherit;font-weight:800;
+.btn-more{height:50px;padding:0 26px;border:1px solid var(--ink);background:var(--surface);font-family:inherit;font-weight:800;
   font-size:12px;letter-spacing:.12em;text-transform:uppercase;cursor:pointer;text-decoration:none;color:var(--ink);
   display:inline-flex;align-items:center;justify-content:center;text-align:center;
   transition:background var(--ease),border-color var(--ease)}
 .btn-more:hover{background:var(--accent);border-color:var(--accent)}
 .pages{display:flex;gap:6px;align-items:center;flex-wrap:wrap;justify-content:center}
 .pages a{min-width:40px;height:40px;display:flex;align-items:center;justify-content:center;border:1px solid var(--border);
-  background:#fff;color:var(--ink);font-weight:800;font-size:14px;padding:0 8px}
+  background:var(--surface);color:var(--ink);font-weight:800;font-size:14px;padding:0 8px}
 .pages a[aria-current=page]{border-color:var(--accent);background:var(--accent);color:#000}
 .pages a:hover{border-color:var(--ink);color:var(--ink)}
 .page-status{font-size:12px;font-weight:600;color:var(--faint)}
@@ -266,7 +267,7 @@ img{max-width:100%}
 .sources ul{margin:0;padding:0 0 0 18px;display:flex;flex-direction:column;gap:8px}
 .sources li{font-size:15px;font-weight:500;line-height:1.5;color:#4A4A4A}
 .tags{margin-top:28px;display:flex;flex-wrap:wrap;gap:8px}
-.tags a{padding:7px 11px;border:1px solid var(--border);background:#fff;font-size:12px;font-weight:700}
+.tags a{padding:7px 11px;border:1px solid var(--border);background:var(--surface);font-size:12px;font-weight:700}
 .tags a:hover{border-color:var(--ink);color:var(--ink)}
 
 /* ── Боковая колонка «Ещё по теме» ───────────────────────────────── */
@@ -378,7 +379,7 @@ img{max-width:100%}
 
 /* Переключатели ленты */
 .feed-chips{display:flex;flex-wrap:wrap;gap:8px;margin-top:20px}
-.feed-chip{padding:9px 14px;border:1px solid var(--border);background:#fff;font-weight:800;font-size:11px;
+.feed-chip{padding:9px 14px;border:1px solid var(--border);background:var(--surface);font-weight:800;font-size:11px;
   letter-spacing:.1em;text-transform:uppercase;display:inline-flex;align-items:center;justify-content:center;
   gap:6px;transition:border-color var(--ease),background var(--ease)}
 .feed-chip:hover{border-color:var(--ink);color:var(--ink)}
@@ -483,7 +484,7 @@ img{max-width:100%}
 
 /* Кнопка «наверх» */
 .to-top{position:fixed;right:20px;bottom:20px;z-index:44;width:46px;height:46px;border:1px solid var(--border);
-  background:#fff;color:var(--ink);font-size:18px;font-weight:800;cursor:pointer;
+  background:var(--surface);color:var(--ink);font-size:18px;font-weight:800;cursor:pointer;
   display:flex;align-items:center;justify-content:center;
   transition:border-color var(--ease),background var(--ease)}
 .to-top:hover{border-color:var(--ink);background:var(--accent)}
@@ -520,3 +521,73 @@ img{max-width:100%}
 .author-role{font-weight:600;font-size:14px;color:var(--muted-2)}
 .author-yt{margin-top:8px;align-self:flex-start}
 @media (max-width:520px){.author-photo{width:140px;height:140px}}
+
+/* ── Герои проекта ───────────────────────────────────────────────── */
+.hero-list{list-style:none;margin:0;padding:0;display:grid;gap:1px;background:var(--border);
+  border:1px solid var(--border)}
+.hero-list li{background:var(--bg);padding:16px 18px;display:flex;flex-wrap:wrap;gap:6px 14px;
+  align-items:baseline;justify-content:space-between}
+.hero-list a{font-weight:800;font-size:19px;line-height:1.2;text-transform:uppercase;letter-spacing:-.01em}
+.hero-list a:hover{color:var(--accent-2)}
+.hero-list span{font-size:12px;font-weight:600;color:var(--muted-2)}
+.hero-link{margin:18px 0 0}
+.hero-link a{display:inline-flex;align-items:center;font-weight:800;font-size:12px;letter-spacing:.1em;
+  text-transform:uppercase;border-bottom:2px solid var(--accent);padding-bottom:2px}
+.hero-link a:hover{color:var(--accent-2);border-color:var(--accent-2)}
+
+
+/* ── Тёмная тема ─────────────────────────────────────────────────
+   Работает в трёх состояниях: выбор читателя (data-theme на <html>),
+   системная настройка и светлая по умолчанию. Салатовый акцент один и тот
+   же в обеих темах — это фирменный цвет, он не должен «плыть». */
+:root[data-theme="dark"]{
+  --bg:#0F0F0F; --bg-alt:#151515; --surface:#141414; --hdr-bg:rgba(15,15,15,.92);
+  --ink:#F2F2EF; --body:#DCDCD8; --body-2:#C4C4C0;
+  --muted:#A2A2A0; --muted-2:#8C8C8A; --faint:#6C6C6A; --placeholder:#5A5A58;
+  --border:#2B2B2B; --border-cover:#333; --cover-bg:#1B1B1B; --cover-bg-2:#212121;
+  --accent-2:#FF5A50;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#0F0F0F; --bg-alt:#151515; --surface:#141414; --hdr-bg:rgba(15,15,15,.92);
+    --ink:#F2F2EF; --body:#DCDCD8; --body-2:#C4C4C0;
+    --muted:#A2A2A0; --muted-2:#8C8C8A; --faint:#6C6C6A; --placeholder:#5A5A58;
+    --border:#2B2B2B; --border-cover:#333; --cover-bg:#1B1B1B; --cover-bg-2:#212121;
+    --accent-2:#FF5A50;
+  }
+}
+
+/* Блоки, которые чёрные всегда: в тёмной теме их нужно отделить от фона,
+   иначе футер и плашка видео сливаются со страницей в одно пятно. */
+:root[data-theme="dark"] .ftr,
+:root[data-theme="dark"] .videos-strip,
+:root[data-theme="dark"] .popular,
+:root[data-theme="dark"] .watch-end-in{background:#070707}
+:root[data-theme="dark"] .ftr{border-top:1px solid var(--border)}
+:root[data-theme="dark"] .watch-end-in{border:1px solid var(--border)}
+:root[data-theme="dark"] mark.hl{color:#0A0A0A}
+:root[data-theme="dark"] .search-row input{border-color:var(--border);color:var(--ink)}
+:root[data-theme="dark"] .nav-mob a,
+:root[data-theme="dark"] .hero-list li{background:var(--surface)}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]) .ftr,
+  :root:not([data-theme="light"]) .videos-strip,
+  :root:not([data-theme="light"]) .popular,
+  :root:not([data-theme="light"]) .watch-end-in{background:#070707}
+  :root:not([data-theme="light"]) .ftr{border-top:1px solid var(--border)}
+  :root:not([data-theme="light"]) .watch-end-in{border:1px solid var(--border)}
+  :root:not([data-theme="light"]) mark.hl{color:#0A0A0A}
+  :root:not([data-theme="light"]) .search-row input{border-color:var(--border);color:var(--ink)}
+  :root:not([data-theme="light"]) .nav-mob a,
+  :root:not([data-theme="light"]) .hero-list li{background:var(--surface)}
+}
+
+/* Переключатель темы */
+.btn-theme{font-size:16px;line-height:1}
+.btn-theme .sign-dark{display:none}
+:root[data-theme="dark"] .btn-theme .sign-dark{display:inline}
+:root[data-theme="dark"] .btn-theme .sign-light{display:none}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]) .btn-theme .sign-dark{display:inline}
+  :root:not([data-theme="light"]) .btn-theme .sign-light{display:none}
+}

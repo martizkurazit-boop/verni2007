@@ -12,6 +12,33 @@
     } catch (e) {}
   }
 
+  /* ── Светлая и тёмная тема ──────────────────────────────────────
+     Три состояния: выбор читателя, системная настройка и светлая по
+     умолчанию. Выбор запоминается в этом браузере; сама тема ставится
+     ещё до отрисовки скриптом в <head>, иначе тёмная страница моргает
+     белым при каждом переходе. */
+  var THEME_KEY = 'vm2007:theme';
+  function systemDark() {
+    return window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+  }
+  function currentTheme() {
+    var set = document.documentElement.getAttribute('data-theme');
+    return set === 'dark' || set === 'light' ? set : (systemDark() ? 'dark' : 'light');
+  }
+  function applyTheme(name) {
+    document.documentElement.setAttribute('data-theme', name);
+    var meta = document.querySelector('meta[name=theme-color]');
+    if (meta) meta.setAttribute('content', name === 'dark' ? '#0F0F0F' : '#FFFFFF');
+    try { localStorage.setItem(THEME_KEY, name); } catch (e) {}
+  }
+  Array.prototype.forEach.call(document.querySelectorAll('[data-theme-toggle]'), function (b) {
+    b.addEventListener('click', function () {
+      var next = currentTheme() === 'dark' ? 'light' : 'dark';
+      applyTheme(next);
+      goal('theme_switch', { theme: next });
+    });
+  });
+
   /* ── Поиск ─────────────────────────────────────────────────────── */
   var bar = document.getElementById('searchbar');
   Array.prototype.forEach.call(document.querySelectorAll('[data-search-toggle]'), function (b) {

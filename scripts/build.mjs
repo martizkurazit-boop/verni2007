@@ -191,6 +191,29 @@ function inline(text) {
   return out;
 }
 
+/* Теги приводятся к одному написанию. «2000ые» и «2000-е», «Горшок» и «Михаил
+   Горшенёв» — это одна тема, а не две: разные страницы по одной статье в каждой
+   и поиску вредны (тонкие страницы), и читателю бесполезны. Пустое значение
+   в списке — тег выбрасывается совсем: так убираются дубли названий разделов. */
+const TAG_ALIASES = new Map(Object.entries(site.tagAliases || {})
+  .map(([from, to]) => [String(from).toLowerCase().trim(), String(to).trim()]));
+
+function canonTag(t) {
+  const raw = String(t || '').trim();
+  if (!raw) return '';
+  const alias = TAG_ALIASES.get(raw.toLowerCase());
+  return alias === undefined ? raw : alias;
+}
+
+function canonTags(list) {
+  const out = [];
+  for (const t of list || []) {
+    const c = canonTag(t);
+    if (c && !out.some((x) => x.toLowerCase() === c.toLowerCase())) out.push(c);
+  }
+  return out;
+}
+
 /* ── Контент ─────────────────────────────────────────────────────── */
 function loadArticles() {
   const dir = path.join(CONTENT, 'articles');
@@ -199,7 +222,7 @@ function loadArticles() {
     const a = JSON.parse(fs.readFileSync(path.join(dir, f), 'utf8'));
     a.slug = a.slug || f.replace(/\.json$/, '');
     a.body = Array.isArray(a.body) ? a.body : [];
-    a.tags = Array.isArray(a.tags) ? a.tags : [];
+    a.tags = canonTags(Array.isArray(a.tags) ? a.tags : []);
     a.related = Array.isArray(a.related) ? a.related : [];
     a.sources = Array.isArray(a.sources) ? a.sources : [];
     a.faq = Array.isArray(a.faq) ? a.faq.filter((f) => f && f.q && f.a) : [];
@@ -245,6 +268,32 @@ for (const a of published) {
   }
 }
 const topTags = [...tagIndex.values()].sort((a, b) => b.items.length - a.items.length);
+
+/* Герои проекта. Про одного человека со временем набирается несколько
+   материалов — и разбросаны они по тегам и категориям. Страница героя
+   собирает их в одно место: читателю удобно, а поиску видно сущность,
+   а не набор текстов, где встречается имя. */
+const heroIndex = new Map();
+for (const a of published) {
+  const name = String(a.subject || '').trim();
+  if (!name) continue;
+  const slug = slugify(name);
+  if (!heroIndex.has(slug)) heroIndex.set(slug, { slug, name, items: [], tagKey: canonTag(name).toLowerCase() });
+  heroIndex.get(slug).items.push(a);
+}
+// Материал, где герой только упомянут тегом, тоже относится к нему.
+for (const hero of heroIndex.values()) {
+  for (const a of published) {
+    if (hero.items.includes(a)) continue;
+    if (a.tags.some((t) => canonTag(t).toLowerCase() === hero.tagKey)) hero.items.push(a);
+  }
+  hero.items.sort((x, y) => String(y.publishedAt || '').localeCompare(String(x.publishedAt || '')));
+  // Выпуски канала, где имя стоит в названии.
+  hero.videos = ((videoFeed && videoFeed.videos) || [])
+    .filter((v) => new RegExp(hero.name.split(/\s+/).slice(-1)[0], 'i').test(v.title || ''));
+}
+const heroes = [...heroIndex.values()].sort((a, b) => b.items.length - a.items.length || a.name.localeCompare(b.name, 'ru'));
+const heroByTag = new Map(heroes.map((h) => [slugify(canonTag(h.name)), h]));
 
 /* ── Обложки ─────────────────────────────────────────────────────── */
 function coverData(a) {
@@ -306,6 +355,8 @@ function header(active) {
     </nav>
     <div class="hdr-act">
       <button class="btn-ico" type="button" data-search-toggle aria-expanded="false" aria-controls="searchbar" aria-label="Поиск">⌕</button>
+      <button class="btn-ico btn-theme" type="button" data-theme-toggle aria-label="Переключить тему"
+        title="Светлая или тёмная тема"><span class="sign-light" aria-hidden="true">☾</span><span class="sign-dark" aria-hidden="true">☀</span></button>
       ${site.youtubeChannel ? `<a class="btn-yt" href="${attr(ytLink(site.youtubeChannel, 'header'))}" target="_blank" rel="noopener"
         data-yt-header>▶ <span class="yt-our">Наш&nbsp;</span>YouTube<span class="yt-word">&nbsp;канал</span></a>` : ''}
     </div>
@@ -359,6 +410,7 @@ function footer() {
         ${videoFeed ? `<a href="${attr(url('/video/'))}">Видео</a>` : ''}
         ${activeHubs().map((h) => `<a href="${attr(url('/' + h.slug + '/'))}">${esc(h.title)}</a>`).join('\n        ')}
         <a href="${attr(url('/about/'))}">О проекте</a>
+        <a href="${attr(url('/geroi/'))}">Герои</a>
         <a href="${attr(url('/contacts/'))}">Контакты</a>
         <a href="${attr(url('/saved/'))}">Читать позже</a>
         <a href="${attr(url('/search/'))}">Поиск</a>
@@ -394,6 +446,8 @@ ${img ? `<meta property="og:image" content="${attr(img.startsWith('http') ? img 
 <meta name="twitter:title" content="${attr(title)}">
 <meta name="twitter:description" content="${attr(description)}">
 ${img ? `<meta name="twitter:image" content="${attr(img.startsWith('http') ? img : ORIGIN + img)}">\n` : ''}<meta name="theme-color" content="#0A0A0A">
+<script>(function(){try{var t=localStorage.getItem('vm2007:theme');
+if(t==='dark'||t==='light')document.documentElement.setAttribute('data-theme',t);}catch(e){}})();</script>
 ${(site.verification && site.verification.yandex) ? `<meta name="yandex-verification" content="${attr(site.verification.yandex)}">\n` : ''}${(site.verification && site.verification.google) ? `<meta name="google-site-verification" content="${attr(site.verification.google)}">\n` : ''}
 <link rel="icon" href="${attr(url('/favicon.svg'))}" type="image/svg+xml">
 <link rel="apple-touch-icon" href="${attr(url('/apple-touch-icon.png'))}">
@@ -1134,6 +1188,9 @@ function articlePage(a) {
   </div>
   ${a.tags.length ? `<div class="tags">${a.tags.map((t) =>
     `<a href="${attr(url('/tag/' + slugify(t) + '/'))}">${esc(t)}</a>`).join('')}</div>` : ''}
+  ${a.subject && heroIndex.has(slugify(a.subject)) ? `<p class="hero-link">
+    <a href="${attr(url('/geroi/' + slugify(a.subject) + '/'))}">Все материалы о герое: ${esc(a.subject)} →</a>
+  </p>` : ''}
 </article>
 ${watchEndBlock(a)}
 ${next ? `<section class="next-up">
@@ -1292,15 +1349,31 @@ for (const hub of site.hubs || []) {
 }
 
 // Теги
+// Страница тега с единственной статьёй — тонкая: ссылаться на неё можно,
+// но в поиске ей делать нечего, пока материалов не станет больше.
+const TAG_MIN_INDEX = 2;
 for (const t of topTags) {
+  // Тег с именем героя дублировал бы его страницу — отправляем на неё.
+  const hero = heroByTag.get(t.slug);
+  if (hero) {
+    const target = url('/geroi/' + hero.slug + '/');
+    write('/tag/' + t.slug + '/index.html', `<!doctype html><html lang="ru"><head><meta charset="utf-8">
+<title>${esc(hero.name)}</title><link rel="canonical" href="${attr(ORIGIN + target)}">
+<meta name="robots" content="noindex, follow"><meta http-equiv="refresh" content="0; url=${attr(target)}">
+</head><body><p>Материалы о герое: <a href="${attr(target)}">${attr(ORIGIN + target)}</a></p>
+<script>location.replace(${JSON.stringify(target)})</script></body></html>`);
+    continue;
+  }
+  const thin = t.items.length < TAG_MIN_INDEX;
   writeFeed({
     list: t.items, basePath: '/tag/' + t.slug + '/', eyebrow: 'Тег', h1: t.label + '.',
     lead: `Материалы по теме «${t.label}».`, active: '',
     crumb: { name: t.label, path: '/tag/' + t.slug + '/' },
     title: `${t.label} — ${site.title}`,
     description: `Все материалы «${site.title}» по теме «${t.label}».`,
+    noindex: thin,
   });
-  addUrl(url('/tag/' + t.slug + '/'), undefined, '0.5', 'weekly');
+  if (!thin) addUrl(url('/tag/' + t.slug + '/'), undefined, '0.5', 'weekly');
 }
 
 // Статьи
@@ -1323,6 +1396,26 @@ for (const a of published) {
 }
 
 // 301-редиректы со старых адресов (на статике — HTML-редирект с canonical)
+/* Тег переименовали или склеили — старый адрес не должен отдавать 404:
+   он мог уже попасть в закладки и в индекс. */
+const tagRedirects = new Map();
+for (const [from, to] of Object.entries(site.tagAliases || {})) {
+  const target = String(to || '').trim();
+  if (!target) continue;
+  const fromSlug = slugify(from), toSlug = slugify(target);
+  if (!fromSlug || fromSlug === toSlug || tagIndex.has(fromSlug)) continue;
+  tagRedirects.set(fromSlug, toSlug);
+}
+for (const [fromSlug, toSlug] of tagRedirects) {
+  if (!tagIndex.has(toSlug)) continue;
+  const target = url('/tag/' + toSlug + '/');
+  write('/tag/' + fromSlug + '/index.html', `<!doctype html><html lang="ru"><head><meta charset="utf-8">
+<title>Тег переехал</title><link rel="canonical" href="${attr(ORIGIN + target)}">
+<meta name="robots" content="noindex, follow"><meta http-equiv="refresh" content="0; url=${attr(target)}">
+</head><body><p>Тег переехал: <a href="${attr(target)}">${attr(ORIGIN + target)}</a></p>
+<script>location.replace(${JSON.stringify(target)})</script></body></html>`);
+}
+
 for (const [from, to] of Object.entries(site.redirects || {})) {
   const target = url('/articles/' + to + '/');
   write('/articles/' + from + '/index.html', `<!doctype html><html lang="ru"><head><meta charset="utf-8">
@@ -1330,6 +1423,113 @@ for (const [from, to] of Object.entries(site.redirects || {})) {
 <meta name="robots" content="noindex, follow"><meta http-equiv="refresh" content="0; url=${attr(target)}">
 </head><body><p>Материал переехал: <a href="${attr(target)}">${attr(ORIGIN + target)}</a></p>
 <script>location.replace(${JSON.stringify(target)})</script></body></html>`);
+}
+
+/* Страницы героев и указатель. Немного материалов о человеке — страница
+   всё равно полезна читателю, но в поиск не идёт: тонкие страницы вредят
+   всему сайту. Как только у героя наберётся два материала — откроется. */
+if (heroes.length) {
+  write('/geroi/index.html', layout({
+    title: `Герои проекта — ${site.title}`,
+    description: `Люди, о которых мы пишем: ${heroes.slice(0, 8).map((h) => h.name).join(', ')}.`,
+    canonical: ORIGIN + url('/geroi/'), active: '',
+    jsonld: [{
+      '@context': 'https://schema.org', '@type': 'CollectionPage',
+      name: 'Герои проекта', url: ORIGIN + url('/geroi/'), inLanguage: 'ru-RU',
+      mainEntity: {
+        '@type': 'ItemList',
+        itemListElement: heroes.map((h, i) => ({
+          '@type': 'ListItem', position: i + 1, name: h.name,
+          url: ORIGIN + url('/geroi/' + h.slug + '/'),
+        })),
+      },
+    }, {
+      '@context': 'https://schema.org', '@type': 'BreadcrumbList',
+      itemListElement: [
+        { '@type': 'ListItem', position: 1, name: 'Главная', item: ORIGIN + url('/') },
+        { '@type': 'ListItem', position: 2, name: 'Герои', item: ORIGIN + url('/geroi/') },
+      ],
+    }],
+    body: `<main id="main">
+  <section class="head-sec">
+    <nav class="crumbs" aria-label="Хлебные крошки">
+      <a href="${attr(url('/'))}">Главная</a><span>/</span><span class="cur">Герои</span>
+    </nav>
+    <div class="eyebrow"><span class="sl">//</span><span>Указатель</span></div>
+    <h1 class="h1-feed">Герои проекта.</h1>
+    <p class="lead-feed">Люди, вокруг которых собираются материалы. У каждого — все статьи
+      и выпуски канала, где он появляется.</p>
+    <div class="rule-accent"></div>
+  </section>
+  <section class="feed">
+    <ul class="hero-list">${heroes.map((h) => `<li>
+      <a href="${attr(url('/geroi/' + h.slug + '/'))}">${esc(h.name)}</a>
+      <span>${h.items.length} ${plural(h.items.length, 'материал', 'материала', 'материалов')}${
+        h.videos.length ? ' · ' + h.videos.length + ' ' + plural(h.videos.length, 'выпуск', 'выпуска', 'выпусков') : ''}</span>
+    </li>`).join('\n    ')}</ul>
+  </section>
+</main>`,
+  }));
+  addUrl(url('/geroi/'), undefined, '0.6', 'weekly');
+
+  for (const hero of heroes) {
+    const canonicalPath = url('/geroi/' + hero.slug + '/');
+    const own = hero.items.find((a) => String(a.subject || '').trim() === hero.name);
+    const desc = own ? clip(own.excerpt || own.lead || '', 180)
+      : `Материалы проекта «${site.title}» о герое: ${hero.name}.`;
+    const thin = hero.items.length + hero.videos.length < 2;
+    write('/geroi/' + hero.slug + '/index.html', layout({
+      title: `${hero.name} — все материалы — ${site.title}`,
+      description: desc, canonical: ORIGIN + canonicalPath, active: '', noindex: thin,
+      ogImage: own && coverData(own) ? coverData(own).src : undefined,
+      jsonld: [{
+        '@context': 'https://schema.org', '@type': 'ProfilePage',
+        url: ORIGIN + canonicalPath, inLanguage: 'ru-RU',
+        mainEntity: {
+          '@type': 'Person', name: hero.name, description: desc,
+          ...(own && coverData(own) ? { image: ORIGIN + coverData(own).src } : {}),
+          subjectOf: hero.items.map((a) => ({
+            '@type': 'Article', headline: a.title,
+            url: ORIGIN + url('/articles/' + a.slug + '/'),
+          })),
+        },
+      }, {
+        '@context': 'https://schema.org', '@type': 'BreadcrumbList',
+        itemListElement: [
+          { '@type': 'ListItem', position: 1, name: 'Главная', item: ORIGIN + url('/') },
+          { '@type': 'ListItem', position: 2, name: 'Герои', item: ORIGIN + url('/geroi/') },
+          { '@type': 'ListItem', position: 3, name: hero.name, item: ORIGIN + canonicalPath },
+        ],
+      }],
+      body: `<main id="main">
+  <section class="head-sec">
+    <nav class="crumbs" aria-label="Хлебные крошки">
+      <a href="${attr(url('/'))}">Главная</a><span>/</span>
+      <a href="${attr(url('/geroi/'))}">Герои</a><span>/</span><span class="cur">${esc(hero.name)}</span>
+    </nav>
+    <div class="eyebrow"><span class="sl">//</span><span>Герой проекта</span></div>
+    <h1 class="h1-feed">${esc(hero.name)}.</h1>
+    <p class="lead-feed">${esc(typo(desc))}</p>
+    <div class="rule-accent"></div>
+  </section>
+  <section class="feed">
+    <div class="eyebrow"><span class="sl">//</span><span>Материалы</span></div>
+    <div class="grid">${hero.items.map(card).join('\n')}</div>
+  </section>
+  ${hero.videos.length ? `<section class="more videos-strip">
+    <div class="eyebrow"><span class="sl">//</span><span>Выпуски канала</span></div>
+    <div class="grid vgrid">${hero.videos.slice(0, 3).map((v) => videoCard(v, 'hero-' + hero.slug)).join('\n')}</div>
+  </section>` : ''}
+  <section class="more">
+    <div class="back">
+      <a class="btn-accent" href="${attr(url('/geroi/'))}">← Все герои</a>
+      <a class="btn-more" href="${attr(url('/all/'))}">Все статьи</a>
+    </div>
+  </section>
+</main>`,
+    }));
+    if (!thin) addUrl(canonicalPath, undefined, '0.6', 'weekly');
+  }
 }
 
 // Поиск (клиентский, из индекса; из выдачи исключён)
