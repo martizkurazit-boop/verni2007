@@ -177,11 +177,15 @@ function typo(text) {
 }
 
 /* Инлайновая разметка внутри текста: **жирный**, [ссылка](url) */
+// Адрес ссылки: круглые скобки внутри разрешены, если парные, — иначе адреса
+// вроде ru.wikipedia.org/wiki/TODD_(альбом) обрезаются на первой закрывающей.
+const LINK_URL = '(?:https?:\\/\\/|\\/)(?:[^\\s()]|\\([^\\s()]*\\))*';
+
 function inline(text) {
   // Типографику применяем только к тексту: внутри адресов ссылок она сломала бы их.
-  const parts = String(text).split(/(\[[^\]]+\]\((?:https?:\/\/[^\s)]+|\/[^\s)]*)\))/g);
+  const parts = String(text).split(new RegExp('(\\[[^\\]]+\\]\\(' + LINK_URL + '\\))', 'g'));
   let out = parts.map((chunk, i) => (i % 2 ? esc(chunk) : esc(typo(chunk)))).join('');
-  out = out.replace(/\[([^\]]+)\]\((https?:\/\/[^\s)]+|\/[^\s)]*)\)/g,
+  out = out.replace(new RegExp('\\[([^\\]]+)\\]\\((' + LINK_URL + ')\\)', 'g'),
     (_, t, href) => `<a href="${attr(href)}"${href.startsWith('http') ? ' target="_blank" rel="noopener"' : ''}>${typo(t)}</a>`);
   out = out.replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>');
   return out;
@@ -1011,6 +1015,12 @@ function articlePage(a) {
       // текст, а не только какие слова в нём встречаются.
       ...(String(a.subject || '').trim()
         ? { about: { '@type': 'Person', name: String(a.subject).trim() } } : {}),
+      // Источники в разметке: поисковику и нейросети видно, на что опирается
+      // текст, а не только что ссылки где-то есть в подвале статьи.
+      ...(a.sources.length ? { citation: a.sources.map((src) => {
+        const m = String(src).match(new RegExp('\\[([^\\]]+)\\]\\((' + LINK_URL + ')\\)'));
+        return m ? { '@type': 'CreativeWork', name: m[1], url: m[2] } : String(src);
+      }) } : {}),
       articleSection: cat.title,
     },
     {
