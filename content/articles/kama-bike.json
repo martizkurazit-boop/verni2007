@@ -7,7 +7,7 @@
   "lead": "«Кама» была компромиссом между взрослым велосипедом и подростковым ростом — и именно поэтому оказалась у всех.",
   "author": "Мартиз",
   "publishedAt": "2025-02-03",
-  "status": "published",
+  "status": "draft",
   "youtubeUrl": "https://www.youtube.com/watch?v=aqz-KE-bpKQ",
   "tags": [
     "вещи",
@@ -57,5 +57,6 @@
   ],
   "aliases": [
     "Кама"
-  ]
+  ],
+  "updatedAt": "2026-09-11"
 }
