@@ -558,12 +558,7 @@
   bind('#f-cover-alt', 'cover.alt');
   bind('#f-tags', 'tags', function (v) { return v.split(',').map(function (t) { return t.trim(); }).filter(Boolean); });
   bind('#f-aliases', 'aliases', function (v) { return v.split(',').map(function (t) { return t.trim(); }).filter(Boolean); });
-  bind('#f-faq', 'faq', function (v) {
-    return v.split(/\n\s*\n/).map(function (chunk) {
-      var lines = chunk.split('\n').map(function (l) { return l.trim(); }).filter(Boolean);
-      return lines.length >= 2 ? { q: lines[0], a: lines.slice(1).join(' ') } : null;
-    }).filter(Boolean);
-  });
+  bind('#f-faq', 'faq', parseFaq);
   bind('#f-sources', 'sources', function (v) { return v.split('\n').map(function (t) { return t.trim(); }).filter(Boolean); });
   $('#f-demo').addEventListener('click', function () {
     state.draft.demo = !state.draft.demo;
@@ -1204,6 +1199,9 @@
     }
     var heads = parsed.blocks.filter(function (b) { return b.type === 'h2' || b.type === 'h3'; }).length;
     var paras = parsed.blocks.filter(function (b) { return b.type === 'p'; }).length;
+    var faqRaw = $('#auto-faq').value;
+    var faq = parseFaq(faqRaw);
+    var faqDropped = faqRaw.split(/\n\s*\n/).filter(function (c) { return c.trim(); }).length - faq.length;
     var rows = [];
     if (AUTO.cover) rows.push({ cls: 'cov', role: 'Обложка', txt: AUTO.cover.name });
     var yt = $('#auto-youtube').value.trim();
@@ -1223,11 +1221,16 @@
         rows.push({ cls: 'img', role: 'Фото', txt: 'здесь встанет картинка' });
       }
     });
+    faq.forEach(function (f) { rows.push({ cls: 'faq', role: 'Вопрос', txt: f.q }); });
     box.innerHTML = '<p class="outline-sum">Глав: ' + heads + ' · абзацев: ' + paras
       + ' · картинок в тексте: ' + AUTO.pics.length + (AUTO.cover ? ' · обложка есть' : ' · обложки нет')
+      + (faq.length ? ' · вопросов: ' + faq.length : '')
       + '</p>'
       + (parsed.guessed ? '<p class="hint warn" style="margin:-8px 0 12px">Заголовков в тексте не нашлось — '
         + parsed.guessed + ' придуманы автоматически, их точно стоит переписать.</p>' : '')
+      + (faqDropped ? '<p class="hint warn" style="margin:-8px 0 12px">В «Частых вопросах» '
+        + faqDropped + ' кусок без ответа — вопрос и ответ должны идти двумя строками подряд, '
+        + 'пары разделяются пустой строкой. Такие куски в статью не попадут.</p>' : '')
       + '<ul class="outline">' + rows.map(function (r) {
         return '<li class="' + r.cls + '"><span class="role">' + r.role + '</span>'
           + '<span class="txt">' + esc(r.txt) + '</span></li>';
@@ -1331,6 +1334,7 @@
         d.excerpt = (parsed.lead || (parsed.blocks.find(function (b) { return b.type === 'p'; }) || {}).text || '').slice(0, 200).trim();
         d.category = $('#auto-cat').value || d.category;
         d.youtubeUrl = $('#auto-youtube').value.trim();
+        d.faq = parseFaq($('#auto-faq').value);
         d.seoTitle = title;
         d.seoDescription = d.excerpt.slice(0, 160);
         var blocks = parsed.blocks.map(function (b) {
@@ -1368,7 +1372,8 @@
           var msg = 'Собрано: ' + blocks.filter(function (b) { return b.type === 'h2'; }).length + ' глав, '
             + blocks.filter(function (b) { return b.type === 'p'; }).length + ' абзацев, '
             + prepped.length + ' картинок в тексте' + (coverPic ? ', обложка' : '')
-            + (d.youtubeUrl ? ', видео' : '') + '. Проверьте и сохраните.';
+            + (d.youtubeUrl ? ', видео' : '')
+            + (d.faq.length ? ', вопросов: ' + d.faq.length : '') + '. Проверьте и сохраните.';
           toast(msg);
         });
       })
@@ -1437,6 +1442,7 @@
     renderAutoCover(); autoRefresh();
   });
   $('#auto-youtube').addEventListener('input', autoRefresh);
+  $('#auto-faq').addEventListener('input', autoRefresh);
   $('#auto-build').addEventListener('click', autoBuild);
   $('#auto-reset').addEventListener('click', function () {
     if (!confirm('Очистить текст и картинки?')) return;
@@ -1446,7 +1452,7 @@
     AUTO.cover = null; $('#auto-cover-alt').value = '';
     renderAutoCover();
     $('#auto-text').value = ''; $('#auto-title').value = ''; $('#auto-title').dataset.auto = '1';
-    $('#auto-youtube').value = '';
+    $('#auto-youtube').value = ''; $('#auto-faq').value = '';
     renderPics(); autoRefresh();
   });
   $('#auto-drop').addEventListener('click', function () { $('#auto-files').click(); });
@@ -1460,6 +1466,16 @@
   $('#auto-drop').addEventListener('drop', function (e) {
     if (e.dataTransfer && e.dataTransfer.files) addPics(e.dataTransfer.files);
   });
+
+  /* Пары «вопрос / ответ»: первая строка — вопрос, остальные — ответ,
+     пары разделены пустой строкой. Один и тот же разбор в редакторе и на
+     экране авто-статьи. */
+  function parseFaq(v) {
+    return String(v || '').split(/\n\s*\n/).map(function (chunk) {
+      var lines = chunk.split('\n').map(function (l) { return l.trim(); }).filter(Boolean);
+      return lines.length >= 2 ? { q: lines[0], a: lines.slice(1).join(' ') } : null;
+    }).filter(Boolean);
+  }
 
   /* ── Сохранение ─────────────────────────────────────────────────── */
   function validate(publishing) {

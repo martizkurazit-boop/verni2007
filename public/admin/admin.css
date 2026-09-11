@@ -216,3 +216,5 @@ code{font-family:inherit;font-weight:700;background:#0A0A0A;border:1px solid var
 .outline li.cov{border-left-color:#CCFF04}
 .outline li.cov .role{color:#CCFF04}
 #auto-cover-drop{aspect-ratio:16/9}
+.outline li.faq{border-left-color:#9A9A9A}
+.outline li.faq .role{color:#9A9A9A}
