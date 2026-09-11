@@ -68,6 +68,7 @@
     <span class="logo">Админка</span>
     <nav class="tabs">
       <button class="btn tab" data-tab="list" aria-selected="true">Статьи</button>
+      <button class="btn tab" data-tab="auto" aria-selected="false">Авто-статья</button>
       <button class="btn tab" data-tab="stats" aria-selected="false">Аналитика</button>
     </nav>
     <div class="hdr-right">
@@ -99,6 +100,56 @@
     <p class="hint" style="margin:0 0 14px">Выключенная категория пропадает из меню и футера. Пустые разделы посетителям не показываются.</p>
     <div class="tbl" id="categories"></div>
     <p class="hint" style="margin-top:12px">Описание раздела редактируется здесь же — оно выводится под заголовком категории.</p>
+  </div>
+</main>
+
+<!-- Авто-статья: текст + пачка фотографий → готовый черновик -->
+<main id="screen-auto" hidden>
+  <div class="eyebrow"><span class="sl">//</span><span>Сборка</span></div>
+  <h1>Авто-статья.</h1>
+  <p class="hint" style="margin:12px 0 0;max-width:760px;font-size:14px">Вставьте текст целиком и загрузите фотографии — статья соберётся сама:
+    короткие строки станут заголовками глав, длинные куски разобьются на абзацы, картинки разойдутся по тексту.
+    Готовый черновик откроется в редакторе: проверяете, правите, публикуете.</p>
+
+  <div class="cols">
+    <div class="stack">
+      <section class="card">
+        <h2 class="sec">Текст статьи</h2>
+        <textarea id="auto-text" rows="20" placeholder="Вставьте сюда весь текст статьи — как есть, из документа или заметок."></textarea>
+        <p class="hint" style="margin-top:10px">Первая строка — заголовок статьи, вторая (если это абзац) — лид.
+          Короткая строка без точки в конце считается заголовком главы. Строки с «-» или «•» собираются в список.
+          Если заголовков глав в тексте нет, они придумаются сами — потом поправите.</p>
+      </section>
+
+      <section class="card">
+        <h2 class="sec">Что получится</h2>
+        <div id="auto-outline"><p class="hint">Вставьте текст — здесь появится разбор.</p></div>
+      </section>
+    </div>
+
+    <div class="stack">
+      <section class="card">
+        <h2 class="sec">Основное</h2>
+        <div class="stack" style="gap:14px">
+          <label class="field"><span>Заголовок</span><input type="text" id="auto-title" placeholder="Подставится из первой строки"></label>
+          <label class="field"><span>Категория</span><select id="auto-cat"></select></label>
+          <label class="row" style="gap:9px;cursor:pointer"><input type="checkbox" id="auto-cover" checked>
+            <span class="hint" style="font-size:13px">Первую картинку — в обложку (в текст она тогда не идёт)</span></label>
+        </div>
+      </section>
+
+      <section class="card">
+        <h2 class="sec">Картинки</h2>
+        <div class="dropzone" id="auto-drop"><span class="cap">Перетащите фотографии или нажмите — можно сразу все</span></div>
+        <input type="file" id="auto-files" accept="image/png,image/jpeg,image/webp,image/avif" multiple hidden>
+        <div class="pics" id="auto-pics"></div>
+        <p class="hint" style="margin-top:10px">Порядок в списке = порядок в статье. Alt — короткое описание кадра:
+          его читают незрячие и по нему статья попадает в поиск по картинкам.</p>
+      </section>
+
+      <button class="btn primary" id="auto-build" style="height:56px;justify-content:center">Собрать статью</button>
+      <button class="btn sm" id="auto-reset" style="border:0;padding:0;color:var(--muted);justify-content:flex-start">Очистить всё</button>
+    </div>
   </div>
 </main>
 

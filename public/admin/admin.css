@@ -177,3 +177,37 @@ code{font-family:inherit;font-weight:700;background:#0A0A0A;border:1px solid var
 .checklist li.bad .mark{color:var(--danger)}
 .checklist li.soft{color:var(--faint)}
 .checklist li.soft .mark{color:var(--faint)}
+
+/* ── Авто-статья ─────────────────────────────────────────────────── */
+#auto-drop{aspect-ratio:auto;min-height:120px}
+.pics{margin-top:14px;display:flex;flex-direction:column;gap:10px}
+.pic{display:flex;gap:12px;align-items:flex-start;border:1px solid var(--border);background:#0A0A0A;padding:10px}
+.pic-th{width:96px;height:64px;flex:0 0 auto;object-fit:cover;background:#000;border:1px solid var(--border)}
+.pic-body{flex:1 1 auto;min-width:0;display:flex;flex-direction:column;gap:7px}
+.pic-name{font-size:11px;font-weight:700;color:var(--faint);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.pic-body input{height:38px;font-size:13px}
+.pic-act{display:flex;flex-direction:column;gap:4px}
+.pic-act button{width:30px;height:30px;border:1px solid var(--strong);background:transparent;color:var(--muted);
+  font-weight:800;font-size:13px;cursor:pointer;line-height:1}
+.pic-act button:hover{border-color:var(--accent);color:var(--accent)}
+.pic-act button.del:hover{border-color:var(--danger);color:var(--danger)}
+
+/* Разбор текста */
+.outline{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:8px}
+.outline li{display:flex;gap:10px;align-items:baseline;font-size:13px;line-height:1.45;
+  border-left:2px solid var(--border);padding-left:11px}
+.outline .role{flex:0 0 auto;font-weight:800;font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--faint);min-width:52px}
+.outline li.h2{border-left-color:var(--accent)}
+.outline li.h2 .role{color:var(--accent)}
+.outline li.h2 .txt{font-weight:800;text-transform:uppercase;color:#fff}
+.outline li.img{border-left-color:#2AABEE}
+.outline li.img .role{color:#2AABEE}
+.outline li.guess .txt{color:var(--text)}
+.outline li.guess .role{color:var(--danger)}
+.outline .txt{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:var(--muted)}
+.outline-sum{margin:0 0 14px;font-size:13px;font-weight:700;color:var(--text)}
+@media (max-width:520px){
+  .pic{flex-wrap:wrap}
+  .pic-body{flex:1 1 100%;order:3}
+  .pic-act{flex-direction:row;margin-left:auto}
+}

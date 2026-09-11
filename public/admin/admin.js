@@ -349,11 +349,12 @@
 
   /* ── Роутинг экранов ────────────────────────────────────────────── */
   function route(name) {
-    ['list', 'editor', 'stats'].forEach(function (s) { $('#screen-' + s).hidden = s !== name; });
+    ['list', 'editor', 'auto', 'stats'].forEach(function (s) { $('#screen-' + s).hidden = s !== name; });
     $$('.btn.tab[data-tab]').forEach(function (b) {
-      b.setAttribute('aria-selected', String((b.dataset.tab === 'stats' ? 'stats' : 'list') === name));
+      b.setAttribute('aria-selected', String(b.dataset.tab === (name === 'editor' ? 'list' : name)));
     });
     if (name === 'list') renderList();
+    if (name === 'auto') renderAuto();
     if (name === 'stats') renderStats();
     window.scrollTo(0, 0);
   }
@@ -1051,6 +1052,345 @@
     $('#import-panel').hidden = true; $('#toggle-import').classList.remove('on');
     fillEditor();
     toast('Статья собрана из блоков — проверьте роли и сохраните.');
+  });
+
+  /* ── Авто-статья ──────────────────────────────────────────────────
+     Отдельный экран: сюда кладут текст целиком и пачку фотографий, отсюда
+     выходит готовый черновик. Разбор — правила, а не магия: их видно в
+     колонке «Что получится», и всё, что собралось, остаётся править руками. */
+
+  var AUTO = { pics: [], parsed: null };
+
+  // Куски текста. Обычно абзацы разделены пустой строкой; если текст пришёл
+  // из документа, где её нет, — разделителем становится обычный перенос.
+  function autoChunks(raw) {
+    var t = String(raw || '').replace(/\r\n?/g, '\n').replace(/\u00a0/g, ' ').trim();
+    if (!t) return [];
+    var byBlank = t.split(/\n\s*\n/).map(function (x) { return x.trim(); }).filter(Boolean);
+    if (byBlank.length >= 3) return byBlank;
+    var byLine = t.split(/\n/).map(function (x) { return x.trim(); }).filter(Boolean);
+    return byLine.length > byBlank.length ? byLine : byBlank;
+  }
+
+  // Заголовок главы: короткая строка, которая не заканчивается точкой.
+  // Вопрос заголовком быть может («Кто писал песни Децла?»), перечисление — нет.
+  function looksLikeHeading(t) {
+    if (!t || t.indexOf('\n') >= 0) return false;
+    if (t.length > 90) return false;
+    if (t.split(/\s+/).length > 12) return false;
+    if (/[,:;—–-]$/.test(t)) return false;
+    if (/[.!…]$/.test(t)) return false;
+    return true;
+  }
+
+  // Длинный абзац режем по границам предложений: на телефоне сплошной кусок
+  // в тысячу знаков читается как стена.
+  function splitLong(t, max, target) {
+    max = max || 460; target = target || 330;
+    if (t.length <= max) return [t];
+    var sents = t.match(/[^.!?…]+[.!?…]+[»")\]]*\s*/g);
+    if (!sents || sents.length < 2) return [t];
+    var out = [], cur = '';
+    sents.forEach(function (sn) {
+      if (cur && (cur + sn).trim().length > target) { out.push(cur.trim()); cur = sn; }
+      else cur += sn;
+    });
+    if (cur.trim()) out.push(cur.trim());
+    return out;
+  }
+
+  // Заголовок из первой фразы главы — когда своих заголовков в тексте нет.
+  function headingFrom(t) {
+    // Берём начало первой фразы до первой паузы: целое предложение в заголовке
+    // слово в слово повторяет абзац под ним и читается как ошибка.
+    var s = (t.match(/^[^.!?…]+/) || [t])[0].trim();
+    var cut = s.search(/[,;:—–(]/);
+    if (cut > 14) s = s.slice(0, cut);
+    s = s.trim().replace(/[\s,;:—–-]+$/, '');
+    if (s.length > 48) { s = s.slice(0, 48); s = s.slice(0, s.lastIndexOf(' ')); }
+    return s.charAt(0).toUpperCase() + s.slice(1);
+  }
+
+  function autoParse(raw) {
+    var chunks = autoChunks(raw), out = { title: '', lead: '', blocks: [], guessed: 0 };
+    if (!chunks.length) return out;
+
+    var i = 0;
+    // Заголовок статьи — первая строка, если она похожа на заголовок.
+    var first = chunks[0].replace(/^#{1,6}\s*/, '').trim();
+    if (looksLikeHeading(first) || /^#{1,6}\s/.test(chunks[0])) { out.title = first; i = 1; }
+    // Лид — следующий абзац, если он не слишком длинный.
+    if (i < chunks.length && !looksLikeHeading(chunks[i]) && chunks[i].length <= 520
+        && !/^\s*([-–—•*]|\d+[.)])\s/.test(chunks[i])) {
+      out.lead = chunks[i]; i += 1;
+    }
+
+    for (; i < chunks.length; i++) {
+      var c = chunks[i];
+      if (/^#{1,6}\s/.test(c)) {
+        out.blocks.push({ type: c.indexOf('###') === 0 ? 'h3' : 'h2', text: c.replace(/^#{1,6}\s*/, '').trim() });
+        continue;
+      }
+      if (/^\s*>/.test(c)) { out.blocks.push({ type: 'quote', text: c.replace(/^\s*>\s?/gm, '').trim() }); continue; }
+      var lines = c.split('\n').map(function (x) { return x.trim(); }).filter(Boolean);
+      var isList = lines.length > 1 && lines.every(function (l) { return /^([-–—•*]|\d+[.)])\s+/.test(l); });
+      if (isList) {
+        out.blocks.push({ type: 'list', items: lines.map(function (l) { return l.replace(/^([-–—•*]|\d+[.)])\s+/, ''); }) });
+        continue;
+      }
+      if (looksLikeHeading(c)) { out.blocks.push({ type: 'h2', text: c }); continue; }
+      if (/^[«"].{0,300}[»"]$/.test(c)) { out.blocks.push({ type: 'quote', text: c.replace(/^[«"]|[»"]$/g, '') }); continue; }
+      splitLong(c).forEach(function (part) { out.blocks.push({ type: 'p', text: part }); });
+    }
+
+    // Если своих заголовков нет — расставляем сами, по три абзаца на главу,
+    // и честно помечаем их: такие почти всегда хочется переписать.
+    var hasH = out.blocks.some(function (b) { return b.type === 'h2'; });
+    if (!hasH && out.blocks.filter(function (b) { return b.type === 'p'; }).length >= 4) {
+      var withH = [], n = 0;
+      out.blocks.forEach(function (b) {
+        if (b.type === 'p' && n % 3 === 0) {
+          withH.push({ type: 'h2', text: headingFrom(b.text), guess: true });
+          out.guessed++;
+        }
+        if (b.type === 'p') n++;
+        withH.push(b);
+      });
+      out.blocks = withH;
+    }
+    return out;
+  }
+
+  // Куда вставлять картинки: после абзацев, равномерно по всей статье.
+  function imageSlots(blocks, n) {
+    var pos = [];
+    blocks.forEach(function (b, i) { if (b.type === 'p') pos.push(i + 1); });
+    if (!n || !pos.length) return [];
+    var picks = [];
+    for (var k = 0; k < n; k++) {
+      var idx = Math.round((k + 1) * pos.length / (n + 1)) - 1;
+      if (idx < 0) idx = 0;
+      if (idx > pos.length - 1) idx = pos.length - 1;
+      while (picks.indexOf(pos[idx]) >= 0 && idx < pos.length - 1) idx++;
+      picks.push(pos[idx]);
+    }
+    return picks;
+  }
+
+  function autoRefresh() {
+    var parsed = autoParse($('#auto-text').value);
+    AUTO.parsed = parsed;
+    var titleField = $('#auto-title');
+    if (parsed.title && (!titleField.value.trim() || titleField.dataset.auto === '1')) {
+      titleField.value = parsed.title; titleField.dataset.auto = '1';
+    }
+    var useCover = $('#auto-cover').checked && AUTO.pics.length;
+    var inline = Math.max(0, AUTO.pics.length - (useCover ? 1 : 0));
+    var slots = imageSlots(parsed.blocks, inline);
+    var box = $('#auto-outline');
+    if (!parsed.blocks.length && !parsed.lead) {
+      box.innerHTML = '<p class="hint">Вставьте текст — здесь появится разбор.</p>';
+      return;
+    }
+    var heads = parsed.blocks.filter(function (b) { return b.type === 'h2' || b.type === 'h3'; }).length;
+    var paras = parsed.blocks.filter(function (b) { return b.type === 'p'; }).length;
+    var rows = [];
+    if (parsed.lead) rows.push({ cls: '', role: 'Лид', txt: parsed.lead });
+    parsed.blocks.forEach(function (b, i) {
+      rows.push({
+        cls: b.type === 'h2' || b.type === 'h3' ? 'h2' + (b.guess ? ' guess' : '') : '',
+        role: b.type === 'h2' ? 'H2' : b.type === 'h3' ? 'H3' : b.type === 'list' ? 'Список'
+          : b.type === 'quote' ? 'Цитата' : 'Абзац',
+        txt: b.type === 'list' ? b.items.join(' · ') : b.text,
+      });
+      for (var m = 0; m < slots.filter(function (x) { return x === i + 1; }).length; m++) {
+        rows.push({ cls: 'img', role: 'Фото', txt: 'здесь встанет картинка' });
+      }
+    });
+    box.innerHTML = '<p class="outline-sum">Глав: ' + heads + ' · абзацев: ' + paras
+      + ' · картинок: ' + AUTO.pics.length + (useCover ? ' (первая — в обложку)' : '')
+      + '</p>'
+      + (parsed.guessed ? '<p class="hint warn" style="margin:-8px 0 12px">Заголовков в тексте не нашлось — '
+        + parsed.guessed + ' придуманы автоматически, их точно стоит переписать.</p>' : '')
+      + '<ul class="outline">' + rows.map(function (r) {
+        return '<li class="' + r.cls + '"><span class="role">' + r.role + '</span>'
+          + '<span class="txt">' + esc(r.txt) + '</span></li>';
+      }).join('') + '</ul>';
+  }
+
+  function renderPics() {
+    var box = $('#auto-pics');
+    box.innerHTML = AUTO.pics.map(function (pic, i) {
+      return '<div class="pic" data-i="' + i + '">'
+        + '<img class="pic-th" src="' + pic.url + '" alt="">'
+        + '<div class="pic-body"><span class="pic-name">' + (i + 1) + '. ' + esc(pic.name) + '</span>'
+        + '<input type="text" data-alt placeholder="Alt: что на фотографии" value="' + esc(pic.alt || '') + '"></div>'
+        + '<div class="pic-act"><button data-up title="Выше">↑</button>'
+        + '<button data-down title="Ниже">↓</button>'
+        + '<button class="del" data-del title="Убрать">✕</button></div></div>';
+    }).join('');
+    $$('.pic', box).forEach(function (el) {
+      var i = +el.dataset.i;
+      $('[data-alt]', el).addEventListener('input', function () { AUTO.pics[i].alt = this.value; });
+      $('[data-up]', el).addEventListener('click', function () {
+        if (i > 0) { var t = AUTO.pics[i - 1]; AUTO.pics[i - 1] = AUTO.pics[i]; AUTO.pics[i] = t; renderPics(); autoRefresh(); }
+      });
+      $('[data-down]', el).addEventListener('click', function () {
+        if (i < AUTO.pics.length - 1) { var t = AUTO.pics[i + 1]; AUTO.pics[i + 1] = AUTO.pics[i]; AUTO.pics[i] = t; renderPics(); autoRefresh(); }
+      });
+      $('[data-del]', el).addEventListener('click', function () {
+        URL.revokeObjectURL(AUTO.pics[i].url); AUTO.pics.splice(i, 1); renderPics(); autoRefresh();
+      });
+    });
+  }
+
+  function addPics(files) {
+    var list = Array.prototype.slice.call(files).filter(function (f) {
+      if (OK_TYPES.indexOf(f.type) < 0) { toast('Пропущен ' + f.name + ': нужен PNG, JPEG, WebP или AVIF.', true); return false; }
+      if (f.size > 15 * 1024 * 1024) { toast('Пропущен ' + f.name + ': больше 15 МБ.', true); return false; }
+      return true;
+    });
+    list.forEach(function (f) {
+      AUTO.pics.push({ file: f, name: f.name, alt: '', url: URL.createObjectURL(f) });
+    });
+    renderPics(); autoRefresh();
+  }
+
+  // Уменьшение до 1600 px и WebP — как у картинок в редакторе: кадр не режем,
+  // форму выбирает автор снимка.
+  function prepImage(file) {
+    return createImageBitmap(file).then(function (bmp) {
+      var scale = Math.min(1, 1600 / Math.max(bmp.width, bmp.height));
+      var c = document.createElement('canvas');
+      c.width = Math.max(1, Math.round(bmp.width * scale));
+      c.height = Math.max(1, Math.round(bmp.height * scale));
+      c.getContext('2d').drawImage(bmp, 0, 0, c.width, c.height);
+      return new Promise(function (res) {
+        c.toBlob(function (b) { res({ blob: b, w: c.width, h: c.height, bitmap: bmp }); }, 'image/webp', 0.85);
+      });
+    });
+  }
+
+  function autoBuild() {
+    var parsed = autoParse($('#auto-text').value);
+    var title = $('#auto-title').value.trim() || parsed.title;
+    if (!title) return toast('Впишите заголовок статьи.', true);
+    if (!parsed.blocks.some(function (b) { return b.type === 'p'; })) return toast('В тексте нет ни одного абзаца.', true);
+
+    var slug = slugify(title);
+    if (state.articles.some(function (a) { return a.data.slug === slug; })) {
+      return toast('Статья с адресом /' + slug + '/ уже есть — измените заголовок.', true);
+    }
+
+    var useCover = $('#auto-cover').checked && AUTO.pics.length > 0;
+    var coverPic = useCover ? AUTO.pics[0] : null;
+    var inlinePics = useCover ? AUTO.pics.slice(1) : AUTO.pics.slice();
+    var btn = $('#auto-build');
+    btn.disabled = true; btn.textContent = 'Собираем…';
+    progress(8);
+
+    Promise.all(inlinePics.map(function (pic) { return prepImage(pic.file); }))
+      .then(function (prepped) {
+        progress(40);
+        if (!prepped.length) return [];
+        var stamp = Date.now();
+        var files = prepped.map(function (pr, i) {
+          var name = slug + '-' + stamp + '-' + (i + 1) + '-1600.webp';
+          pr.path = '/uploads/' + name;
+          return pr.blob.arrayBuffer().then(function (buf) {
+            return { path: contentPath('uploads/' + name), base64: b64bytes(buf) };
+          });
+        });
+        return Promise.all(files).then(function (payload) {
+          toast('Загружаем ' + payload.length + ' ' + (payload.length === 1 ? 'картинку' : 'картинок') + '…');
+          // Один коммит на всю пачку: меньше перезапусков сборки сайта.
+          return commitFiles(payload, 'Картинки к статье: ' + title).then(function () { return prepped; });
+        });
+      })
+      .then(function (prepped) {
+        progress(80);
+        var d = emptyDraft();
+        d.title = title;
+        d.slug = slug;
+        d.lead = parsed.lead || '';
+        d.excerpt = (parsed.lead || (parsed.blocks.find(function (b) { return b.type === 'p'; }) || {}).text || '').slice(0, 200).trim();
+        d.category = $('#auto-cat').value || d.category;
+        d.seoTitle = title;
+        d.seoDescription = d.excerpt.slice(0, 160);
+        var blocks = parsed.blocks.map(function (b) {
+          return b.type === 'list' ? { type: 'list', items: b.items.slice() } : { type: b.type, text: b.text };
+        });
+        var slots = imageSlots(blocks, prepped.length);
+        // Вставляем с конца, чтобы ранее посчитанные позиции не съезжали.
+        var pairs = prepped.map(function (pr, i) { return { at: slots[i], pr: pr, alt: (inlinePics[i] || {}).alt || '' }; })
+          .sort(function (a, b) { return b.at - a.at; });
+        pairs.forEach(function (pair) {
+          state.localPreviews[pair.pr.path] = URL.createObjectURL(pair.pr.blob);
+          blocks.splice(pair.at, 0, { type: 'image', src: pair.pr.path, alt: pair.alt, caption: '', w: pair.pr.w, h: pair.pr.h });
+        });
+        d.body = blocks.length ? blocks : [{ type: 'p', text: '' }];
+
+        state.draft = d;
+        state.editingPath = null; state.editingSha = null;
+        state.originalSlug = null; state.originalStatus = null;
+        state.pendingCover = null;
+        state.chunks = [];
+        state.dirty = true;
+        var after = Promise.resolve();
+        if (coverPic) {
+          d.cover = { src: '', alt: coverPic.alt || '', focus: '50% 50%' };
+          after = createImageBitmap(coverPic.file).then(function (bmp) {
+            state.pendingCover = { bitmap: bmp, name: coverPic.name };
+            return reprocessCover();
+          });
+        }
+        return after.then(function () {
+          fillEditor();
+          route('editor');
+          progress(0);
+          btn.disabled = false; btn.textContent = 'Собрать статью';
+          var msg = 'Собрано: ' + blocks.filter(function (b) { return b.type === 'h2'; }).length + ' глав, '
+            + blocks.filter(function (b) { return b.type === 'p'; }).length + ' абзацев, '
+            + prepped.length + ' картинок в тексте' + (coverPic ? ' и обложка' : '') + '. Проверьте и сохраните.';
+          toast(msg);
+        });
+      })
+      .catch(function (e) {
+        progress(0);
+        btn.disabled = false; btn.textContent = 'Собрать статью';
+        toast(e.message || 'Не удалось собрать статью.', true);
+      });
+  }
+
+  function renderAuto() {
+    var sel = $('#auto-cat');
+    sel.innerHTML = (state.site.categories || []).filter(function (c) { return c.enabled !== false; })
+      .map(function (c) { return '<option value="' + esc(c.id) + '">' + esc(c.title) + '</option>'; }).join('');
+    renderPics();
+    autoRefresh();
+  }
+
+  $('#auto-text').addEventListener('input', autoRefresh);
+  $('#auto-title').addEventListener('input', function () { this.dataset.auto = '0'; });
+  $('#auto-cover').addEventListener('change', autoRefresh);
+  $('#auto-build').addEventListener('click', autoBuild);
+  $('#auto-reset').addEventListener('click', function () {
+    if (!confirm('Очистить текст и картинки?')) return;
+    AUTO.pics.forEach(function (p) { URL.revokeObjectURL(p.url); });
+    AUTO.pics = [];
+    $('#auto-text').value = ''; $('#auto-title').value = ''; $('#auto-title').dataset.auto = '1';
+    renderPics(); autoRefresh();
+  });
+  $('#auto-drop').addEventListener('click', function () { $('#auto-files').click(); });
+  $('#auto-files').addEventListener('change', function () { addPics(this.files); this.value = ''; });
+  ['dragenter', 'dragover'].forEach(function (ev) {
+    $('#auto-drop').addEventListener(ev, function (e) { e.preventDefault(); this.classList.add('over'); });
+  });
+  ['dragleave', 'drop'].forEach(function (ev) {
+    $('#auto-drop').addEventListener(ev, function (e) { e.preventDefault(); this.classList.remove('over'); });
+  });
+  $('#auto-drop').addEventListener('drop', function (e) {
+    if (e.dataTransfer && e.dataTransfer.files) addPics(e.dataTransfer.files);
   });
 
   /* ── Сохранение ─────────────────────────────────────────────────── */
