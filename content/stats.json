@@ -1,12 +1,12 @@
 {
-  "updatedAt": "2026-09-12T04:31:24.974Z",
+  "updatedAt": "2026-09-12T10:42:41.032Z",
   "days": 30,
   "counter": "112450613",
   "totals": {
-    "visits": 44,
-    "users": 33,
-    "pageviews": 164,
-    "avgSeconds": 419,
+    "visits": 51,
+    "users": 38,
+    "pageviews": 179,
+    "avgSeconds": 373,
     "bounceRate": 59
   },
   "goals": [
@@ -26,7 +26,7 @@
       "id": 611348858,
       "name": "Дочитывание",
       "event": "read_end",
-      "reaches": 15
+      "reaches": 16
     },
     {
       "id": 611348974,
@@ -56,13 +56,13 @@
   "sources": [
     {
       "name": "Прямые заходы",
-      "visits": 37,
-      "share": 86
+      "visits": 42,
+      "share": 84
     },
     {
       "name": "Внутренние переходы",
-      "visits": 5,
-      "share": 12
+      "visits": 7,
+      "share": 14
     },
     {
       "name": "Переходы из поисковых систем",
@@ -73,11 +73,15 @@
   "geo": [
     {
       "name": "США",
-      "visits": 19
+      "visits": 23
     },
     {
       "name": "Таиланд",
-      "visits": 15
+      "visits": 17
+    },
+    {
+      "name": "Россия",
+      "visits": 3
     },
     {
       "name": "Франция",
@@ -86,10 +90,6 @@
     {
       "name": "Швейцария",
       "visits": 3
-    },
-    {
-      "name": "Россия",
-      "visits": 2
     },
     {
       "name": "Германия",
@@ -103,11 +103,11 @@
   "pages": [
     {
       "url": "https://vernitemoy2007.ru/",
-      "visits": 31,
+      "visits": 38,
       "goals": {
         "youtube_click": 1,
         "video_play": 1,
-        "read_end": 12,
+        "read_end": 13,
         "search": 0,
         "telegram_click": 0,
         "Автоцель: переход в соц.сеть": 0,
