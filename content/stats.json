@@ -1,13 +1,13 @@
 {
-  "updatedAt": "2026-09-13T16:14:11.560Z",
+  "updatedAt": "2026-09-13T20:47:20.400Z",
   "days": 30,
   "counter": "112450613",
   "totals": {
-    "visits": 64,
-    "users": 47,
-    "pageviews": 208,
-    "avgSeconds": 368,
-    "bounceRate": 56
+    "visits": 67,
+    "users": 48,
+    "pageviews": 215,
+    "avgSeconds": 352,
+    "bounceRate": 55
   },
   "goals": [
     {
@@ -56,8 +56,8 @@
   "sources": [
     {
       "name": "Прямые заходы",
-      "visits": 50,
-      "share": 79
+      "visits": 53,
+      "share": 80
     },
     {
       "name": "Внутренние переходы",
@@ -83,11 +83,11 @@
   "geo": [
     {
       "name": "США",
-      "visits": 26
+      "visits": 27
     },
     {
       "name": "Таиланд",
-      "visits": 21
+      "visits": 23
     },
     {
       "name": "Россия",
@@ -117,7 +117,7 @@
   "pages": [
     {
       "url": "https://vernitemoy2007.ru/",
-      "visits": 49,
+      "visits": 51,
       "goals": {
         "youtube_click": 2,
         "video_play": 2,
@@ -221,6 +221,19 @@
     },
     {
       "url": "https://vernitemoy2007.ru/articles/decl-kak-kirill-tolmackiy-stal-zvezdoy-nulevyh-i-nachal-vse-zanovo/",
+      "visits": 1,
+      "goals": {
+        "youtube_click": 0,
+        "video_play": 0,
+        "read_end": 0,
+        "search": 0,
+        "telegram_click": 0,
+        "Автоцель: переход в соц.сеть": 0,
+        "all_messengers": 0
+      }
+    },
+    {
+      "url": "https://vernitemoy2007.ru/category/music/",
       "visits": 1,
       "goals": {
         "youtube_click": 0,
