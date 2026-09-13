@@ -273,13 +273,48 @@ const topTags = [...tagIndex.values()].sort((a, b) => b.items.length - a.items.l
    материалов — и разбросаны они по тегам и категориям. Страница героя
    собирает их в одно место: читателю удобно, а поиску видно сущность,
    а не набор текстов, где встречается имя. */
+/* Поле «Герой статьи» заполняют по-разному: одним именем, списком через
+   запятую, иногда с уточнением в скобках («Прю Холливелл (Шеннен Доэрти)»).
+   Разбираем всё это в список настоящих людей: у героя проекта должна быть
+   страница о человеке, а не о словах «герои сериала». */
+const HERO_STOP = /^(геро|сериал|фильм|группа|песн|альбом|актёр|актрис|персонаж|клип|передач)/i;
+
+function heroNames(subject) {
+  const parts = String(subject || '').split(/[,;]/).map((x) => x.trim()).filter(Boolean);
+  const out = [];
+  for (const part of parts) {
+    const inside = (part.match(/\(([^)]*)\)/) || [])[1] || '';
+    const outside = part.replace(/\([^)]*\)/g, '').trim();
+    for (const cand of [outside, inside]) {
+      const name = String(cand).replace(/[«»"'|]/g, '').trim();
+      if (!name || HERO_STOP.test(name) || /\d/.test(name)) continue;
+      const words = name.split(/\s+/);
+      // Одно слово принимаем, только если это всё содержимое поля: «Децл»,
+      // «МакSим». В перечислении одиночные слова — почти всегда клички
+      // персонажей («Белый», «Пчёла»), а не люди.
+      const minWords = parts.length === 1 ? 1 : 2;
+      if (words.length < minWords || words.length > 3) continue;
+      if (!words.every((w) => /^[А-ЯЁA-Z]/u.test(w))) continue;
+      if (!out.some((x) => x.toLowerCase() === name.toLowerCase())) out.push(name);
+    }
+  }
+  return out.slice(0, 4);
+}
+
 const heroIndex = new Map();
 for (const a of published) {
-  const name = String(a.subject || '').trim();
-  if (!name) continue;
-  const slug = slugify(name);
-  if (!heroIndex.has(slug)) heroIndex.set(slug, { slug, name, items: [], tagKey: canonTag(name).toLowerCase() });
-  heroIndex.get(slug).items.push(a);
+  // Поле заполняет человек, и сломать им сборку всего сайта нельзя:
+  // разбор героев — украшение, а не содержание статьи.
+  try { a.heroNames = heroNames(a.subject); } catch (e) {
+    console.warn('Не разобрал поле «Герой статьи» в «' + a.title + '»: ' + e.message);
+    a.heroNames = [];
+  }
+  for (const name of a.heroNames) {
+    const slug = slugify(name);
+    if (!slug) continue;
+    if (!heroIndex.has(slug)) heroIndex.set(slug, { slug, name, items: [], tagKey: canonTag(name).toLowerCase() });
+    heroIndex.get(slug).items.push(a);
+  }
 }
 // Материал, где герой только упомянут тегом, тоже относится к нему.
 for (const hero of heroIndex.values()) {
@@ -288,9 +323,12 @@ for (const hero of heroIndex.values()) {
     if (a.tags.some((t) => canonTag(t).toLowerCase() === hero.tagKey)) hero.items.push(a);
   }
   hero.items.sort((x, y) => String(y.publishedAt || '').localeCompare(String(x.publishedAt || '')));
-  // Выпуски канала, где имя стоит в названии.
+  // Выпуски канала, где фамилия стоит в названии. Сравниваем строками, а не
+  // регулярным выражением: имя приходит из текста, и одна скобка в нём
+  // («Алисса Милано)») роняла всю сборку сайта.
+  const key = hero.name.split(/\s+/).slice(-1)[0].toLowerCase();
   hero.videos = ((videoFeed && videoFeed.videos) || [])
-    .filter((v) => new RegExp(hero.name.split(/\s+/).slice(-1)[0], 'i').test(v.title || ''));
+    .filter((v) => String(v.title || '').toLowerCase().indexOf(key) >= 0);
 }
 const heroes = [...heroIndex.values()].sort((a, b) => b.items.length - a.items.length || a.name.localeCompare(b.name, 'ru'));
 const heroByTag = new Map(heroes.map((h) => [slugify(canonTag(h.name)), h]));
@@ -1067,8 +1105,10 @@ function articlePage(a) {
       ...(a.tags.length ? { keywords: a.tags.join(', ') } : {}),
       // Герой материала как сущность: поисковику и ИИ важно понимать, о ком
       // текст, а не только какие слова в нём встречаются.
-      ...(String(a.subject || '').trim()
-        ? { about: { '@type': 'Person', name: String(a.subject).trim() } } : {}),
+      ...((a.heroNames || []).length
+        ? { about: (a.heroNames.length === 1
+          ? { '@type': 'Person', name: a.heroNames[0] }
+          : a.heroNames.map((n) => ({ '@type': 'Person', name: n }))) } : {}),
       // Источники в разметке: поисковику и нейросети видно, на что опирается
       // текст, а не только что ссылки где-то есть в подвале статьи.
       ...(a.sources.length ? { citation: a.sources.map((src) => {
@@ -1188,8 +1228,9 @@ function articlePage(a) {
   </div>
   ${a.tags.length ? `<div class="tags">${a.tags.map((t) =>
     `<a href="${attr(url('/tag/' + slugify(t) + '/'))}">${esc(t)}</a>`).join('')}</div>` : ''}
-  ${a.subject && heroIndex.has(slugify(a.subject)) ? `<p class="hero-link">
-    <a href="${attr(url('/geroi/' + slugify(a.subject) + '/'))}">Все материалы о герое: ${esc(a.subject)} →</a>
+  ${(a.heroNames || []).filter((n) => heroIndex.has(slugify(n))).length ? `<p class="hero-link">
+    ${a.heroNames.filter((n) => heroIndex.has(slugify(n)))
+      .map((n) => `<a href="${attr(url('/geroi/' + slugify(n) + '/'))}">${esc(n)} →</a>`).join(' ')}
   </p>` : ''}
 </article>
 ${watchEndBlock(a)}
