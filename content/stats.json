@@ -1,13 +1,13 @@
 {
-  "updatedAt": "2026-09-12T15:29:35.423Z",
+  "updatedAt": "2026-09-13T11:47:55.922Z",
   "days": 30,
   "counter": "112450613",
   "totals": {
-    "visits": 53,
-    "users": 39,
-    "pageviews": 183,
-    "avgSeconds": 386,
-    "bounceRate": 58
+    "visits": 63,
+    "users": 46,
+    "pageviews": 206,
+    "avgSeconds": 373,
+    "bounceRate": 57
   },
   "goals": [
     {
@@ -20,13 +20,13 @@
       "id": 611348857,
       "name": "Запуск видео",
       "event": "video_play",
-      "reaches": 1
+      "reaches": 2
     },
     {
       "id": 611348858,
       "name": "Дочитывание",
       "event": "read_end",
-      "reaches": 17
+      "reaches": 18
     },
     {
       "id": 611348974,
@@ -56,13 +56,18 @@
   "sources": [
     {
       "name": "Прямые заходы",
-      "visits": 44,
-      "share": 85
+      "visits": 50,
+      "share": 81
     },
     {
       "name": "Внутренние переходы",
-      "visits": 7,
-      "share": 13
+      "visits": 9,
+      "share": 15
+    },
+    {
+      "name": "Переходы из социальных сетей",
+      "visits": 2,
+      "share": 3
     },
     {
       "name": "Переходы из поисковых систем",
@@ -73,15 +78,15 @@
   "geo": [
     {
       "name": "США",
-      "visits": 24
+      "visits": 26
     },
     {
       "name": "Таиланд",
-      "visits": 18
+      "visits": 20
     },
     {
       "name": "Россия",
-      "visits": 3
+      "visits": 4
     },
     {
       "name": "Франция",
@@ -92,22 +97,26 @@
       "visits": 3
     },
     {
-      "name": "Германия",
-      "visits": 1
+      "name": "Канада",
+      "visits": 2
     },
     {
-      "name": "Канада",
+      "name": "Нидерланды",
+      "visits": 2
+    },
+    {
+      "name": "Австралия",
       "visits": 1
     }
   ],
   "pages": [
     {
       "url": "https://vernitemoy2007.ru/",
-      "visits": 40,
+      "visits": 48,
       "goals": {
         "youtube_click": 1,
-        "video_play": 1,
-        "read_end": 14,
+        "video_play": 2,
+        "read_end": 15,
         "search": 0,
         "telegram_click": 1,
         "Автоцель: переход в соц.сеть": 0,
@@ -155,6 +164,32 @@
     },
     {
       "url": "https://mc.yandex.ru/watch/112450613",
+      "visits": 1,
+      "goals": {
+        "youtube_click": 0,
+        "video_play": 0,
+        "read_end": 0,
+        "search": 0,
+        "telegram_click": 0,
+        "Автоцель: переход в соц.сеть": 0,
+        "all_messengers": 0
+      }
+    },
+    {
+      "url": "https://vernitemoy2007.ru/?fbclid=IwcGRvZgRleHRuA2FlbQIxMQBzcnRjBmFwcF9pZAwyNTYyODEwNDA1NTgAAR4ZiWrpbV5w7NpS0zBJxFtr-m87AH-hkGFkLeab5DkKZO0YDLGaBP0n7fuMZg_aem_qNEbArkv0HfenEllLRGtZA",
+      "visits": 1,
+      "goals": {
+        "youtube_click": 0,
+        "video_play": 0,
+        "read_end": 0,
+        "search": 0,
+        "telegram_click": 0,
+        "Автоцель: переход в соц.сеть": 0,
+        "all_messengers": 0
+      }
+    },
+    {
+      "url": "https://vernitemoy2007.ru/?fbclid=IwcGRvZgRleHRuA2FlbQIxMQBzcnRjBmFwcF9pZAwyNTYyODEwNDA1NTgAAR7dEnJAt-ylA-NealzBbkdBG7tz9WRdcjtmqDmVdKWefW0Gh6yTBwf9hu3DXw_aem_Epqfp82d2dsWcLgDEo5tVA",
       "visits": 1,
       "goals": {
         "youtube_click": 0,
