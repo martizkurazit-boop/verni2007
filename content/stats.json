@@ -1,13 +1,13 @@
 {
-  "updatedAt": "2026-09-14T04:51:55.938Z",
+  "updatedAt": "2026-09-14T12:41:12.261Z",
   "days": 30,
   "counter": "112450613",
   "totals": {
-    "visits": 68,
-    "users": 49,
-    "pageviews": 216,
-    "avgSeconds": 347,
-    "bounceRate": 56
+    "visits": 78,
+    "users": 56,
+    "pageviews": 227,
+    "avgSeconds": 304,
+    "bounceRate": 55
   },
   "goals": [
     {
@@ -26,7 +26,7 @@
       "id": 611348858,
       "name": "Дочитывание",
       "event": "read_end",
-      "reaches": 18
+      "reaches": 19
     },
     {
       "id": 611348974,
@@ -56,18 +56,18 @@
   "sources": [
     {
       "name": "Прямые заходы",
-      "visits": 54,
-      "share": 81
+      "visits": 60,
+      "share": 79
     },
     {
       "name": "Внутренние переходы",
-      "visits": 9,
-      "share": 13
+      "visits": 11,
+      "share": 14
     },
     {
       "name": "Переходы из социальных сетей",
-      "visits": 2,
-      "share": 3
+      "visits": 3,
+      "share": 4
     },
     {
       "name": "Переходы по ссылкам на сайтах",
@@ -83,14 +83,18 @@
   "geo": [
     {
       "name": "США",
-      "visits": 28
+      "visits": 30
     },
     {
       "name": "Таиланд",
-      "visits": 23
+      "visits": 24
     },
     {
       "name": "Россия",
+      "visits": 5
+    },
+    {
+      "name": "Швейцария",
       "visits": 4
     },
     {
@@ -98,30 +102,26 @@
       "visits": 3
     },
     {
-      "name": "Швейцария",
-      "visits": 3
+      "name": "Бразилия",
+      "visits": 2
     },
     {
       "name": "Канада",
       "visits": 2
     },
     {
-      "name": "Нидерланды",
+      "name": "Мексика",
       "visits": 2
-    },
-    {
-      "name": "Австралия",
-      "visits": 1
     }
   ],
   "pages": [
     {
       "url": "https://vernitemoy2007.ru/",
-      "visits": 52,
+      "visits": 60,
       "goals": {
         "youtube_click": 2,
         "video_play": 2,
-        "read_end": 15,
+        "read_end": 16,
         "search": 0,
         "telegram_click": 1,
         "Автоцель: переход в соц.сеть": 1,
@@ -135,6 +135,19 @@
         "youtube_click": 0,
         "video_play": 0,
         "read_end": 1,
+        "search": 0,
+        "telegram_click": 0,
+        "Автоцель: переход в соц.сеть": 0,
+        "all_messengers": 0
+      }
+    },
+    {
+      "url": "https://mc.yandex.ru/watch/112450613",
+      "visits": 2,
+      "goals": {
+        "youtube_click": 0,
+        "video_play": 0,
+        "read_end": 0,
         "search": 0,
         "telegram_click": 0,
         "Автоцель: переход в соц.сеть": 0,
@@ -161,19 +174,6 @@
         "youtube_click": 0,
         "video_play": 0,
         "read_end": 2,
-        "search": 0,
-        "telegram_click": 0,
-        "Автоцель: переход в соц.сеть": 0,
-        "all_messengers": 0
-      }
-    },
-    {
-      "url": "https://mc.yandex.ru/watch/112450613",
-      "visits": 1,
-      "goals": {
-        "youtube_click": 0,
-        "video_play": 0,
-        "read_end": 0,
         "search": 0,
         "telegram_click": 0,
         "Автоцель: переход в соц.сеть": 0,
@@ -221,6 +221,19 @@
     },
     {
       "url": "https://vernitemoy2007.ru/articles/decl-kak-kirill-tolmackiy-stal-zvezdoy-nulevyh-i-nachal-vse-zanovo/",
+      "visits": 1,
+      "goals": {
+        "youtube_click": 0,
+        "video_play": 0,
+        "read_end": 0,
+        "search": 0,
+        "telegram_click": 0,
+        "Автоцель: переход в соц.сеть": 0,
+        "all_messengers": 0
+      }
+    },
+    {
+      "url": "https://vernitemoy2007.ru/articles/mihail-gorshenev/?fbclid=IwcGRvZgRleHRuA2FlbQIxMQBzcnRjBmFwcF9pZAwyNTYyODEwNDA1NTgAAR6G2OZDeLWL7ky5pHI_gtoTKfNCTFPKLvYjqZzuTFk7bBch-QHwXTfykyHhmg_aem_Zs5wOS7rdKfv-6H1nKGuRA",
       "visits": 1,
       "goals": {
         "youtube_click": 0,
