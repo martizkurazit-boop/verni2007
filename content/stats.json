@@ -1,20 +1,20 @@
 {
-  "updatedAt": "2026-09-14T12:41:12.261Z",
+  "updatedAt": "2026-09-14T21:47:43.908Z",
   "days": 30,
   "counter": "112450613",
   "totals": {
-    "visits": 78,
-    "users": 56,
-    "pageviews": 227,
-    "avgSeconds": 304,
-    "bounceRate": 55
+    "visits": 89,
+    "users": 62,
+    "pageviews": 263,
+    "avgSeconds": 287,
+    "bounceRate": 49
   },
   "goals": [
     {
       "id": 611348816,
       "name": "Переход на YouTube",
       "event": "youtube_click",
-      "reaches": 2
+      "reaches": 3
     },
     {
       "id": 611348857,
@@ -26,7 +26,7 @@
       "id": 611348858,
       "name": "Дочитывание",
       "event": "read_end",
-      "reaches": 19
+      "reaches": 25
     },
     {
       "id": 611348974,
@@ -44,7 +44,7 @@
       "id": 611476511,
       "name": "Автоцель: переход в соц.сеть",
       "event": "",
-      "reaches": 1
+      "reaches": 2
     },
     {
       "id": 611485213,
@@ -56,23 +56,23 @@
   "sources": [
     {
       "name": "Прямые заходы",
-      "visits": 60,
-      "share": 79
+      "visits": 66,
+      "share": 76
     },
     {
       "name": "Внутренние переходы",
-      "visits": 11,
-      "share": 14
+      "visits": 15,
+      "share": 17
     },
     {
       "name": "Переходы из социальных сетей",
       "visits": 3,
-      "share": 4
+      "share": 3
     },
     {
       "name": "Переходы по ссылкам на сайтах",
-      "visits": 1,
-      "share": 1
+      "visits": 2,
+      "share": 2
     },
     {
       "name": "Переходы из поисковых систем",
@@ -87,15 +87,19 @@
     },
     {
       "name": "Таиланд",
-      "visits": 24
+      "visits": 27
     },
     {
       "name": "Россия",
-      "visits": 5
+      "visits": 12
     },
     {
       "name": "Швейцария",
       "visits": 4
+    },
+    {
+      "name": "Нидерланды",
+      "visits": 3
     },
     {
       "name": "Франция",
@@ -108,29 +112,25 @@
     {
       "name": "Канада",
       "visits": 2
-    },
-    {
-      "name": "Мексика",
-      "visits": 2
     }
   ],
   "pages": [
     {
       "url": "https://vernitemoy2007.ru/",
-      "visits": 60,
+      "visits": 69,
       "goals": {
-        "youtube_click": 2,
+        "youtube_click": 3,
         "video_play": 2,
-        "read_end": 16,
+        "read_end": 22,
         "search": 0,
         "telegram_click": 1,
-        "Автоцель: переход в соц.сеть": 1,
+        "Автоцель: переход в соц.сеть": 2,
         "all_messengers": 1
       }
     },
     {
       "url": "https://vernitemoy2007.ru/articles/mihail-gorshenev/",
-      "visits": 4,
+      "visits": 5,
       "goals": {
         "youtube_click": 0,
         "video_play": 0,
@@ -234,6 +234,19 @@
     },
     {
       "url": "https://vernitemoy2007.ru/articles/mihail-gorshenev/?fbclid=IwcGRvZgRleHRuA2FlbQIxMQBzcnRjBmFwcF9pZAwyNTYyODEwNDA1NTgAAR6G2OZDeLWL7ky5pHI_gtoTKfNCTFPKLvYjqZzuTFk7bBch-QHwXTfykyHhmg_aem_Zs5wOS7rdKfv-6H1nKGuRA",
+      "visits": 1,
+      "goals": {
+        "youtube_click": 0,
+        "video_play": 0,
+        "read_end": 0,
+        "search": 0,
+        "telegram_click": 0,
+        "Автоцель: переход в соц.сеть": 0,
+        "all_messengers": 0
+      }
+    },
+    {
+      "url": "https://vernitemoy2007.ru/articles/ostatsya-v-zhivyh-obyasnenie-koncovki-lost-chto-proizoshlo-na-ostrove-i-pochemu-/",
       "visits": 1,
       "goals": {
         "youtube_click": 0,
