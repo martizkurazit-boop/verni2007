@@ -42,10 +42,17 @@ img{max-width:100%}
 .mark b{font-weight:900;font-size:17px;letter-spacing:-.02em;text-transform:uppercase;white-space:nowrap}
 .mark i{font-style:normal;font-weight:900;font-size:17px;letter-spacing:-.02em;
   background:var(--accent);color:#000;padding:2px 6px;margin-left:6px}
-.nav-desk{display:none;gap:22px;margin-left:auto;align-items:center}
+/* Разделов со временем становится больше, и в какой-то момент меню перестаёт
+   помещаться в строку: логотип и кнопка канала уезжают за край экрана. Поэтому
+   меню занимает свободное место между ними и при нехватке прокручивается само,
+   а полосу прокрутки прячем — на десктопе она здесь только мешает. */
+.nav-desk{display:none;gap:16px;margin-left:auto;align-items:center;
+  flex:1 1 auto;min-width:0;white-space:nowrap;
+  overflow-x:auto;overflow-y:hidden;scrollbar-width:none;-ms-overflow-style:none}
+.nav-desk::-webkit-scrollbar{display:none}
 .nav-desk a{font-weight:700;font-size:13px;letter-spacing:.08em;text-transform:uppercase}
 .nav-desk a.all{color:var(--muted-2)}
-.hdr-act{margin-left:auto;display:flex;gap:8px;align-items:center}
+.hdr-act{margin-left:auto;display:flex;gap:8px;align-items:center;flex:0 0 auto}
 .btn-ico{width:40px;height:40px;min-width:40px;border:1px solid var(--border);background:var(--surface);cursor:pointer;
   font-size:15px;font-weight:700;color:var(--ink);display:inline-flex;align-items:center;justify-content:center;
   font-family:inherit;transition:border-color var(--ease)}
@@ -60,6 +67,11 @@ img{max-width:100%}
   white-space:nowrap;border-right:1px solid var(--border)}
 .nav-mob a[aria-current=page],.nav-desk a[aria-current=page]{color:var(--accent-2)}
 @media (min-width:860px){.nav-desk{display:flex}.nav-mob{display:none}.hdr-act{margin-left:0}}
+/* На узком десктопе жертвуем воздухом в меню, а не кнопкой канала. */
+@media (min-width:860px) and (max-width:1120px){
+  .nav-desk{gap:14px}
+  .nav-desk a{font-size:12px;letter-spacing:.05em}
+}
 
 /* Кнопка канала: салатовая заливка с чёрным текстом — единственный способ
    использовать акцент на светлом фоне по правилам системы. */

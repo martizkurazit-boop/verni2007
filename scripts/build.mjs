@@ -380,16 +380,21 @@ function analyticsSnippet() {
 }
 
 function header(active) {
+  // В меню раздел может называться короче, чем на своей странице: строка в шапке
+  // одна, и «Игры и приложения» вытесняют оттуда кнопку канала.
+  const navTitle = (c) => c.navTitle || c.title;
   const link = (href, title, id) =>
     `<a href="${attr(url(href))}"${active === id ? ' aria-current="page"' : ''}>${esc(title)}</a>`;
   return `<header class="hdr">
   <div class="hdr-in">
     <a class="mark" href="${attr(url('/'))}" aria-label="Верните мой 2007 — на главную"><b>Верните мой</b><i>2007</i></a>
+    <!-- Эпохи в верхнюю строку не помещаются вместе с разделами и кнопкой канала.
+         Они остаются в мобильном меню, в футере и в переключателях над лентой —
+         пропасть им неоткуда, а шапка держится в одну строку. -->
     <nav class="nav-desk" aria-label="Разделы">
-      ${visibleCats.map((c) => link('/category/' + c.id + '/', c.title, 'cat:' + c.id)).join('\n      ')}
+      ${visibleCats.map((c) => link('/category/' + c.id + '/', navTitle(c), 'cat:' + c.id)).join('\n      ')}
       <a class="all" href="${attr(url('/all/'))}"${active === 'all' ? ' aria-current="page"' : ''}>Все статьи</a>
       ${videoFeed ? `<a class="all" href="${attr(url('/video/'))}"${active === 'video' ? ' aria-current="page"' : ''}>Видео</a>` : ''}
-      ${activeHubs().map((h) => `<a class="all" href="${attr(url('/' + h.slug + '/'))}"${active === 'hub:' + h.slug ? ' aria-current="page"' : ''}>${esc(h.title)}</a>`).join('')}
     </nav>
     <div class="hdr-act">
       <button class="btn-ico" type="button" data-search-toggle aria-expanded="false" aria-controls="searchbar" aria-label="Поиск">⌕</button>
@@ -404,7 +409,7 @@ function header(active) {
       <a href="${attr(url('/all/'))}"${active === 'all' ? ' aria-current="page"' : ''}>Все</a>
       ${videoFeed ? `<a href="${attr(url('/video/'))}"${active === 'video' ? ' aria-current="page"' : ''}>Видео</a>` : ''}
       ${activeHubs().map((h) => `<a href="${attr(url('/' + h.slug + '/'))}"${active === 'hub:' + h.slug ? ' aria-current="page"' : ''}>${esc(h.title)}</a>`).join('')}
-      ${visibleCats.map((c) => link('/category/' + c.id + '/', c.title, 'cat:' + c.id)).join('\n      ')}
+      ${visibleCats.map((c) => link('/category/' + c.id + '/', navTitle(c), 'cat:' + c.id)).join('\n      ')}
     </div>
   </nav>
 </header>
