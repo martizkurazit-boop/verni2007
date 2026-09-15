@@ -1,13 +1,13 @@
 {
-  "updatedAt": "2026-09-15T11:41:13.886Z",
+  "updatedAt": "2026-09-15T16:56:28.784Z",
   "days": 30,
   "counter": "112450613",
   "totals": {
-    "visits": 94,
-    "users": 66,
-    "pageviews": 275,
-    "avgSeconds": 292,
-    "bounceRate": 49
+    "visits": 103,
+    "users": 70,
+    "pageviews": 298,
+    "avgSeconds": 277,
+    "bounceRate": 50
   },
   "goals": [
     {
@@ -26,7 +26,7 @@
       "id": 611348858,
       "name": "Дочитывание",
       "event": "read_end",
-      "reaches": 26
+      "reaches": 28
     },
     {
       "id": 611348974,
@@ -44,7 +44,7 @@
       "id": 611476511,
       "name": "Автоцель: переход в соц.сеть",
       "event": "",
-      "reaches": 3
+      "reaches": 4
     },
     {
       "id": 611485213,
@@ -56,13 +56,13 @@
   "sources": [
     {
       "name": "Прямые заходы",
-      "visits": 69,
-      "share": 75
+      "visits": 74,
+      "share": 73
     },
     {
       "name": "Внутренние переходы",
-      "visits": 16,
-      "share": 17
+      "visits": 20,
+      "share": 20
     },
     {
       "name": "Переходы по ссылкам на сайтах",
@@ -83,19 +83,23 @@
   "geo": [
     {
       "name": "США",
-      "visits": 32
+      "visits": 33
     },
     {
       "name": "Таиланд",
-      "visits": 29
+      "visits": 32
     },
     {
       "name": "Россия",
-      "visits": 13
+      "visits": 14
     },
     {
       "name": "Швейцария",
       "visits": 4
+    },
+    {
+      "name": "Беларусь",
+      "visits": 3
     },
     {
       "name": "Нидерланды",
@@ -108,23 +112,19 @@
     {
       "name": "Бразилия",
       "visits": 2
-    },
-    {
-      "name": "Канада",
-      "visits": 2
     }
   ],
   "pages": [
     {
       "url": "https://vernitemoy2007.ru/",
-      "visits": 73,
+      "visits": 80,
       "goals": {
         "youtube_click": 3,
         "video_play": 2,
-        "read_end": 23,
+        "read_end": 25,
         "search": 0,
         "telegram_click": 1,
-        "Автоцель: переход в соц.сеть": 3,
+        "Автоцель: переход в соц.сеть": 4,
         "all_messengers": 1
       }
     },
@@ -142,8 +142,8 @@
       }
     },
     {
-      "url": "https://mc.yandex.ru/watch/112450613",
-      "visits": 2,
+      "url": "https://vernitemoy2007.ru/articles/pochemu-knyaz-ushel-iz-korolya-i-shuta-hronologiya-i-versii-uchastnikov/",
+      "visits": 3,
       "goals": {
         "youtube_click": 0,
         "video_play": 0,
@@ -155,7 +155,7 @@
       }
     },
     {
-      "url": "https://vernitemoy2007.ru/articles/pochemu-knyaz-ushel-iz-korolya-i-shuta-hronologiya-i-versii-uchastnikov/",
+      "url": "https://mc.yandex.ru/watch/112450613",
       "visits": 2,
       "goals": {
         "youtube_click": 0,
@@ -234,6 +234,19 @@
     },
     {
       "url": "https://vernitemoy2007.ru/articles/mihail-gorshenev/?fbclid=IwcGRvZgRleHRuA2FlbQIxMQBzcnRjBmFwcF9pZAwyNTYyODEwNDA1NTgAAR6G2OZDeLWL7ky5pHI_gtoTKfNCTFPKLvYjqZzuTFk7bBch-QHwXTfykyHhmg_aem_Zs5wOS7rdKfv-6H1nKGuRA",
+      "visits": 1,
+      "goals": {
+        "youtube_click": 0,
+        "video_play": 0,
+        "read_end": 0,
+        "search": 0,
+        "telegram_click": 0,
+        "Автоцель: переход в соц.сеть": 0,
+        "all_messengers": 0
+      }
+    },
+    {
+      "url": "https://vernitemoy2007.ru/articles/ne-rodis-krasivoy-chem-zakonchilas-istoriya-kati-pushkarevoy/",
       "visits": 1,
       "goals": {
         "youtube_click": 0,
