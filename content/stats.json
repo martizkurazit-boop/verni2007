@@ -1,13 +1,13 @@
 {
-  "updatedAt": "2026-09-15T16:56:28.784Z",
+  "updatedAt": "2026-09-15T21:18:17.891Z",
   "days": 30,
   "counter": "112450613",
   "totals": {
-    "visits": 103,
-    "users": 70,
-    "pageviews": 298,
-    "avgSeconds": 277,
-    "bounceRate": 50
+    "visits": 110,
+    "users": 73,
+    "pageviews": 314,
+    "avgSeconds": 278,
+    "bounceRate": 47
   },
   "goals": [
     {
@@ -26,7 +26,7 @@
       "id": 611348858,
       "name": "Дочитывание",
       "event": "read_end",
-      "reaches": 28
+      "reaches": 29
     },
     {
       "id": 611348974,
@@ -56,16 +56,21 @@
   "sources": [
     {
       "name": "Прямые заходы",
-      "visits": 74,
-      "share": 73
+      "visits": 76,
+      "share": 70
     },
     {
       "name": "Внутренние переходы",
-      "visits": 20,
-      "share": 20
+      "visits": 21,
+      "share": 19
     },
     {
       "name": "Переходы по ссылкам на сайтах",
+      "visits": 5,
+      "share": 5
+    },
+    {
+      "name": "Переходы из поисковых систем",
       "visits": 3,
       "share": 3
     },
@@ -73,11 +78,6 @@
       "name": "Переходы из социальных сетей",
       "visits": 3,
       "share": 3
-    },
-    {
-      "name": "Переходы из поисковых систем",
-      "visits": 1,
-      "share": 1
     }
   ],
   "geo": [
@@ -87,19 +87,19 @@
     },
     {
       "name": "Таиланд",
-      "visits": 32
+      "visits": 33
     },
     {
       "name": "Россия",
-      "visits": 14
+      "visits": 18
+    },
+    {
+      "name": "Беларусь",
+      "visits": 4
     },
     {
       "name": "Швейцария",
       "visits": 4
-    },
-    {
-      "name": "Беларусь",
-      "visits": 3
     },
     {
       "name": "Нидерланды",
@@ -117,7 +117,7 @@
   "pages": [
     {
       "url": "https://vernitemoy2007.ru/",
-      "visits": 80,
+      "visits": 84,
       "goals": {
         "youtube_click": 3,
         "video_play": 2,
@@ -131,6 +131,19 @@
     {
       "url": "https://vernitemoy2007.ru/articles/mihail-gorshenev/",
       "visits": 6,
+      "goals": {
+        "youtube_click": 0,
+        "video_play": 0,
+        "read_end": 1,
+        "search": 0,
+        "telegram_click": 0,
+        "Автоцель: переход в соц.сеть": 0,
+        "all_messengers": 0
+      }
+    },
+    {
+      "url": "https://vernitemoy2007.ru/articles/ostatsya-v-zhivyh-obyasnenie-koncovki-lost-chto-proizoshlo-na-ostrove-i-pochemu-/",
+      "visits": 3,
       "goals": {
         "youtube_click": 0,
         "video_play": 0,
@@ -156,6 +169,19 @@
     },
     {
       "url": "https://mc.yandex.ru/watch/112450613",
+      "visits": 2,
+      "goals": {
+        "youtube_click": 0,
+        "video_play": 0,
+        "read_end": 0,
+        "search": 0,
+        "telegram_click": 0,
+        "Автоцель: переход в соц.сеть": 0,
+        "all_messengers": 0
+      }
+    },
+    {
+      "url": "https://vernitemoy2007.ru/articles/ne-rodis-krasivoy-chem-zakonchilas-istoriya-kati-pushkarevoy/",
       "visits": 2,
       "goals": {
         "youtube_click": 0,
@@ -234,32 +260,6 @@
     },
     {
       "url": "https://vernitemoy2007.ru/articles/mihail-gorshenev/?fbclid=IwcGRvZgRleHRuA2FlbQIxMQBzcnRjBmFwcF9pZAwyNTYyODEwNDA1NTgAAR6G2OZDeLWL7ky5pHI_gtoTKfNCTFPKLvYjqZzuTFk7bBch-QHwXTfykyHhmg_aem_Zs5wOS7rdKfv-6H1nKGuRA",
-      "visits": 1,
-      "goals": {
-        "youtube_click": 0,
-        "video_play": 0,
-        "read_end": 0,
-        "search": 0,
-        "telegram_click": 0,
-        "Автоцель: переход в соц.сеть": 0,
-        "all_messengers": 0
-      }
-    },
-    {
-      "url": "https://vernitemoy2007.ru/articles/ne-rodis-krasivoy-chem-zakonchilas-istoriya-kati-pushkarevoy/",
-      "visits": 1,
-      "goals": {
-        "youtube_click": 0,
-        "video_play": 0,
-        "read_end": 0,
-        "search": 0,
-        "telegram_click": 0,
-        "Автоцель: переход в соц.сеть": 0,
-        "all_messengers": 0
-      }
-    },
-    {
-      "url": "https://vernitemoy2007.ru/articles/ostatsya-v-zhivyh-obyasnenie-koncovki-lost-chto-proizoshlo-na-ostrove-i-pochemu-/",
       "visits": 1,
       "goals": {
         "youtube_click": 0,
