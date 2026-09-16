@@ -1,13 +1,13 @@
 {
-  "updatedAt": "2026-09-15T21:18:17.891Z",
+  "updatedAt": "2026-09-16T04:46:16.634Z",
   "days": 30,
   "counter": "112450613",
   "totals": {
-    "visits": 110,
-    "users": 73,
-    "pageviews": 314,
-    "avgSeconds": 278,
-    "bounceRate": 47
+    "visits": 111,
+    "users": 74,
+    "pageviews": 315,
+    "avgSeconds": 275,
+    "bounceRate": 48
   },
   "goals": [
     {
@@ -26,7 +26,7 @@
       "id": 611348858,
       "name": "Дочитывание",
       "event": "read_end",
-      "reaches": 29
+      "reaches": 30
     },
     {
       "id": 611348974,
@@ -71,8 +71,8 @@
     },
     {
       "name": "Переходы из поисковых систем",
-      "visits": 3,
-      "share": 3
+      "visits": 4,
+      "share": 4
     },
     {
       "name": "Переходы из социальных сетей",
@@ -91,7 +91,7 @@
     },
     {
       "name": "Россия",
-      "visits": 18
+      "visits": 19
     },
     {
       "name": "Беларусь",
@@ -143,11 +143,11 @@
     },
     {
       "url": "https://vernitemoy2007.ru/articles/ostatsya-v-zhivyh-obyasnenie-koncovki-lost-chto-proizoshlo-na-ostrove-i-pochemu-/",
-      "visits": 3,
+      "visits": 4,
       "goals": {
         "youtube_click": 0,
         "video_play": 0,
-        "read_end": 1,
+        "read_end": 2,
         "search": 0,
         "telegram_click": 0,
         "Автоцель: переход в соц.сеть": 0,
