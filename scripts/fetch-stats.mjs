@@ -30,16 +30,49 @@ const API = 'https://api-metrika.yandex.net';
 async function api(url) {
   const res = await fetch(url, { headers: { Authorization: 'OAuth ' + TOKEN } });
   const text = await res.text();
-  if (!res.ok) throw new Error(res.status + ': ' + text.slice(0, 300));
+  if (!res.ok) {
+    const err = new Error(res.status + ': ' + text.slice(0, 300));
+    err.status = res.status;
+    // «Запрос слишком сложный» — это не поломка, а просьба считать дешевле.
+    err.tooHeavy = res.status === 400 && /слишком сложн|too complex|query_error/i.test(text);
+    try { err.human = (JSON.parse(text).message || '').trim(); } catch (e) { err.human = ''; }
+    throw err;
+  }
   return JSON.parse(text);
 }
-function stat(params) {
-  const q = new URLSearchParams(Object.assign({
-    ids: COUNTER, date1: DAYS + 'daysAgo', date2: 'today', accuracy: 'full',
-    // Без lang API отдаёт названия источников и стран по-английски.
-    lang: 'ru',
-  }, params));
-  return api(API + '/stat/v1/data?' + q);
+
+/* Метрика отказывается считать тяжёлые запросы и прямым текстом просит
+   уменьшить точность или период. Раньше мы просили accuracy=full — расчёт
+   по всем визитам без выборки, — и на этом всё вставало. Теперь идём
+   лесенкой: сначала дёшево и точно, при отказе — ещё дешевле, в крайнем
+   случае за неделю вместо месяца. Для сайта с сотнями визитов разницы в
+   цифрах нет, а отчёт приходит всегда. */
+const LADDER = [
+  { accuracy: 'medium', days: DAYS },
+  { accuracy: 'low', days: DAYS },
+  { accuracy: 'low', days: Math.min(7, DAYS) },
+];
+let sampled = false;
+
+async function stat(params) {
+  let last;
+  for (const step of LADDER) {
+    const q = new URLSearchParams(Object.assign({
+      ids: COUNTER, date1: step.days + 'daysAgo', date2: 'today', accuracy: step.accuracy,
+      // Без lang API отдаёт названия источников и стран по-английски.
+      lang: 'ru',
+    }, params));
+    try {
+      const r = await api(API + '/stat/v1/data?' + q);
+      if (r.sampled) sampled = true;
+      if (step !== LADDER[0]) console.log('  (пересчитано с точностью ' + step.accuracy + ' за ' + step.days + ' дней)');
+      return r;
+    } catch (e) {
+      last = e;
+      if (!e.tooHeavy) throw e;
+    }
+  }
+  throw last;
 }
 const num = (v) => Math.round(Number(v) || 0);
 
@@ -71,14 +104,24 @@ try {
   const r = await stat({ metrics: 'ym:s:visits,ym:s:users,ym:s:pageviews,ym:s:avgVisitDurationSeconds,ym:s:bounceRate' });
   const t = (r.totals || []).map(num);
   out.totals = { visits: t[0], users: t[1], pageviews: t[2], avgSeconds: t[3], bounceRate: t[4] };
-} catch (e) { out.errors.push('Итоги: ' + e.message); }
+} catch (e) { out.errors.push('Итоги: ' + (e.human || e.message)); }
 
+/* Цели известны всегда — даже если цифры по ним не пришли. Иначе админка
+   скажет «цель не заведена» там, где цель есть, а не получены данные. */
+out.goals = goals.map((g) => ({ id: g.id, name: g.name, event: g.event, reaches: null }));
 if (goals.length) {
-  try {
-    const metrics = goals.map((g) => `ym:s:goal${g.id}reaches`).join(',');
-    const r = await stat({ metrics });
-    out.goals = goals.map((g, i) => ({ id: g.id, name: g.name, event: g.event, reaches: num((r.totals || [])[i]) }));
-  } catch (e) { out.errors.push('Достижения целей: ' + e.message); }
+  // По одной метрике на цель: десяток целей — и запрос снова становится
+  // «слишком сложным». Спрашиваем пачками по пять.
+  for (let i = 0; i < goals.length; i += 5) {
+    const chunk = goals.slice(i, i + 5);
+    try {
+      const r = await stat({ metrics: chunk.map((g) => `ym:s:goal${g.id}reaches`).join(',') });
+      chunk.forEach((g, j) => {
+        const row = out.goals.find((x) => x.id === g.id);
+        if (row) row.reaches = num((r.totals || [])[j]);
+      });
+    } catch (e) { out.errors.push('Достижения целей: ' + (e.human || e.message)); }
+  }
 }
 
 try {
@@ -89,19 +132,22 @@ try {
     visits: num(row.metrics[0]),
     share: Math.round(num(row.metrics[0]) / total * 100),
   }));
-} catch (e) { out.errors.push('Источники: ' + e.message); }
+} catch (e) { out.errors.push('Источники: ' + (e.human || e.message)); }
 
 try {
   const r = await stat({ dimensions: 'ym:s:regionCountry', metrics: 'ym:s:visits', limit: 8, sort: '-ym:s:visits' });
   out.geo = (r.data || []).map((row) => ({
     name: (row.dimensions[0] || {}).name || '—', visits: num(row.metrics[0]),
   }));
-} catch (e) { out.errors.push('География: ' + e.message); }
+} catch (e) { out.errors.push('География: ' + (e.human || e.message)); }
 
 try {
   // Страницы входа плюс достижения целей на них — из этой таблицы видно,
   // какая статья реально уводит зрителя на YouTube.
-  const goalMetrics = goals.map((g) => `ym:s:goal${g.id}reaches`);
+  // В таблицу страниц берём не больше четырёх целей: каждая — отдельная
+  // метрика, а вместе с визитами их и так пять на строку.
+  const pageGoals = goals.slice(0, 4);
+  const goalMetrics = pageGoals.map((g) => `ym:s:goal${g.id}reaches`);
   const r = await stat({
     dimensions: 'ym:s:startURL',
     metrics: ['ym:s:visits'].concat(goalMetrics).join(','),
@@ -109,11 +155,12 @@ try {
   });
   out.pages = (r.data || []).map((row) => {
     const g = {};
-    goals.forEach((goal, i) => { g[goal.event || goal.name] = num(row.metrics[i + 1]); });
+    pageGoals.forEach((goal, i) => { g[goal.event || goal.name] = num(row.metrics[i + 1]); });
     return { url: (row.dimensions[0] || {}).name || '', visits: num(row.metrics[0]), goals: g };
   });
-} catch (e) { out.errors.push('Страницы: ' + e.message); }
+} catch (e) { out.errors.push('Страницы: ' + (e.human || e.message)); }
 
+out.sampled = sampled;
 fs.writeFileSync(path.join(ROOT, 'content', 'stats.json'), JSON.stringify(out, null, 2) + '\n');
 console.log(`Записано: визитов ${out.totals.visits ?? '—'}, источников ${out.sources.length}, `
   + `страниц ${out.pages.length}, целей ${out.goals.length}`);

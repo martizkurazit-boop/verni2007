@@ -1744,8 +1744,14 @@
     var t = d.totals || {};
     var goalTile = function (event, label) {
       var g = byEvent[event];
-      var share = (g && t.visits) ? ' · ' + Math.round(g.reaches / t.visits * 100) + '% визитов' : '';
-      return tile(label, g ? fmt(g.reaches) : '—', g ? 'цель ' + event + share : 'цель ' + event + ' не заведена');
+      // Три разных состояния, и путать их нельзя: цели нет в счётчике, цель
+      // есть но цифры не пришли, цель есть и цифры пришли.
+      if (!g) return tile(label, '—', 'цель ' + event + ' не заведена в Метрике');
+      if (g.reaches === null || g.reaches === undefined) {
+        return tile(label, '—', 'цель ' + event + ' есть, но данные не пришли');
+      }
+      var share = t.visits ? ' · ' + Math.round(g.reaches / t.visits * 100) + '% визитов' : '';
+      return tile(label, fmt(g.reaches), 'цель ' + event + share);
     };
 
     box.innerHTML = '<div class="eyebrow"><span class="sl">//</span><span>Метрика · счётчик '
@@ -1782,9 +1788,17 @@
             + '</div>';
         }).join('') : '<div class="r"><span class="hint">Данных пока нет.</span></div>')
       + '</div></div>'
+      + (d.sampled ? '<p class="hint" style="margin-top:16px">Часть цифр Метрика посчитала по выборке — '
+          + 'на небольших числах расхождение с кабинетом возможно в пределах процента.</p>' : '')
       + ((d.errors || []).length ? '<div class="note-danger" style="margin-top:24px">'
           + '<div class="h">Метрика ответила ошибкой</div><ul>'
-          + d.errors.map(function (e) { return '<li>' + esc(e) + '</li>'; }).join('') + '</ul></div>' : '')
+          // Один и тот же отказ прилетает на каждый отчёт — показываем один раз.
+          + d.errors.map(function (e) { return String(e).replace(/^[^:]+:\s*/, ''); })
+              .filter(function (m, i, arr) { return arr.indexOf(m) === i; })
+              .map(function (m) { return '<li>' + esc(m) + '</li>'; }).join('')
+          + '</ul><p class="hint" style="margin-top:10px">Отчёты забираются заново каждые шесть часов. '
+          + 'Если ошибка повторяется — запустите «Обновить данные» вручную: '
+          + 'Actions → «Обновить данные (Метрика и YouTube)» → Run workflow.</p></div>' : '')
       + '<p class="hint" style="margin-top:16px">Данные обновляются каждые шесть часов. '
       + 'Полные отчёты — в кабинете Метрики: '
       + '<a href="https://metrika.yandex.ru/dashboard?id=' + esc(d.counter) + '" target="_blank" rel="noopener" '
