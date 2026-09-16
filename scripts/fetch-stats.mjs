@@ -76,6 +76,34 @@ async function stat(params) {
 }
 const num = (v) => Math.round(Number(v) || 0);
 
+/* Если Метрика отказывает даже на простейшем отчёте, дело не в сложности
+   запроса, а в каком-то параметре. Перебираем их по одному и печатаем ответ:
+   без доступа к API руками это единственный способ понять, что именно ей
+   не нравится. Токен в журнал не попадает — он уходит заголовком. */
+async function probe() {
+  const base = `ids=${COUNTER}&metrics=ym:s:visits`;
+  const today = new Date(), week = new Date(Date.now() - 7 * 864e5);
+  const iso = (d) => d.toISOString().slice(0, 10);
+  const variants = [
+    ['только визиты за неделю', `${base}&date1=7daysAgo&date2=today`],
+    ['то же + точность full', `${base}&date1=7daysAgo&date2=today&accuracy=full`],
+    ['то же + точность medium', `${base}&date1=7daysAgo&date2=today&accuracy=medium`],
+    ['то же + lang=ru', `${base}&date1=7daysAgo&date2=today&lang=ru`],
+    ['даты числами', `${base}&date1=${iso(week)}&date2=${iso(today)}`],
+    ['без дат вообще', base],
+    ['вчера', `${base}&date1=yesterday&date2=yesterday`],
+  ];
+  console.log('— проверка параметров:');
+  for (const [name, q] of variants) {
+    try {
+      const r = await api(API + '/stat/v1/data?' + q);
+      console.log(`   ✓ ${name}: визитов ${(r.totals || [])[0]}`);
+    } catch (e) {
+      console.log(`   ✗ ${name}: ${(e.human || e.message).slice(0, 110)}`);
+    }
+  }
+}
+
 const out = {
   updatedAt: new Date().toISOString(),
   days: DAYS,
@@ -104,7 +132,11 @@ try {
   const r = await stat({ metrics: 'ym:s:visits,ym:s:users,ym:s:pageviews,ym:s:avgVisitDurationSeconds,ym:s:bounceRate' });
   const t = (r.totals || []).map(num);
   out.totals = { visits: t[0], users: t[1], pageviews: t[2], avgSeconds: t[3], bounceRate: t[4] };
-} catch (e) { out.errors.push('Итоги: ' + (e.human || e.message)); }
+} catch (e) {
+  out.errors.push('Итоги: ' + (e.human || e.message));
+  // Самый простой отчёт не прошёл — ищем виноватый параметр.
+  await probe();
+}
 
 /* Цели известны всегда — даже если цифры по ним не пришли. Иначе админка
    скажет «цель не заведена» там, где цель есть, а не получены данные. */
