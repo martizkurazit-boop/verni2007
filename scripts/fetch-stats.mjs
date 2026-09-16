@@ -81,26 +81,34 @@ const num = (v) => Math.round(Number(v) || 0);
    без доступа к API руками это единственный способ понять, что именно ей
    не нравится. Токен в журнал не попадает — он уходит заголовком. */
 async function probe() {
-  const base = `ids=${COUNTER}&metrics=ym:s:visits`;
-  const today = new Date(), week = new Date(Date.now() - 7 * 864e5);
-  const iso = (d) => d.toISOString().slice(0, 10);
-  const variants = [
-    ['только визиты за неделю', `${base}&date1=7daysAgo&date2=today`],
-    ['то же + точность full', `${base}&date1=7daysAgo&date2=today&accuracy=full`],
-    ['то же + точность medium', `${base}&date1=7daysAgo&date2=today&accuracy=medium`],
-    ['то же + lang=ru', `${base}&date1=7daysAgo&date2=today&lang=ru`],
-    ['даты числами', `${base}&date1=${iso(week)}&date2=${iso(today)}`],
-    ['без дат вообще', base],
-    ['вчера', `${base}&date1=yesterday&date2=yesterday`],
+  const line = (mark, name, text) => console.log(`   ${mark} ${name}: ${String(text).slice(0, 150)}`);
+  console.log('— что отвечает Метрика:');
+
+  // 1. Виден ли счётчик токену и в каком он состоянии.
+  try {
+    const r = await api(`${API}/management/v1/counter/${COUNTER}`);
+    const c = r.counter || {};
+    line('✓', 'счётчик', `${c.id} «${c.name}», статус ${c.status}, права ${c.permission}, владелец ${c.owner_login}`);
+  } catch (e) { line('✗', 'счётчик', e.human || e.message); }
+
+  // 2. Какие счётчики токен вообще видит.
+  try {
+    const r = await api(`${API}/management/v1/counters?per_page=20`);
+    line('✓', 'доступные счётчики', (r.counters || []).map((c) => c.id + ' ' + c.permission).join(', ') || 'ни одного');
+  } catch (e) { line('✗', 'доступные счётчики', e.human || e.message); }
+
+  // 3. Отчёты: разные метрики, периоды и точки входа.
+  const cases = [
+    ['визиты за вчера', `/stat/v1/data?ids=${COUNTER}&metrics=ym:s:visits&date1=yesterday&date2=yesterday`],
+    ['посетители за вчера', `/stat/v1/data?ids=${COUNTER}&metrics=ym:s:users&date1=yesterday&date2=yesterday`],
+    ['визиты по дням', `/stat/v1/data/bytime?ids=${COUNTER}&metrics=ym:s:visits&date1=yesterday&date2=yesterday`],
+    ['чужой счётчик (для сравнения ошибки)', `/stat/v1/data?ids=1&metrics=ym:s:visits&date1=yesterday&date2=yesterday`],
   ];
-  console.log('— проверка параметров:');
-  for (const [name, q] of variants) {
+  for (const [name, path] of cases) {
     try {
-      const r = await api(API + '/stat/v1/data?' + q);
-      console.log(`   ✓ ${name}: визитов ${(r.totals || [])[0]}`);
-    } catch (e) {
-      console.log(`   ✗ ${name}: ${(e.human || e.message).slice(0, 110)}`);
-    }
+      const r = await api(API + path);
+      line('✓', name, 'ответ получен: ' + JSON.stringify((r.totals || [])[0]));
+    } catch (e) { line('✗', name, (e.status || '') + ' ' + (e.human || e.message)); }
   }
 }
 
