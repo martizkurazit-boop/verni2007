@@ -1,62 +1,271 @@
 {
-  "updatedAt": "2026-09-16T12:44:15.035Z",
+  "updatedAt": "2026-09-16T16:51:46.897Z",
   "days": 30,
   "counter": "112450613",
-  "totals": {},
+  "totals": {
+    "visits": 113,
+    "users": 75,
+    "pageviews": 319,
+    "avgSeconds": 271,
+    "bounceRate": 47
+  },
   "goals": [
     {
       "id": 611348816,
       "name": "Переход на YouTube",
       "event": "youtube_click",
-      "reaches": null
+      "reaches": 3
     },
     {
       "id": 611348857,
       "name": "Запуск видео",
       "event": "video_play",
-      "reaches": null
+      "reaches": 2
     },
     {
       "id": 611348858,
       "name": "Дочитывание",
       "event": "read_end",
-      "reaches": null
+      "reaches": 30
     },
     {
       "id": 611348974,
       "name": "Поиск по сайту",
       "event": "search",
-      "reaches": null
+      "reaches": 0
     },
     {
       "id": 611472910,
       "name": "Переходы в Telegram",
       "event": "telegram_click",
-      "reaches": null
+      "reaches": 1
     },
     {
       "id": 611476511,
       "name": "Автоцель: переход в соц.сеть",
       "event": "",
-      "reaches": null
+      "reaches": 4
     },
     {
       "id": 611485213,
       "name": "Автоцель: переход в мессенджер",
       "event": "all_messengers",
-      "reaches": null
+      "reaches": 1
     }
   ],
-  "sources": [],
-  "geo": [],
-  "pages": [],
-  "errors": [
-    "Итоги: Запрос слишком сложный. Пожалуйста, уменьшите интервал дат или семплирование.",
-    "Достижения целей: Запрос слишком сложный. Пожалуйста, уменьшите интервал дат или семплирование.",
-    "Достижения целей: Запрос слишком сложный. Пожалуйста, уменьшите интервал дат или семплирование.",
-    "Источники: Запрос слишком сложный. Пожалуйста, уменьшите интервал дат или семплирование.",
-    "География: Запрос слишком сложный. Пожалуйста, уменьшите интервал дат или семплирование.",
-    "Страницы: Запрос слишком сложный. Пожалуйста, уменьшите интервал дат или семплирование."
+  "sources": [
+    {
+      "name": "Прямые заходы",
+      "visits": 77,
+      "share": 69
+    },
+    {
+      "name": "Внутренние переходы",
+      "visits": 21,
+      "share": 19
+    },
+    {
+      "name": "Переходы по ссылкам на сайтах",
+      "visits": 6,
+      "share": 5
+    },
+    {
+      "name": "Переходы из поисковых систем",
+      "visits": 4,
+      "share": 4
+    },
+    {
+      "name": "Переходы из социальных сетей",
+      "visits": 3,
+      "share": 3
+    }
   ],
+  "geo": [
+    {
+      "name": "Таиланд",
+      "visits": 34
+    },
+    {
+      "name": "США",
+      "visits": 33
+    },
+    {
+      "name": "Россия",
+      "visits": 20
+    },
+    {
+      "name": "Беларусь",
+      "visits": 4
+    },
+    {
+      "name": "Швейцария",
+      "visits": 4
+    },
+    {
+      "name": "Нидерланды",
+      "visits": 3
+    },
+    {
+      "name": "Франция",
+      "visits": 3
+    },
+    {
+      "name": "Бразилия",
+      "visits": 2
+    }
+  ],
+  "pages": [
+    {
+      "url": "https://vernitemoy2007.ru/",
+      "visits": 86,
+      "goals": {
+        "youtube_click": 3,
+        "video_play": 2,
+        "read_end": 25,
+        "search": 0
+      }
+    },
+    {
+      "url": "https://vernitemoy2007.ru/articles/mihail-gorshenev/",
+      "visits": 6,
+      "goals": {
+        "youtube_click": 0,
+        "video_play": 0,
+        "read_end": 1,
+        "search": 0
+      }
+    },
+    {
+      "url": "https://vernitemoy2007.ru/articles/ostatsya-v-zhivyh-obyasnenie-koncovki-lost-chto-proizoshlo-na-ostrove-i-pochemu-/",
+      "visits": 4,
+      "goals": {
+        "youtube_click": 0,
+        "video_play": 0,
+        "read_end": 2,
+        "search": 0
+      }
+    },
+    {
+      "url": "https://vernitemoy2007.ru/articles/pochemu-knyaz-ushel-iz-korolya-i-shuta-hronologiya-i-versii-uchastnikov/",
+      "visits": 3,
+      "goals": {
+        "youtube_click": 0,
+        "video_play": 0,
+        "read_end": 0,
+        "search": 0
+      }
+    },
+    {
+      "url": "https://mc.yandex.ru/watch/112450613",
+      "visits": 2,
+      "goals": {
+        "youtube_click": 0,
+        "video_play": 0,
+        "read_end": 0,
+        "search": 0
+      }
+    },
+    {
+      "url": "https://vernitemoy2007.ru/articles/ne-rodis-krasivoy-chem-zakonchilas-istoriya-kati-pushkarevoy/",
+      "visits": 2,
+      "goals": {
+        "youtube_click": 0,
+        "video_play": 0,
+        "read_end": 0,
+        "search": 0
+      }
+    },
+    {
+      "url": "https://vernitemoy2007.ru/articles/tatu-kak-poyavilas-gruppa-i-pochemu-raspalsya-duet/",
+      "visits": 2,
+      "goals": {
+        "youtube_click": 0,
+        "video_play": 0,
+        "read_end": 2,
+        "search": 0
+      }
+    },
+    {
+      "url": "https://vernitemoy2007.ru/?fbclid=IwcGRvZgRleHRuA2FlbQIxMQBzcnRjBmFwcF9pZAwyNTYyODEwNDA1NTgAAR4ZiWrpbV5w7NpS0zBJxFtr-m87AH-hkGFkLeab5DkKZO0YDLGaBP0n7fuMZg_aem_qNEbArkv0HfenEllLRGtZA",
+      "visits": 1,
+      "goals": {
+        "youtube_click": 0,
+        "video_play": 0,
+        "read_end": 0,
+        "search": 0
+      }
+    },
+    {
+      "url": "https://vernitemoy2007.ru/?fbclid=IwcGRvZgRleHRuA2FlbQIxMQBzcnRjBmFwcF9pZAwyNTYyODEwNDA1NTgAAR7dEnJAt-ylA-NealzBbkdBG7tz9WRdcjtmqDmVdKWefW0Gh6yTBwf9hu3DXw_aem_Epqfp82d2dsWcLgDEo5tVA",
+      "visits": 1,
+      "goals": {
+        "youtube_click": 0,
+        "video_play": 0,
+        "read_end": 0,
+        "search": 0
+      }
+    },
+    {
+      "url": "https://vernitemoy2007.ru/all/",
+      "visits": 1,
+      "goals": {
+        "youtube_click": 0,
+        "video_play": 0,
+        "read_end": 0,
+        "search": 0
+      }
+    },
+    {
+      "url": "https://vernitemoy2007.ru/articles/decl-kak-kirill-tolmackiy-stal-zvezdoy-nulevyh-i-nachal-vse-zanovo/",
+      "visits": 1,
+      "goals": {
+        "youtube_click": 0,
+        "video_play": 0,
+        "read_end": 0,
+        "search": 0
+      }
+    },
+    {
+      "url": "https://vernitemoy2007.ru/articles/mihail-gorshenev/?fbclid=IwcGRvZgRleHRuA2FlbQIxMQBzcnRjBmFwcF9pZAwyNTYyODEwNDA1NTgAAR6G2OZDeLWL7ky5pHI_gtoTKfNCTFPKLvYjqZzuTFk7bBch-QHwXTfykyHhmg_aem_Zs5wOS7rdKfv-6H1nKGuRA",
+      "visits": 1,
+      "goals": {
+        "youtube_click": 0,
+        "video_play": 0,
+        "read_end": 0,
+        "search": 0
+      }
+    },
+    {
+      "url": "https://vernitemoy2007.ru/category/music/",
+      "visits": 1,
+      "goals": {
+        "youtube_click": 0,
+        "video_play": 0,
+        "read_end": 0,
+        "search": 0
+      }
+    },
+    {
+      "url": "https://vernitemoy2007.ru/tag/knyaz/",
+      "visits": 1,
+      "goals": {
+        "youtube_click": 0,
+        "video_play": 0,
+        "read_end": 0,
+        "search": 0
+      }
+    },
+    {
+      "url": "https://vernitemoy2007.ru/tag/sergey-bodrov/",
+      "visits": 1,
+      "goals": {
+        "youtube_click": 0,
+        "video_play": 0,
+        "read_end": 0,
+        "search": 0
+      }
+    }
+  ],
+  "errors": [],
   "sampled": false
 }
