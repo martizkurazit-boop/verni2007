@@ -104,6 +104,16 @@ async function probe() {
     ['визиты по дням', `/stat/v1/data/bytime?ids=${COUNTER}&metrics=ym:s:visits&date1=yesterday&date2=yesterday`],
     ['чужой счётчик (для сравнения ошибки)', `/stat/v1/data?ids=1&metrics=ym:s:visits&date1=yesterday&date2=yesterday`],
   ];
+  // Контроль: тот же запрос к другому счётчику, доступному тому же токену.
+  // Если он считается — беда в конкретном счётчике, если нет — во всём
+  // аккаунте, и это уже вопрос к поддержке Метрики.
+  try {
+    const r = await api(`${API}/management/v1/counters?per_page=20`);
+    const other = (r.counters || []).find((c) => String(c.id) !== String(COUNTER));
+    if (other) cases.push([`контрольный счётчик ${other.id}`,
+      `/stat/v1/data?ids=${other.id}&metrics=ym:s:visits&date1=yesterday&date2=yesterday`]);
+  } catch (e) { /* список уже печатали выше */ }
+
   for (const [name, path] of cases) {
     try {
       const r = await api(API + path);
