@@ -1,13 +1,13 @@
 {
-  "updatedAt": "2026-09-17T16:58:03.886Z",
+  "updatedAt": "2026-09-17T21:19:37.343Z",
   "days": 30,
   "counter": "112450613",
   "totals": {
-    "visits": 120,
-    "users": 77,
-    "pageviews": 333,
-    "avgSeconds": 271,
-    "bounceRate": 48
+    "visits": 124,
+    "users": 80,
+    "pageviews": 340,
+    "avgSeconds": 263,
+    "bounceRate": 47
   },
   "goals": [
     {
@@ -26,7 +26,7 @@
       "id": 611348858,
       "name": "Дочитывание",
       "event": "read_end",
-      "reaches": 31
+      "reaches": 32
     },
     {
       "id": 611348974,
@@ -56,8 +56,8 @@
   "sources": [
     {
       "name": "Прямые заходы",
-      "visits": 80,
-      "share": 68
+      "visits": 82,
+      "share": 67
     },
     {
       "name": "Внутренние переходы",
@@ -71,8 +71,8 @@
     },
     {
       "name": "Переходы из поисковых систем",
-      "visits": 4,
-      "share": 3
+      "visits": 6,
+      "share": 5
     },
     {
       "name": "Переходы из социальных сетей",
@@ -94,11 +94,16 @@
     {
       "engine": "Яндекс, результаты поиска",
       "phrase": "",
-      "visits": 1
+      "visits": 2
     },
     {
       "engine": "Яндекс, результаты поиска",
       "phrase": "зачем нужна была сцена в финале лост после титров\\",
+      "visits": 1
+    },
+    {
+      "engine": "Мобильный Яндекс",
+      "phrase": "мобильные телефоны 2000-х годов фото",
       "visits": 1
     },
     {
@@ -115,7 +120,7 @@
   "geo": [
     {
       "name": "Таиланд",
-      "visits": 36
+      "visits": 37
     },
     {
       "name": "США",
@@ -123,7 +128,7 @@
     },
     {
       "name": "Россия",
-      "visits": 20
+      "visits": 22
     },
     {
       "name": "Беларусь",
@@ -131,7 +136,7 @@
     },
     {
       "name": "Швейцария",
-      "visits": 4
+      "visits": 5
     },
     {
       "name": "Нидерланды",
@@ -149,7 +154,7 @@
   "pages": [
     {
       "url": "https://vernitemoy2007.ru/",
-      "visits": 88,
+      "visits": 90,
       "goals": {
         "youtube_click": 3,
         "video_play": 2,
@@ -179,7 +184,7 @@
     },
     {
       "url": "https://vernitemoy2007.ru/articles/ostatsya-v-zhivyh-obyasnenie-koncovki-lost-chto-proizoshlo-na-ostrove-i-pochemu-/",
-      "visits": 4,
+      "visits": 5,
       "goals": {
         "youtube_click": 0,
         "video_play": 0,
@@ -284,6 +289,16 @@
         "youtube_click": 0,
         "video_play": 0,
         "read_end": 0,
+        "search": 0
+      }
+    },
+    {
+      "url": "https://vernitemoy2007.ru/articles/telefony-2000-h-fotokatalog-uznavaemyh-modeley-kotorye-my-razlichali-s-odnogo-vz/",
+      "visits": 1,
+      "goals": {
+        "youtube_click": 0,
+        "video_play": 0,
+        "read_end": 1,
         "search": 0
       }
     },
