@@ -126,7 +126,7 @@ const out = {
   updatedAt: new Date().toISOString(),
   days: DAYS,
   counter: String(COUNTER),
-  totals: {}, goals: [], sources: [], geo: [], pages: [], errors: [],
+  totals: {}, goals: [], sources: [], referrers: [], searches: [], geo: [], pages: [], errors: [],
 };
 
 /* Цели заводятся в интерфейсе Метрики, их идентификаторы заранее неизвестны —
@@ -183,6 +183,32 @@ try {
     share: Math.round(num(row.metrics[0]) / total * 100),
   }));
 } catch (e) { out.errors.push('Источники: ' + (e.human || e.message)); }
+
+try {
+  /* Конкретные сайты, а не «переходы по ссылкам» общей строкой: только так
+     видно, приводит ли кто-то с chatgpt.com, perplexity.ai, ya.ru и прочих
+     нейросетевых ответов — сами роботы в Метрику не попадают, они не
+     исполняют JS, а вот человек, пришедший по ссылке из ответа, попадает. */
+  const r = await stat({
+    dimensions: 'ym:s:lastsignReferalSource', metrics: 'ym:s:visits', limit: 15, sort: '-ym:s:visits',
+  });
+  out.referrers = (r.data || [])
+    .map((row) => ({ name: (row.dimensions[0] || {}).name || '', visits: num(row.metrics[0]) }))
+    .filter((x) => x.name);
+} catch (e) { out.errors.push('Сайты-источники: ' + (e.human || e.message)); }
+
+try {
+  // Поисковая система и запрос вместе: из какой выдачи и по каким словам.
+  const r = await stat({
+    dimensions: 'ym:s:lastsignSearchEngine,ym:s:lastsignSearchPhrase',
+    metrics: 'ym:s:visits', limit: 20, sort: '-ym:s:visits',
+  });
+  out.searches = (r.data || []).map((row) => ({
+    engine: (row.dimensions[0] || {}).name || '',
+    phrase: (row.dimensions[1] || {}).name || '',
+    visits: num(row.metrics[0]),
+  })).filter((x) => x.engine || x.phrase);
+} catch (e) { out.errors.push('Поисковые запросы: ' + (e.human || e.message)); }
 
 try {
   const r = await stat({ dimensions: 'ym:s:regionCountry', metrics: 'ym:s:visits', limit: 8, sort: '-ym:s:visits' });

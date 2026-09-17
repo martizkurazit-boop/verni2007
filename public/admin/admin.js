@@ -1778,6 +1778,22 @@
             + '</span><span class="hint">' + fmt(g.visits) + '</span></div>';
         }).join('') : '<div class="r"><span class="hint">Пока пусто.</span></div>')
       + '</div></div></div>'
+      + '<div class="cols" style="margin-top:24px">'
+      + '<div class="card"><h2 class="sec">Сайты, с которых приходят</h2><div class="tbl">'
+      + ((d.referrers || []).length ? d.referrers.map(function (r) {
+          return '<div class="r"><span style="flex:1 1 auto;min-width:0;font-weight:600;word-break:break-all">'
+            + esc(r.name) + '</span><span class="hint">' + fmt(r.visits) + '</span></div>';
+        }).join('') : '<div class="r"><span class="hint">Пока никто не ссылается.</span></div>')
+      + '</div><p class="hint" style="margin-top:12px">Здесь же видно нейросети: '
+      + 'chatgpt.com, perplexity.ai, ya.ru — если человек пришёл по ссылке из ответа. '
+      + 'Сами роботы в Метрику не попадают: они не исполняют JavaScript.</p></div>'
+      + '<div class="card"><h2 class="sec">Поисковые запросы</h2><div class="tbl">'
+      + ((d.searches || []).length ? d.searches.map(function (q) {
+          return '<div class="r"><span style="flex:1 1 auto;min-width:0;font-weight:600">'
+            + esc(q.phrase || 'запрос скрыт') + '</span><span class="hint" style="min-width:90px">'
+            + esc(q.engine) + '</span><span class="hint">' + fmt(q.visits) + '</span></div>';
+        }).join('') : '<div class="r"><span class="hint">Из поиска пока не приходят.</span></div>')
+      + '</div></div></div>'
       + '<div class="card" style="margin-top:24px"><h2 class="sec">Статьи и переходы на YouTube</h2><div class="tbl">'
       + ((d.pages || []).length ? d.pages.map(function (p) {
           return '<div class="r">'
