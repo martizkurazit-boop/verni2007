@@ -1,12 +1,12 @@
 {
-  "updatedAt": "2026-09-17T11:37:46.572Z",
+  "updatedAt": "2026-09-17T16:58:03.886Z",
   "days": 30,
   "counter": "112450613",
   "totals": {
-    "visits": 117,
-    "users": 75,
-    "pageviews": 328,
-    "avgSeconds": 262,
+    "visits": 120,
+    "users": 77,
+    "pageviews": 333,
+    "avgSeconds": 271,
     "bounceRate": 48
   },
   "goals": [
@@ -56,12 +56,12 @@
   "sources": [
     {
       "name": "Прямые заходы",
-      "visits": 79,
-      "share": 69
+      "visits": 80,
+      "share": 68
     },
     {
       "name": "Внутренние переходы",
-      "visits": 23,
+      "visits": 24,
       "share": 20
     },
     {
@@ -76,7 +76,7 @@
     },
     {
       "name": "Переходы из социальных сетей",
-      "visits": 3,
+      "visits": 4,
       "share": 3
     }
   ],
@@ -127,7 +127,7 @@
     },
     {
       "name": "Беларусь",
-      "visits": 6
+      "visits": 7
     },
     {
       "name": "Швейцария",
@@ -149,7 +149,7 @@
   "pages": [
     {
       "url": "https://vernitemoy2007.ru/",
-      "visits": 87,
+      "visits": 88,
       "goals": {
         "youtube_click": 3,
         "video_play": 2,
@@ -169,7 +169,7 @@
     },
     {
       "url": "https://vernitemoy2007.ru/articles/ne-rodis-krasivoy-chem-zakonchilas-istoriya-kati-pushkarevoy/",
-      "visits": 4,
+      "visits": 5,
       "goals": {
         "youtube_click": 0,
         "video_play": 0,
@@ -259,6 +259,16 @@
     },
     {
       "url": "https://vernitemoy2007.ru/articles/decl-kak-kirill-tolmackiy-stal-zvezdoy-nulevyh-i-nachal-vse-zanovo/",
+      "visits": 1,
+      "goals": {
+        "youtube_click": 0,
+        "video_play": 0,
+        "read_end": 0,
+        "search": 0
+      }
+    },
+    {
+      "url": "https://vernitemoy2007.ru/articles/mihail-gorshenev/?fbclid=IwcGRvZgRleHRuA2FlbQIxMQBzcnRjBmFwcF9pZAwyNTYyODEwNDA1NTgAAR4lklvqzzxJZMJ0G1gxeGnn5kPSiKc9C56Af6gpYOHymSZUg49vtNyl_P4MDw_aem_sFd4SBCpqA_5GTXmnAEoSw",
       "visits": 1,
       "goals": {
         "youtube_click": 0,
