@@ -1,13 +1,13 @@
 {
-  "updatedAt": "2026-09-16T21:15:50.091Z",
+  "updatedAt": "2026-09-17T04:49:17.927Z",
   "days": 30,
   "counter": "112450613",
   "totals": {
-    "visits": 114,
+    "visits": 117,
     "users": 75,
-    "pageviews": 320,
-    "avgSeconds": 269,
-    "bounceRate": 47
+    "pageviews": 328,
+    "avgSeconds": 262,
+    "bounceRate": 48
   },
   "goals": [
     {
@@ -26,7 +26,7 @@
       "id": 611348858,
       "name": "Дочитывание",
       "event": "read_end",
-      "reaches": 30
+      "reaches": 31
     },
     {
       "id": 611348974,
@@ -56,13 +56,13 @@
   "sources": [
     {
       "name": "Прямые заходы",
-      "visits": 78,
-      "share": 70
+      "visits": 79,
+      "share": 69
     },
     {
       "name": "Внутренние переходы",
-      "visits": 21,
-      "share": 19
+      "visits": 23,
+      "share": 20
     },
     {
       "name": "Переходы по ссылкам на сайтах",
@@ -72,7 +72,7 @@
     {
       "name": "Переходы из поисковых систем",
       "visits": 4,
-      "share": 4
+      "share": 3
     },
     {
       "name": "Переходы из социальных сетей",
@@ -80,10 +80,42 @@
       "share": 3
     }
   ],
+  "referrers": [
+    {
+      "name": "l.threads.com",
+      "visits": 3
+    },
+    {
+      "name": "youtube.com",
+      "visits": 3
+    }
+  ],
+  "searches": [
+    {
+      "engine": "Яндекс, результаты поиска",
+      "phrase": "",
+      "visits": 1
+    },
+    {
+      "engine": "Яндекс, результаты поиска",
+      "phrase": "зачем нужна была сцена в финале лост после титров\\",
+      "visits": 1
+    },
+    {
+      "engine": "Мобильный Яндекс",
+      "phrase": "объяснение финала остаться в живых от начала до конца",
+      "visits": 1
+    },
+    {
+      "engine": "Bing, результаты поиска",
+      "phrase": "",
+      "visits": 1
+    }
+  ],
   "geo": [
     {
       "name": "Таиланд",
-      "visits": 35
+      "visits": 36
     },
     {
       "name": "США",
@@ -95,7 +127,7 @@
     },
     {
       "name": "Беларусь",
-      "visits": 4
+      "visits": 6
     },
     {
       "name": "Швейцария",
@@ -136,6 +168,16 @@
       }
     },
     {
+      "url": "https://vernitemoy2007.ru/articles/ne-rodis-krasivoy-chem-zakonchilas-istoriya-kati-pushkarevoy/",
+      "visits": 4,
+      "goals": {
+        "youtube_click": 0,
+        "video_play": 0,
+        "read_end": 0,
+        "search": 0
+      }
+    },
+    {
       "url": "https://vernitemoy2007.ru/articles/ostatsya-v-zhivyh-obyasnenie-koncovki-lost-chto-proizoshlo-na-ostrove-i-pochemu-/",
       "visits": 4,
       "goals": {
@@ -166,22 +208,22 @@
       }
     },
     {
-      "url": "https://vernitemoy2007.ru/articles/ne-rodis-krasivoy-chem-zakonchilas-istoriya-kati-pushkarevoy/",
-      "visits": 2,
-      "goals": {
-        "youtube_click": 0,
-        "video_play": 0,
-        "read_end": 0,
-        "search": 0
-      }
-    },
-    {
       "url": "https://vernitemoy2007.ru/articles/tatu-kak-poyavilas-gruppa-i-pochemu-raspalsya-duet/",
       "visits": 2,
       "goals": {
         "youtube_click": 0,
         "video_play": 0,
         "read_end": 2,
+        "search": 0
+      }
+    },
+    {
+      "url": "https://vernitemoy2007.ru/category/music/",
+      "visits": 2,
+      "goals": {
+        "youtube_click": 0,
+        "video_play": 0,
+        "read_end": 1,
         "search": 0
       }
     },
@@ -227,16 +269,6 @@
     },
     {
       "url": "https://vernitemoy2007.ru/articles/mihail-gorshenev/?fbclid=IwcGRvZgRleHRuA2FlbQIxMQBzcnRjBmFwcF9pZAwyNTYyODEwNDA1NTgAAR6G2OZDeLWL7ky5pHI_gtoTKfNCTFPKLvYjqZzuTFk7bBch-QHwXTfykyHhmg_aem_Zs5wOS7rdKfv-6H1nKGuRA",
-      "visits": 1,
-      "goals": {
-        "youtube_click": 0,
-        "video_play": 0,
-        "read_end": 0,
-        "search": 0
-      }
-    },
-    {
-      "url": "https://vernitemoy2007.ru/category/music/",
       "visits": 1,
       "goals": {
         "youtube_click": 0,
