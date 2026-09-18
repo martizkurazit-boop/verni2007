@@ -1,13 +1,13 @@
 {
-  "updatedAt": "2026-09-18T11:10:24.604Z",
+  "updatedAt": "2026-09-18T16:21:58.680Z",
   "days": 30,
   "counter": "112450613",
   "totals": {
-    "visits": 131,
-    "users": 85,
-    "pageviews": 347,
-    "avgSeconds": 258,
-    "bounceRate": 45
+    "visits": 134,
+    "users": 88,
+    "pageviews": 351,
+    "avgSeconds": 252,
+    "bounceRate": 44
   },
   "goals": [
     {
@@ -26,7 +26,7 @@
       "id": 611348858,
       "name": "Дочитывание",
       "event": "read_end",
-      "reaches": 34
+      "reaches": 35
     },
     {
       "id": 611348974,
@@ -57,22 +57,22 @@
     {
       "name": "Прямые заходы",
       "visits": 85,
-      "share": 66
+      "share": 64
     },
     {
       "name": "Внутренние переходы",
       "visits": 24,
-      "share": 19
+      "share": 18
     },
     {
       "name": "Переходы из поисковых систем",
-      "visits": 9,
-      "share": 7
+      "visits": 11,
+      "share": 8
     },
     {
       "name": "Переходы по ссылкам на сайтах",
-      "visits": 7,
-      "share": 5
+      "visits": 8,
+      "share": 6
     },
     {
       "name": "Переходы из социальных сетей",
@@ -88,6 +88,10 @@
     {
       "name": "l.threads.com",
       "visits": 3
+    },
+    {
+      "name": "dataindex.pro",
+      "visits": 1
     }
   ],
   "searches": [
@@ -107,6 +111,11 @@
       "visits": 1
     },
     {
+      "engine": "Яндекс, результаты поиска",
+      "phrase": "телефоны+2000-х+годов+фото",
+      "visits": 1
+    },
+    {
       "engine": "Мобильный Яндекс",
       "phrase": "какие телефоны в начале 2000 принимали сигнал лучше, а какие хуже",
       "visits": 1
@@ -119,6 +128,11 @@
     {
       "engine": "Мобильный Яндекс",
       "phrase": "объяснение финала остаться в живых от начала до конца",
+      "visits": 1
+    },
+    {
+      "engine": "Мобильный Яндекс",
+      "phrase": "телефон слайдер из 2000",
       "visits": 1
     },
     {
@@ -143,7 +157,7 @@
     },
     {
       "name": "Россия",
-      "visits": 23
+      "visits": 25
     },
     {
       "name": "Беларусь",
@@ -169,7 +183,7 @@
   "pages": [
     {
       "url": "https://vernitemoy2007.ru/",
-      "visits": 94,
+      "visits": 95,
       "goals": {
         "youtube_click": 3,
         "video_play": 2,
@@ -184,6 +198,16 @@
         "youtube_click": 0,
         "video_play": 0,
         "read_end": 1,
+        "search": 0
+      }
+    },
+    {
+      "url": "https://vernitemoy2007.ru/articles/telefony-2000-h-fotokatalog-uznavaemyh-modeley-kotorye-my-razlichali-s-odnogo-vz/",
+      "visits": 6,
+      "goals": {
+        "youtube_click": 0,
+        "video_play": 0,
+        "read_end": 4,
         "search": 0
       }
     },
@@ -204,16 +228,6 @@
         "youtube_click": 0,
         "video_play": 0,
         "read_end": 2,
-        "search": 0
-      }
-    },
-    {
-      "url": "https://vernitemoy2007.ru/articles/telefony-2000-h-fotokatalog-uznavaemyh-modeley-kotorye-my-razlichali-s-odnogo-vz/",
-      "visits": 4,
-      "goals": {
-        "youtube_click": 0,
-        "video_play": 0,
-        "read_end": 3,
         "search": 0
       }
     },
