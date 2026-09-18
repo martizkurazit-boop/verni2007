@@ -1,13 +1,13 @@
 {
-  "updatedAt": "2026-09-18T04:40:18.065Z",
+  "updatedAt": "2026-09-18T11:10:24.604Z",
   "days": 30,
   "counter": "112450613",
   "totals": {
-    "visits": 125,
-    "users": 81,
-    "pageviews": 341,
-    "avgSeconds": 262,
-    "bounceRate": 46
+    "visits": 131,
+    "users": 85,
+    "pageviews": 347,
+    "avgSeconds": 258,
+    "bounceRate": 45
   },
   "goals": [
     {
@@ -26,7 +26,7 @@
       "id": 611348858,
       "name": "Дочитывание",
       "event": "read_end",
-      "reaches": 33
+      "reaches": 34
     },
     {
       "id": 611348974,
@@ -56,22 +56,22 @@
   "sources": [
     {
       "name": "Прямые заходы",
-      "visits": 82,
-      "share": 67
+      "visits": 85,
+      "share": 66
     },
     {
       "name": "Внутренние переходы",
       "visits": 24,
-      "share": 20
+      "share": 19
     },
     {
       "name": "Переходы из поисковых систем",
-      "visits": 7,
-      "share": 6
+      "visits": 9,
+      "share": 7
     },
     {
       "name": "Переходы по ссылкам на сайтах",
-      "visits": 6,
+      "visits": 7,
       "share": 5
     },
     {
@@ -82,11 +82,11 @@
   ],
   "referrers": [
     {
-      "name": "l.threads.com",
-      "visits": 3
+      "name": "youtube.com",
+      "visits": 4
     },
     {
-      "name": "youtube.com",
+      "name": "l.threads.com",
       "visits": 3
     }
   ],
@@ -95,6 +95,11 @@
       "engine": "Яндекс, результаты поиска",
       "phrase": "",
       "visits": 2
+    },
+    {
+      "engine": "Яндекс, результаты поиска",
+      "phrase": "большие телефоны 2000",
+      "visits": 1
     },
     {
       "engine": "Яндекс, результаты поиска",
@@ -117,6 +122,11 @@
       "visits": 1
     },
     {
+      "engine": "Мобильный Яндекс",
+      "phrase": "французкий мобильник 2000 ых годов",
+      "visits": 1
+    },
+    {
       "engine": "Bing, результаты поиска",
       "phrase": "",
       "visits": 1
@@ -125,11 +135,11 @@
   "geo": [
     {
       "name": "Таиланд",
-      "visits": 37
+      "visits": 40
     },
     {
       "name": "США",
-      "visits": 33
+      "visits": 34
     },
     {
       "name": "Россия",
@@ -137,7 +147,7 @@
     },
     {
       "name": "Беларусь",
-      "visits": 7
+      "visits": 8
     },
     {
       "name": "Швейцария",
@@ -159,7 +169,7 @@
   "pages": [
     {
       "url": "https://vernitemoy2007.ru/",
-      "visits": 90,
+      "visits": 94,
       "goals": {
         "youtube_click": 3,
         "video_play": 2,
@@ -198,6 +208,16 @@
       }
     },
     {
+      "url": "https://vernitemoy2007.ru/articles/telefony-2000-h-fotokatalog-uznavaemyh-modeley-kotorye-my-razlichali-s-odnogo-vz/",
+      "visits": 4,
+      "goals": {
+        "youtube_click": 0,
+        "video_play": 0,
+        "read_end": 3,
+        "search": 0
+      }
+    },
+    {
       "url": "https://vernitemoy2007.ru/articles/pochemu-knyaz-ushel-iz-korolya-i-shuta-hronologiya-i-versii-uchastnikov/",
       "visits": 3,
       "goals": {
@@ -219,16 +239,6 @@
     },
     {
       "url": "https://vernitemoy2007.ru/articles/tatu-kak-poyavilas-gruppa-i-pochemu-raspalsya-duet/",
-      "visits": 2,
-      "goals": {
-        "youtube_click": 0,
-        "video_play": 0,
-        "read_end": 2,
-        "search": 0
-      }
-    },
-    {
-      "url": "https://vernitemoy2007.ru/articles/telefony-2000-h-fotokatalog-uznavaemyh-modeley-kotorye-my-razlichali-s-odnogo-vz/",
       "visits": 2,
       "goals": {
         "youtube_click": 0,
