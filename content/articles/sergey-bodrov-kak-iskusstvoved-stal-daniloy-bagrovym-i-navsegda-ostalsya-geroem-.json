@@ -9,7 +9,7 @@
     "Брат 2",
     "Данила Багров"
   ],
-  "youtubeUrl": "",
+  "youtubeUrl": "https://www.youtube.com/watch?v=t_XjZnGmQu8",
   "cover": {
     "src": "/uploads/sergey-bodrov-kak-iskusstvoved-stal-daniloy-bagrovym-i-navsegda-ostalsya-geroem--1789115105803-1600.webp",
     "alt": "Сергей Бодров",
@@ -525,6 +525,6 @@
     }
   ],
   "demo": false,
-  "updatedAt": "2026-09-11",
+  "updatedAt": "2026-09-18T10:55:33.866Z",
   "subject": "Сергей Бодров"
 }

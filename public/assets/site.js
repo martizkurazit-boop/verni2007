@@ -60,6 +60,7 @@
   // Это тот же бизнес-результат, что и ссылка под видео, поэтому цель одна,
   // а место перехода уходит параметром — в отчёте видно, что сработало.
   var PLACES = [['data-yt-header', 'header'], ['data-yt-footer', 'footer'],
+    ['data-yt-top', 'top-bar'],
     ['data-yt-end', 'article-end'], ['data-yt-sticky', 'article-sticky'],
     ['data-yt-about', 'about'], ['data-yt-contacts', 'contacts']];
   PLACES.forEach(function (pair) {
@@ -116,6 +117,23 @@
       e.stopPropagation();
       fn();
     });
+  }
+
+  /* ── Плашка нового выпуска ──────────────────────────────────────
+     Крестик прячет её до следующего ролика. В памяти лежит не флаг, а
+     идентификатор выпуска: вышел новый — плашка возвращается сама,
+     просить об этом читателя не нужно. Атрибут ставим на <html>, тот
+     же, что и встроенный скрипт в <head>, — чтобы на других страницах
+     плашки не было уже в момент отрисовки. */
+  var newvid = document.querySelector('[data-newvid]');
+  if (newvid) {
+    var nvClose = newvid.querySelector('[data-newvid-close]');
+    if (nvClose) {
+      nvClose.addEventListener('click', function () {
+        document.documentElement.setAttribute('data-newvid', 'off');
+        try { localStorage.setItem('vm2007:newvid-off', newvid.getAttribute('data-id') || '1'); } catch (e) {}
+      });
+    }
   }
 
   /* ── Оглавление: свёрнуто на телефоне ──────────────────────────── */

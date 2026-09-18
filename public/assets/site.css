@@ -34,6 +34,36 @@ img{max-width:100%}
 .wrap-narrow{max-width:760px;margin:0 auto;padding:0 20px}
 
 /* ── Шапка ───────────────────────────────────────────────────────── */
+/* Плашка нового выпуска — над шапкой, чёрная, в одну строку. */
+.newvid{background:#000;color:#fff;border-bottom:1px solid #1E1E1E}
+.newvid-in{max-width:1120px;margin:0 auto;padding:0 20px;display:flex;align-items:center;gap:10px}
+.newvid-go{flex:1 1 auto;min-width:0;display:flex;align-items:center;gap:14px;
+  padding:9px 0;color:#fff;text-decoration:none}
+.newvid-pic{flex:0 0 auto;width:72px;height:41px;object-fit:cover;display:block;background:#1B1B1B}
+.newvid-txt{flex:1 1 auto;min-width:0;display:flex;flex-direction:column;gap:1px}
+.newvid-lbl{font-size:11px;font-weight:800;letter-spacing:.14em;text-transform:uppercase;color:var(--accent)}
+.newvid-name{font-size:14px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.newvid-btn{flex:0 0 auto;background:var(--accent);color:#0A0A0A;font-size:13px;font-weight:800;
+  padding:8px 14px;white-space:nowrap;transition:background var(--ease)}
+.newvid-go:hover .newvid-btn{background:#fff}
+.newvid-go:hover .newvid-name{color:var(--accent)}
+.newvid-x{flex:0 0 auto;background:none;border:0;color:#7A7A7A;font-size:14px;line-height:1;
+  padding:10px;cursor:pointer;font-family:inherit;transition:color var(--ease)}
+.newvid-x:hover{color:#fff}
+/* Закрытую плашку гасим ещё до отрисовки — иначе она мигнёт и дёрнет страницу. */
+:root[data-newvid="off"] .newvid{display:none}
+@media (max-width:640px){
+  /* На телефоне подпись не должна переноситься на вторую строку:
+     сокращаем её до «Вышло новое видео» — смысл тот же, строка одна. */
+  .newvid-lbl-long{display:none}
+  .newvid-lbl{white-space:nowrap}
+  .newvid-in{padding:0 16px;gap:6px}
+  .newvid-go{gap:10px;padding:7px 0}
+  .newvid-pic{width:56px;height:32px}
+  .newvid-name{font-size:13px}
+  .newvid-btn{display:none}
+}
+
 .hdr{position:sticky;top:0;z-index:40;background:var(--hdr-bg);
   backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);border-bottom:1px solid var(--border)}
 .hdr-in{max-width:1120px;margin:0 auto;padding:0 20px;display:flex;align-items:center;gap:18px;height:64px}

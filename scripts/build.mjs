@@ -466,7 +466,7 @@ function footer() {
 }
 
 function layout({ title, description, canonical, body, active, jsonld = [], noindex = false, ogImage,
-                  ogType = 'website', extraHead = '', preconnectYt = false }) {
+                  ogType = 'website', extraHead = '', preconnectYt = false, ownVideo = '' }) {
   if (TEMP_HOST) noindex = true;
   const img = ogImage || (site.defaultOgImage ? url(site.defaultOgImage) : '');
   return `<!doctype html>
@@ -490,7 +490,9 @@ ${img ? `<meta property="og:image" content="${attr(img.startsWith('http') ? img 
 <meta name="twitter:description" content="${attr(description)}">
 ${img ? `<meta name="twitter:image" content="${attr(img.startsWith('http') ? img : ORIGIN + img)}">\n` : ''}<meta name="theme-color" content="#0A0A0A">
 <script>(function(){try{var t=localStorage.getItem('vm2007:theme');
-if(t==='dark'||t==='light')document.documentElement.setAttribute('data-theme',t);}catch(e){}})();</script>
+if(t==='dark'||t==='light')document.documentElement.setAttribute('data-theme',t);
+var n=localStorage.getItem('vm2007:newvid-off');
+if(n&&n===${JSON.stringify((freshVideo() || {}).id || '')})document.documentElement.setAttribute('data-newvid','off');}catch(e){}})();</script>
 ${(site.verification && site.verification.yandex) ? `<meta name="yandex-verification" content="${attr(site.verification.yandex)}">\n` : ''}${(site.verification && site.verification.google) ? `<meta name="google-site-verification" content="${attr(site.verification.google)}">\n` : ''}
 <link rel="icon" href="${attr(url('/favicon.svg'))}" type="image/svg+xml">
 <link rel="apple-touch-icon" href="${attr(url('/apple-touch-icon.png'))}">
@@ -504,6 +506,7 @@ ${extraHead}${analyticsSnippet()}
 <body>
 <a class="skip" href="#main">К содержанию</a>
 <div class="read-progress" data-progress hidden><i></i></div>
+${newVideoBar(ownVideo)}
 ${header(active)}
 ${body}
 ${footer()}
@@ -654,6 +657,45 @@ function videoTeaser(v, limit = 220) {
   const dot = Math.max(cut.lastIndexOf('. '), cut.lastIndexOf('! '), cut.lastIndexOf('? '));
   if (dot > limit * 0.5) return cut.slice(0, dot + 1);
   return cut.slice(0, cut.lastIndexOf(' ')) + '…';
+}
+
+/* ── Плашка «Вышло новое видео» ──────────────────────────────────
+   Самый верх страницы: свежий выпуск виден раньше, чем читатель начал
+   читать. Живёт ровно столько, сколько ролик действительно новый, —
+   вечная «новинка» перестаёт работать через неделю. Крестик закрывает
+   её до следующего выпуска: ключ хранит идентификатор ролика, вышел
+   новый — плашка возвращается сама. На странице с этим же роликом
+   молчит: плашка и проигрыватель друг под другом навязчивы. */
+const NEW_VIDEO_DAYS = Number(site.newVideoDays || 14);
+
+function freshVideo() {
+  const v = ((videoFeed && videoFeed.videos) || [])[0];
+  if (!v || !v.published) return null;
+  const age = (Date.now() - Date.parse(v.published)) / 86400000;
+  if (!Number.isFinite(age) || age > NEW_VIDEO_DAYS) return null;
+  return v;
+}
+
+function newVideoBar(ownVideo) {
+  const v = freshVideo();
+  if (!v || (ownVideo && ownVideo === v.id)) return '';
+  const title = videoTitleShort(v.title);
+  const href = ytLink('https://www.youtube.com/watch?v=' + v.id, 'top-bar');
+  return `<aside class="newvid" data-newvid data-id="${attr(v.id)}">
+  <div class="newvid-in">
+    <a class="newvid-go" href="${attr(href)}" target="_blank" rel="noopener" data-yt-top>
+      <img class="newvid-pic" src="https://i.ytimg.com/vi/${attr(v.id)}/mqdefault.jpg" alt=""
+           width="320" height="180" loading="lazy" decoding="async">
+      <span class="newvid-txt">
+        <span class="newvid-lbl"><span class="newvid-lbl-long">На нашем канале </span>вышло новое видео</span>
+        <span class="newvid-name">${esc(typo(title))}</span>
+      </span>
+      <span class="newvid-btn">▶ Смотреть</span>
+    </a>
+    <button class="newvid-x" type="button" data-newvid-close
+      aria-label="Скрыть сообщение о новом выпуске">✕</button>
+  </div>
+</aside>`;
 }
 
 function pickWatchVideo(a) {
@@ -1271,7 +1313,7 @@ ${vid ? `<a class="yt-sticky" href="${attr(ytLink(a.youtubeUrl, 'article-sticky'
   return layout({
     title: a.seoTitle || `${a.title} — ${site.title}`,
     description: desc, canonical, body, active: 'cat:' + cat.id, jsonld, ogType: 'article',
-    preconnectYt: !!vid,
+    preconnectYt: !!vid, ownVideo: vid || '',
     ogImage: a.ogImage
       ? (a.ogImage.startsWith('http') ? a.ogImage : url(a.ogImage))
       : (cover ? cover.src : url(ogCardPath(a))),
