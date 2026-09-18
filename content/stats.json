@@ -1,13 +1,13 @@
 {
-  "updatedAt": "2026-09-17T21:19:37.343Z",
+  "updatedAt": "2026-09-18T04:40:18.065Z",
   "days": 30,
   "counter": "112450613",
   "totals": {
-    "visits": 124,
-    "users": 80,
-    "pageviews": 340,
-    "avgSeconds": 263,
-    "bounceRate": 47
+    "visits": 125,
+    "users": 81,
+    "pageviews": 341,
+    "avgSeconds": 262,
+    "bounceRate": 46
   },
   "goals": [
     {
@@ -26,7 +26,7 @@
       "id": 611348858,
       "name": "Дочитывание",
       "event": "read_end",
-      "reaches": 32
+      "reaches": 33
     },
     {
       "id": 611348974,
@@ -65,12 +65,12 @@
       "share": 20
     },
     {
-      "name": "Переходы по ссылкам на сайтах",
-      "visits": 6,
-      "share": 5
+      "name": "Переходы из поисковых систем",
+      "visits": 7,
+      "share": 6
     },
     {
-      "name": "Переходы из поисковых систем",
+      "name": "Переходы по ссылкам на сайтах",
       "visits": 6,
       "share": 5
     },
@@ -103,6 +103,11 @@
     },
     {
       "engine": "Мобильный Яндекс",
+      "phrase": "какие телефоны в начале 2000 принимали сигнал лучше, а какие хуже",
+      "visits": 1
+    },
+    {
+      "engine": "Мобильный Яндекс",
       "phrase": "мобильные телефоны 2000-х годов фото",
       "visits": 1
     },
@@ -128,7 +133,7 @@
     },
     {
       "name": "Россия",
-      "visits": 22
+      "visits": 23
     },
     {
       "name": "Беларусь",
@@ -223,6 +228,16 @@
       }
     },
     {
+      "url": "https://vernitemoy2007.ru/articles/telefony-2000-h-fotokatalog-uznavaemyh-modeley-kotorye-my-razlichali-s-odnogo-vz/",
+      "visits": 2,
+      "goals": {
+        "youtube_click": 0,
+        "video_play": 0,
+        "read_end": 2,
+        "search": 0
+      }
+    },
+    {
       "url": "https://vernitemoy2007.ru/category/music/",
       "visits": 2,
       "goals": {
@@ -289,16 +304,6 @@
         "youtube_click": 0,
         "video_play": 0,
         "read_end": 0,
-        "search": 0
-      }
-    },
-    {
-      "url": "https://vernitemoy2007.ru/articles/telefony-2000-h-fotokatalog-uznavaemyh-modeley-kotorye-my-razlichali-s-odnogo-vz/",
-      "visits": 1,
-      "goals": {
-        "youtube_click": 0,
-        "video_play": 0,
-        "read_end": 1,
         "search": 0
       }
     },
