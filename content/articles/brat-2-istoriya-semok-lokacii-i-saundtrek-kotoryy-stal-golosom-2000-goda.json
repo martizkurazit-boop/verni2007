@@ -14,7 +14,7 @@
     "Полковнику никто не пишет",
     "Ирина Салтыкова"
   ],
-  "youtubeUrl": "",
+  "youtubeUrl": "https://youtu.be/t_XjZnGmQu8?si=5HLKvwLbE-ZYEbzO",
   "cover": {
     "src": "/uploads/brat-2-istoriya-semok-lokacii-i-saundtrek-kotoryy-stal-golosom-2000-goda-1789394074619-1600.webp",
     "alt": "Кадр из фильма «Брат 2»",
@@ -409,5 +409,5 @@
   ],
   "subject": "Сергей Бодров-младший, Данила Багров, Алексей Балабанов, Би-2, Ирина Салтыкова",
   "demo": false,
-  "updatedAt": "2026-09-14"
+  "updatedAt": "2026-09-19"
 }
