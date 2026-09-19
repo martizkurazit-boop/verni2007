@@ -1,12 +1,12 @@
 {
-  "updatedAt": "2026-09-19T15:51:26.617Z",
+  "updatedAt": "2026-09-19T20:36:54.358Z",
   "days": 30,
   "counter": "112450613",
   "totals": {
-    "visits": 150,
-    "users": 100,
-    "pageviews": 419,
-    "avgSeconds": 243,
+    "visits": 152,
+    "users": 101,
+    "pageviews": 421,
+    "avgSeconds": 240,
     "bounceRate": 41
   },
   "goals": [
@@ -26,7 +26,7 @@
       "id": 611348858,
       "name": "Дочитывание",
       "event": "read_end",
-      "reaches": 45
+      "reaches": 46
     },
     {
       "id": 611348974,
@@ -57,7 +57,7 @@
     {
       "name": "Прямые заходы",
       "visits": 92,
-      "share": 62
+      "share": 61
     },
     {
       "name": "Внутренние переходы",
@@ -66,12 +66,12 @@
     },
     {
       "name": "Переходы по ссылкам на сайтах",
-      "visits": 13,
+      "visits": 14,
       "share": 9
     },
     {
       "name": "Переходы из поисковых систем",
-      "visits": 13,
+      "visits": 14,
       "share": 9
     },
     {
@@ -83,7 +83,7 @@
   "referrers": [
     {
       "name": "youtube.com",
-      "visits": 8
+      "visits": 9
     },
     {
       "name": "l.threads.com",
@@ -147,6 +147,11 @@
     },
     {
       "engine": "Мобильный Яндекс",
+      "phrase": "телефоны samsung с 2000г с поворотной камерой",
+      "visits": 1
+    },
+    {
+      "engine": "Мобильный Яндекс",
       "phrase": "французкий мобильник 2000 ых годов",
       "visits": 1
     },
@@ -159,7 +164,7 @@
   "geo": [
     {
       "name": "Таиланд",
-      "visits": 45
+      "visits": 46
     },
     {
       "name": "США",
@@ -167,7 +172,7 @@
     },
     {
       "name": "Россия",
-      "visits": 33
+      "visits": 34
     },
     {
       "name": "Беларусь",
@@ -193,7 +198,7 @@
   "pages": [
     {
       "url": "https://vernitemoy2007.ru/",
-      "visits": 108,
+      "visits": 109,
       "goals": {
         "youtube_click": 3,
         "video_play": 2,
@@ -203,11 +208,11 @@
     },
     {
       "url": "https://vernitemoy2007.ru/articles/telefony-2000-h-fotokatalog-uznavaemyh-modeley-kotorye-my-razlichali-s-odnogo-vz/",
-      "visits": 8,
+      "visits": 9,
       "goals": {
         "youtube_click": 0,
         "video_play": 0,
-        "read_end": 6,
+        "read_end": 7,
         "search": 0
       }
     },
