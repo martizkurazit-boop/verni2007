@@ -1,13 +1,13 @@
 {
-  "updatedAt": "2026-09-20T04:51:02.576Z",
+  "updatedAt": "2026-09-20T11:19:11.563Z",
   "days": 30,
   "counter": "112450613",
   "totals": {
-    "visits": 153,
-    "users": 102,
-    "pageviews": 422,
-    "avgSeconds": 238,
-    "bounceRate": 42
+    "visits": 161,
+    "users": 106,
+    "pageviews": 434,
+    "avgSeconds": 228,
+    "bounceRate": 41
   },
   "goals": [
     {
@@ -56,28 +56,28 @@
   "sources": [
     {
       "name": "Прямые заходы",
-      "visits": 92,
+      "visits": 97,
       "share": 61
     },
     {
       "name": "Внутренние переходы",
-      "visits": 25,
-      "share": 17
+      "visits": 26,
+      "share": 16
+    },
+    {
+      "name": "Переходы по ссылкам на сайтах",
+      "visits": 15,
+      "share": 9
     },
     {
       "name": "Переходы из поисковых систем",
       "visits": 15,
-      "share": 10
-    },
-    {
-      "name": "Переходы по ссылкам на сайтах",
-      "visits": 14,
       "share": 9
     },
     {
       "name": "Переходы из социальных сетей",
-      "visits": 5,
-      "share": 3
+      "visits": 6,
+      "share": 4
     }
   ],
   "referrers": [
@@ -87,7 +87,7 @@
     },
     {
       "name": "l.threads.com",
-      "visits": 4
+      "visits": 5
     },
     {
       "name": "dataindex.pro",
@@ -169,27 +169,27 @@
   "geo": [
     {
       "name": "Таиланд",
-      "visits": 46
+      "visits": 48
     },
     {
       "name": "Россия",
-      "visits": 35
+      "visits": 37
     },
     {
       "name": "США",
-      "visits": 35
+      "visits": 37
     },
     {
       "name": "Беларусь",
       "visits": 8
     },
     {
-      "name": "Швейцария",
+      "name": "Нидерланды",
       "visits": 5
     },
     {
-      "name": "Нидерланды",
-      "visits": 3
+      "name": "Швейцария",
+      "visits": 5
     },
     {
       "name": "Франция",
@@ -203,7 +203,7 @@
   "pages": [
     {
       "url": "https://vernitemoy2007.ru/",
-      "visits": 109,
+      "visits": 115,
       "goals": {
         "youtube_click": 3,
         "video_play": 2,
@@ -262,6 +262,16 @@
       }
     },
     {
+      "url": "https://vernitemoy2007.ru/category/music/",
+      "visits": 3,
+      "goals": {
+        "youtube_click": 0,
+        "video_play": 0,
+        "read_end": 1,
+        "search": 0
+      }
+    },
+    {
       "url": "https://mc.yandex.ru/watch/112450613",
       "visits": 2,
       "goals": {
@@ -278,16 +288,6 @@
         "youtube_click": 0,
         "video_play": 0,
         "read_end": 2,
-        "search": 0
-      }
-    },
-    {
-      "url": "https://vernitemoy2007.ru/category/music/",
-      "visits": 2,
-      "goals": {
-        "youtube_click": 0,
-        "video_play": 0,
-        "read_end": 1,
         "search": 0
       }
     },
@@ -353,6 +353,16 @@
     },
     {
       "url": "https://vernitemoy2007.ru/articles/mihail-gorshenev/?fbclid=IwcGRvZgRleHRuA2FlbQIxMQBzcnRjBmFwcF9pZAwyNTYyODEwNDA1NTgAAR6G2OZDeLWL7ky5pHI_gtoTKfNCTFPKLvYjqZzuTFk7bBch-QHwXTfykyHhmg_aem_Zs5wOS7rdKfv-6H1nKGuRA",
+      "visits": 1,
+      "goals": {
+        "youtube_click": 0,
+        "video_play": 0,
+        "read_end": 0,
+        "search": 0
+      }
+    },
+    {
+      "url": "https://vernitemoy2007.ru/articles/tamagochi-kak-rabotal-karmannyy-pitomec-i-pochemu-ego-nelzya-bylo-prosto-vyklyuc/?fbclid=IwcGRvZgRleHRuA2FlbQIxMQBzcnRjBmFwcF9pZAwyNTYyODEwNDA1NTgAAR4M84HslvhlVueha34D4sXcN2xjrE9RLQPHUPWpcBKar-wDw-Vp9IY7m_fTrw_aem_lis1lAy5PqGa0_vbS5gJBA",
       "visits": 1,
       "goals": {
         "youtube_click": 0,
