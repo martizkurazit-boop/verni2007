@@ -1,13 +1,13 @@
 {
-  "updatedAt": "2026-09-20T11:19:11.563Z",
+  "updatedAt": "2026-09-20T16:02:46.444Z",
   "days": 30,
   "counter": "112450613",
   "totals": {
-    "visits": 161,
-    "users": 106,
-    "pageviews": 434,
-    "avgSeconds": 228,
-    "bounceRate": 41
+    "visits": 165,
+    "users": 109,
+    "pageviews": 439,
+    "avgSeconds": 222,
+    "bounceRate": 40
   },
   "goals": [
     {
@@ -44,7 +44,7 @@
       "id": 611476511,
       "name": "Автоцель: переход в соц.сеть",
       "event": "",
-      "reaches": 4
+      "reaches": 5
     },
     {
       "id": 611485213,
@@ -57,17 +57,17 @@
     {
       "name": "Прямые заходы",
       "visits": 97,
-      "share": 61
+      "share": 60
     },
     {
       "name": "Внутренние переходы",
-      "visits": 26,
-      "share": 16
+      "visits": 27,
+      "share": 17
     },
     {
       "name": "Переходы по ссылкам на сайтах",
-      "visits": 15,
-      "share": 9
+      "visits": 16,
+      "share": 10
     },
     {
       "name": "Переходы из поисковых систем",
@@ -76,8 +76,8 @@
     },
     {
       "name": "Переходы из социальных сетей",
-      "visits": 6,
-      "share": 4
+      "visits": 8,
+      "share": 5
     }
   ],
   "referrers": [
@@ -87,7 +87,7 @@
     },
     {
       "name": "l.threads.com",
-      "visits": 5
+      "visits": 6
     },
     {
       "name": "dataindex.pro",
@@ -173,11 +173,11 @@
     },
     {
       "name": "Россия",
-      "visits": 37
+      "visits": 39
     },
     {
       "name": "США",
-      "visits": 37
+      "visits": 38
     },
     {
       "name": "Беларусь",
@@ -203,7 +203,7 @@
   "pages": [
     {
       "url": "https://vernitemoy2007.ru/",
-      "visits": 115,
+      "visits": 117,
       "goals": {
         "youtube_click": 3,
         "video_play": 2,
@@ -352,6 +352,26 @@
       }
     },
     {
+      "url": "https://vernitemoy2007.ru/articles/mihail-gorshenev/?fbclid=IwcGRvZgRleHRuA2FlbQIxMQBzcnRjBmFwcF9pZAwyNTYyODEwNDA1NTgAAR4xO--R4PAxlSzVLX8x0vc9q_DUMOe3aqgQkN4M6GczindeKSfYPN8bPyBL9A_aem_wxGUTZ5bgN5AsL_i5y5-Gw",
+      "visits": 1,
+      "goals": {
+        "youtube_click": 0,
+        "video_play": 0,
+        "read_end": 0,
+        "search": 0
+      }
+    },
+    {
+      "url": "https://vernitemoy2007.ru/articles/mihail-gorshenev/?fbclid=IwcGRvZgRleHRuA2FlbQIxMQBzcnRjBmFwcF9pZAwyNTYyODEwNDA1NTgAAR5rujAPBsEejexU6KPRKyFiAeIDD2gJkDiTbTKj9nHqKyJ1efD18m3aQpYA-w_aem_EnYqleRod3lvEEeO8-zS8g",
+      "visits": 1,
+      "goals": {
+        "youtube_click": 0,
+        "video_play": 0,
+        "read_end": 0,
+        "search": 0
+      }
+    },
+    {
       "url": "https://vernitemoy2007.ru/articles/mihail-gorshenev/?fbclid=IwcGRvZgRleHRuA2FlbQIxMQBzcnRjBmFwcF9pZAwyNTYyODEwNDA1NTgAAR6G2OZDeLWL7ky5pHI_gtoTKfNCTFPKLvYjqZzuTFk7bBch-QHwXTfykyHhmg_aem_Zs5wOS7rdKfv-6H1nKGuRA",
       "visits": 1,
       "goals": {
@@ -373,16 +393,6 @@
     },
     {
       "url": "https://vernitemoy2007.ru/tag/knyaz/",
-      "visits": 1,
-      "goals": {
-        "youtube_click": 0,
-        "video_play": 0,
-        "read_end": 0,
-        "search": 0
-      }
-    },
-    {
-      "url": "https://vernitemoy2007.ru/tag/sergey-bodrov/",
       "visits": 1,
       "goals": {
         "youtube_click": 0,
