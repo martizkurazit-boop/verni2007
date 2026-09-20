@@ -1,13 +1,13 @@
 {
-  "updatedAt": "2026-09-19T20:36:54.358Z",
+  "updatedAt": "2026-09-20T04:51:02.576Z",
   "days": 30,
   "counter": "112450613",
   "totals": {
-    "visits": 152,
-    "users": 101,
-    "pageviews": 421,
-    "avgSeconds": 240,
-    "bounceRate": 41
+    "visits": 153,
+    "users": 102,
+    "pageviews": 422,
+    "avgSeconds": 238,
+    "bounceRate": 42
   },
   "goals": [
     {
@@ -65,12 +65,12 @@
       "share": 17
     },
     {
-      "name": "Переходы по ссылкам на сайтах",
-      "visits": 14,
-      "share": 9
+      "name": "Переходы из поисковых систем",
+      "visits": 15,
+      "share": 10
     },
     {
-      "name": "Переходы из поисковых систем",
+      "name": "Переходы по ссылкам на сайтах",
       "visits": 14,
       "share": 9
     },
@@ -142,6 +142,11 @@
     },
     {
       "engine": "Мобильный Яндекс",
+      "phrase": "телефон со съемными панелями разных цветов 2000 год",
+      "visits": 1
+    },
+    {
+      "engine": "Мобильный Яндекс",
       "phrase": "телефоны 2000-2017",
       "visits": 1
     },
@@ -167,12 +172,12 @@
       "visits": 46
     },
     {
-      "name": "США",
+      "name": "Россия",
       "visits": 35
     },
     {
-      "name": "Россия",
-      "visits": 34
+      "name": "США",
+      "visits": 35
     },
     {
       "name": "Беларусь",
@@ -208,7 +213,7 @@
     },
     {
       "url": "https://vernitemoy2007.ru/articles/telefony-2000-h-fotokatalog-uznavaemyh-modeley-kotorye-my-razlichali-s-odnogo-vz/",
-      "visits": 9,
+      "visits": 10,
       "goals": {
         "youtube_click": 0,
         "video_play": 0,
