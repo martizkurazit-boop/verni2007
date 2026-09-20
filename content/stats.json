@@ -1,12 +1,12 @@
 {
-  "updatedAt": "2026-09-20T16:02:46.444Z",
+  "updatedAt": "2026-09-20T20:46:46.324Z",
   "days": 30,
   "counter": "112450613",
   "totals": {
-    "visits": 165,
-    "users": 109,
-    "pageviews": 439,
-    "avgSeconds": 222,
+    "visits": 167,
+    "users": 111,
+    "pageviews": 441,
+    "avgSeconds": 220,
     "bounceRate": 40
   },
   "goals": [
@@ -56,13 +56,13 @@
   "sources": [
     {
       "name": "Прямые заходы",
-      "visits": 97,
-      "share": 60
+      "visits": 98,
+      "share": 59
     },
     {
       "name": "Внутренние переходы",
       "visits": 27,
-      "share": 17
+      "share": 16
     },
     {
       "name": "Переходы по ссылкам на сайтах",
@@ -76,7 +76,7 @@
     },
     {
       "name": "Переходы из социальных сетей",
-      "visits": 8,
+      "visits": 9,
       "share": 5
     }
   ],
@@ -185,25 +185,25 @@
     },
     {
       "name": "Нидерланды",
-      "visits": 5
+      "visits": 6
     },
     {
       "name": "Швейцария",
       "visits": 5
     },
     {
-      "name": "Франция",
+      "name": "Ирландия",
       "visits": 3
     },
     {
-      "name": "Бразилия",
-      "visits": 2
+      "name": "Франция",
+      "visits": 3
     }
   ],
   "pages": [
     {
       "url": "https://vernitemoy2007.ru/",
-      "visits": 117,
+      "visits": 118,
       "goals": {
         "youtube_click": 3,
         "video_play": 2,
@@ -392,7 +392,7 @@
       }
     },
     {
-      "url": "https://vernitemoy2007.ru/tag/knyaz/",
+      "url": "https://vernitemoy2007.ru/articles/telefony-2000-h-fotokatalog-uznavaemyh-modeley-kotorye-my-razlichali-s-odnogo-vz/?fbclid=IwcGRvZgRleHRuA2FlbQIxMQBzcnRjBmFwcF9pZAwyNTYyODEwNDA1NTgAAR761XWS9iPAURvxTNcSOIzB6wb5fz1yzOOA91wHIzRHZfoU-XcEt7I3abT4vg_aem_-14McJHSm9cRNuSHEOt0DQ",
       "visits": 1,
       "goals": {
         "youtube_click": 0,
