@@ -1,12 +1,12 @@
 {
-  "updatedAt": "2026-09-21T04:51:58.685Z",
+  "updatedAt": "2026-09-21T12:43:52.275Z",
   "days": 30,
   "counter": "112450613",
   "totals": {
-    "visits": 167,
-    "users": 111,
-    "pageviews": 441,
-    "avgSeconds": 220,
+    "visits": 171,
+    "users": 113,
+    "pageviews": 447,
+    "avgSeconds": 225,
     "bounceRate": 40
   },
   "goals": [
@@ -56,8 +56,8 @@
   "sources": [
     {
       "name": "Прямые заходы",
-      "visits": 98,
-      "share": 59
+      "visits": 101,
+      "share": 60
     },
     {
       "name": "Внутренние переходы",
@@ -66,7 +66,7 @@
     },
     {
       "name": "Переходы по ссылкам на сайтах",
-      "visits": 16,
+      "visits": 17,
       "share": 10
     },
     {
@@ -87,7 +87,7 @@
     },
     {
       "name": "l.threads.com",
-      "visits": 6
+      "visits": 7
     },
     {
       "name": "dataindex.pro",
@@ -169,15 +169,15 @@
   "geo": [
     {
       "name": "Таиланд",
-      "visits": 48
+      "visits": 49
     },
     {
       "name": "Россия",
-      "visits": 39
+      "visits": 41
     },
     {
       "name": "США",
-      "visits": 38
+      "visits": 39
     },
     {
       "name": "Беларусь",
@@ -203,7 +203,7 @@
   "pages": [
     {
       "url": "https://vernitemoy2007.ru/",
-      "visits": 118,
+      "visits": 121,
       "goals": {
         "youtube_click": 3,
         "video_play": 2,
@@ -223,7 +223,7 @@
     },
     {
       "url": "https://vernitemoy2007.ru/articles/mihail-gorshenev/",
-      "visits": 6,
+      "visits": 7,
       "goals": {
         "youtube_click": 0,
         "video_play": 0,
