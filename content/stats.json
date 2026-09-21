@@ -1,20 +1,20 @@
 {
-  "updatedAt": "2026-09-21T12:43:52.275Z",
+  "updatedAt": "2026-09-21T21:56:58.671Z",
   "days": 30,
   "counter": "112450613",
   "totals": {
-    "visits": 171,
-    "users": 113,
-    "pageviews": 447,
-    "avgSeconds": 225,
-    "bounceRate": 40
+    "visits": 181,
+    "users": 122,
+    "pageviews": 459,
+    "avgSeconds": 219,
+    "bounceRate": 41
   },
   "goals": [
     {
       "id": 611348816,
       "name": "Переход на YouTube",
       "event": "youtube_click",
-      "reaches": 3
+      "reaches": 4
     },
     {
       "id": 611348857,
@@ -44,7 +44,7 @@
       "id": 611476511,
       "name": "Автоцель: переход в соц.сеть",
       "event": "",
-      "reaches": 5
+      "reaches": 6
     },
     {
       "id": 611485213,
@@ -56,23 +56,23 @@
   "sources": [
     {
       "name": "Прямые заходы",
-      "visits": 101,
-      "share": 60
+      "visits": 102,
+      "share": 57
     },
     {
       "name": "Внутренние переходы",
-      "visits": 27,
+      "visits": 28,
       "share": 16
     },
     {
       "name": "Переходы по ссылкам на сайтах",
-      "visits": 17,
-      "share": 10
+      "visits": 25,
+      "share": 14
     },
     {
       "name": "Переходы из поисковых систем",
       "visits": 15,
-      "share": 9
+      "share": 8
     },
     {
       "name": "Переходы из социальных сетей",
@@ -82,16 +82,16 @@
   ],
   "referrers": [
     {
+      "name": "l.threads.com",
+      "visits": 14
+    },
+    {
       "name": "youtube.com",
       "visits": 9
     },
     {
-      "name": "l.threads.com",
-      "visits": 7
-    },
-    {
       "name": "dataindex.pro",
-      "visits": 1
+      "visits": 2
     }
   ],
   "searches": [
@@ -173,7 +173,7 @@
     },
     {
       "name": "Россия",
-      "visits": 41
+      "visits": 46
     },
     {
       "name": "США",
@@ -181,7 +181,7 @@
     },
     {
       "name": "Беларусь",
-      "visits": 8
+      "visits": 11
     },
     {
       "name": "Нидерланды",
@@ -203,11 +203,21 @@
   "pages": [
     {
       "url": "https://vernitemoy2007.ru/",
-      "visits": 121,
+      "visits": 124,
       "goals": {
-        "youtube_click": 3,
+        "youtube_click": 4,
         "video_play": 2,
         "read_end": 33,
+        "search": 0
+      }
+    },
+    {
+      "url": "https://vernitemoy2007.ru/articles/mihail-gorshenev/",
+      "visits": 14,
+      "goals": {
+        "youtube_click": 0,
+        "video_play": 0,
+        "read_end": 1,
         "search": 0
       }
     },
@@ -218,16 +228,6 @@
         "youtube_click": 0,
         "video_play": 0,
         "read_end": 7,
-        "search": 0
-      }
-    },
-    {
-      "url": "https://vernitemoy2007.ru/articles/mihail-gorshenev/",
-      "visits": 7,
-      "goals": {
-        "youtube_click": 0,
-        "video_play": 0,
-        "read_end": 1,
         "search": 0
       }
     },
