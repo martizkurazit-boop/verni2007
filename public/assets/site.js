@@ -394,6 +394,9 @@
         return (a.title + ' ' + a.excerpt + ' ' + a.tags.join(' ') + ' ' + a.category).toLowerCase().indexOf(needle) >= 0;
       });
       if (qLead) qLead.textContent = 'Найдено материалов: ' + found.length;
+      // Цель засчитываем до проверки на пустоту: поиск без результатов —
+      // самый ценный для нас случай, из него видно, чего на сайте не хватает.
+      goal('search', { query: query, results: found.length });
       if (!found.length) { if (qEmpty) qEmpty.hidden = false; return; }
       results.innerHTML = found.map(function (a) {
         return '<article class="card">'
@@ -406,7 +409,6 @@
           + '<h2><a href="' + a.href + '">' + a.title + '</a></h2><p>' + a.excerpt + '</p>'
           + '<a class="read-more" href="' + a.href + '">Читать →</a></div></article>';
       }).join('');
-      goal('search', { query: query, results: found.length });
     }).catch(function () { if (qEmpty) qEmpty.hidden = false; });
   }
 })();
