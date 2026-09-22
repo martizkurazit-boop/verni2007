@@ -1,13 +1,13 @@
 {
-  "updatedAt": "2026-09-21T21:56:58.671Z",
+  "updatedAt": "2026-09-22T04:51:27.887Z",
   "days": 30,
   "counter": "112450613",
   "totals": {
-    "visits": 181,
-    "users": 122,
-    "pageviews": 459,
-    "avgSeconds": 219,
-    "bounceRate": 41
+    "visits": 188,
+    "users": 128,
+    "pageviews": 467,
+    "avgSeconds": 213,
+    "bounceRate": 39
   },
   "goals": [
     {
@@ -26,7 +26,7 @@
       "id": 611348858,
       "name": "Дочитывание",
       "event": "read_end",
-      "reaches": 46
+      "reaches": 47
     },
     {
       "id": 611348974,
@@ -56,18 +56,18 @@
   "sources": [
     {
       "name": "Прямые заходы",
-      "visits": 102,
+      "visits": 106,
       "share": 57
     },
     {
       "name": "Внутренние переходы",
       "visits": 28,
-      "share": 16
+      "share": 15
     },
     {
       "name": "Переходы по ссылкам на сайтах",
-      "visits": 25,
-      "share": 14
+      "visits": 28,
+      "share": 15
     },
     {
       "name": "Переходы из поисковых систем",
@@ -83,11 +83,11 @@
   "referrers": [
     {
       "name": "l.threads.com",
-      "visits": 14
+      "visits": 16
     },
     {
       "name": "youtube.com",
-      "visits": 9
+      "visits": 10
     },
     {
       "name": "dataindex.pro",
@@ -169,7 +169,7 @@
   "geo": [
     {
       "name": "Таиланд",
-      "visits": 49
+      "visits": 51
     },
     {
       "name": "Россия",
@@ -177,15 +177,15 @@
     },
     {
       "name": "США",
-      "visits": 39
+      "visits": 40
     },
     {
       "name": "Беларусь",
-      "visits": 11
+      "visits": 12
     },
     {
       "name": "Нидерланды",
-      "visits": 6
+      "visits": 7
     },
     {
       "name": "Швейцария",
@@ -196,24 +196,24 @@
       "visits": 3
     },
     {
-      "name": "Франция",
+      "name": "Польша",
       "visits": 3
     }
   ],
   "pages": [
     {
       "url": "https://vernitemoy2007.ru/",
-      "visits": 124,
+      "visits": 126,
       "goals": {
         "youtube_click": 4,
         "video_play": 2,
-        "read_end": 33,
+        "read_end": 34,
         "search": 0
       }
     },
     {
       "url": "https://vernitemoy2007.ru/articles/mihail-gorshenev/",
-      "visits": 14,
+      "visits": 19,
       "goals": {
         "youtube_click": 0,
         "video_play": 0,
