@@ -1,12 +1,12 @@
 {
-  "updatedAt": "2026-09-22T04:51:27.887Z",
+  "updatedAt": "2026-09-22T11:34:18.845Z",
   "days": 30,
   "counter": "112450613",
   "totals": {
-    "visits": 188,
-    "users": 128,
-    "pageviews": 467,
-    "avgSeconds": 213,
+    "visits": 192,
+    "users": 132,
+    "pageviews": 471,
+    "avgSeconds": 209,
     "bounceRate": 39
   },
   "goals": [
@@ -44,7 +44,7 @@
       "id": 611476511,
       "name": "Автоцель: переход в соц.сеть",
       "event": "",
-      "reaches": 6
+      "reaches": 7
     },
     {
       "id": 611485213,
@@ -56,16 +56,16 @@
   "sources": [
     {
       "name": "Прямые заходы",
-      "visits": 106,
-      "share": 57
-    },
-    {
-      "name": "Внутренние переходы",
-      "visits": 28,
-      "share": 15
+      "visits": 107,
+      "share": 56
     },
     {
       "name": "Переходы по ссылкам на сайтах",
+      "visits": 31,
+      "share": 16
+    },
+    {
+      "name": "Внутренние переходы",
       "visits": 28,
       "share": 15
     },
@@ -83,7 +83,7 @@
   "referrers": [
     {
       "name": "l.threads.com",
-      "visits": 16
+      "visits": 19
     },
     {
       "name": "youtube.com",
@@ -173,15 +173,15 @@
     },
     {
       "name": "Россия",
-      "visits": 46
+      "visits": 47
     },
     {
       "name": "США",
-      "visits": 40
+      "visits": 41
     },
     {
       "name": "Беларусь",
-      "visits": 12
+      "visits": 14
     },
     {
       "name": "Нидерланды",
@@ -213,7 +213,7 @@
     },
     {
       "url": "https://vernitemoy2007.ru/articles/mihail-gorshenev/",
-      "visits": 19,
+      "visits": 23,
       "goals": {
         "youtube_click": 0,
         "video_play": 0,
