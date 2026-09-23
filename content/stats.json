@@ -1,13 +1,13 @@
 {
-  "updatedAt": "2026-09-23T04:42:08.250Z",
+  "updatedAt": "2026-09-23T11:31:15.842Z",
   "days": 30,
   "counter": "112450613",
   "totals": {
-    "visits": 194,
-    "users": 134,
-    "pageviews": 473,
-    "avgSeconds": 207,
-    "bounceRate": 39
+    "visits": 196,
+    "users": 135,
+    "pageviews": 476,
+    "avgSeconds": 205,
+    "bounceRate": 38
   },
   "goals": [
     {
@@ -57,16 +57,16 @@
     {
       "name": "Прямые заходы",
       "visits": 107,
-      "share": 56
+      "share": 55
     },
     {
       "name": "Переходы по ссылкам на сайтах",
       "visits": 32,
-      "share": 17
+      "share": 16
     },
     {
       "name": "Внутренние переходы",
-      "visits": 28,
+      "visits": 29,
       "share": 15
     },
     {
@@ -76,7 +76,7 @@
     },
     {
       "name": "Переходы из социальных сетей",
-      "visits": 9,
+      "visits": 10,
       "share": 5
     }
   ],
@@ -178,11 +178,11 @@
     },
     {
       "name": "Россия",
-      "visits": 48
+      "visits": 49
     },
     {
       "name": "США",
-      "visits": 41
+      "visits": 42
     },
     {
       "name": "Беларусь",
@@ -208,7 +208,7 @@
   "pages": [
     {
       "url": "https://vernitemoy2007.ru/",
-      "visits": 126,
+      "visits": 127,
       "goals": {
         "youtube_click": 4,
         "video_play": 2,
@@ -347,6 +347,16 @@
       }
     },
     {
+      "url": "https://vernitemoy2007.ru/articles/icq-kak-rabotala-aska-kto-ee-pridumal-i-pochemu-legendarnyy-messendzher-zakrylsy/?fbclid=IwcGRvZgRleHRuA2FlbQIxMQBzcnRjBmFwcF9pZAwyNTYyODEwNDA1NTgAAR6tv2ZJLbho12o-tyKA57hyK2cOy1A0rKvI8m65A9PFyexklGr909fd471l5A_aem_6PbhAQdKPNL3LtsKCVK-1Q",
+      "visits": 1,
+      "goals": {
+        "youtube_click": 0,
+        "video_play": 0,
+        "read_end": 0,
+        "search": 0
+      }
+    },
+    {
       "url": "https://vernitemoy2007.ru/articles/mihail-gorshenev/?fbclid=IwcGRvZgRleHRuA2FlbQIxMQBzcnRjBmFwcF9pZAwyNTYyODEwNDA1NTgAAR4lklvqzzxJZMJ0G1gxeGnn5kPSiKc9C56Af6gpYOHymSZUg49vtNyl_P4MDw_aem_sFd4SBCpqA_5GTXmnAEoSw",
       "visits": 1,
       "goals": {
@@ -388,16 +398,6 @@
     },
     {
       "url": "https://vernitemoy2007.ru/articles/sergey-bodrov-i-karmadon-hronologiya-sobytiy-sentyabrya-2002-goda/",
-      "visits": 1,
-      "goals": {
-        "youtube_click": 0,
-        "video_play": 0,
-        "read_end": 0,
-        "search": 0
-      }
-    },
-    {
-      "url": "https://vernitemoy2007.ru/articles/tamagochi-kak-rabotal-karmannyy-pitomec-i-pochemu-ego-nelzya-bylo-prosto-vyklyuc/?fbclid=IwcGRvZgRleHRuA2FlbQIxMQBzcnRjBmFwcF9pZAwyNTYyODEwNDA1NTgAAR4M84HslvhlVueha34D4sXcN2xjrE9RLQPHUPWpcBKar-wDw-Vp9IY7m_fTrw_aem_lis1lAy5PqGa0_vbS5gJBA",
       "visits": 1,
       "goals": {
         "youtube_click": 0,
