@@ -1,12 +1,12 @@
 {
-  "updatedAt": "2026-09-23T11:31:15.842Z",
+  "updatedAt": "2026-09-23T16:54:51.806Z",
   "days": 30,
   "counter": "112450613",
   "totals": {
-    "visits": 196,
-    "users": 135,
-    "pageviews": 476,
-    "avgSeconds": 205,
+    "visits": 199,
+    "users": 137,
+    "pageviews": 486,
+    "avgSeconds": 202,
     "bounceRate": 38
   },
   "goals": [
@@ -14,7 +14,7 @@
       "id": 611348816,
       "name": "Переход на YouTube",
       "event": "youtube_click",
-      "reaches": 4
+      "reaches": 5
     },
     {
       "id": 611348857,
@@ -44,7 +44,7 @@
       "id": 611476511,
       "name": "Автоцель: переход в соц.сеть",
       "event": "",
-      "reaches": 7
+      "reaches": 8
     },
     {
       "id": 611485213,
@@ -56,13 +56,13 @@
   "sources": [
     {
       "name": "Прямые заходы",
-      "visits": 107,
+      "visits": 108,
       "share": 55
     },
     {
       "name": "Переходы по ссылкам на сайтах",
-      "visits": 32,
-      "share": 16
+      "visits": 33,
+      "share": 17
     },
     {
       "name": "Внутренние переходы",
@@ -76,8 +76,8 @@
     },
     {
       "name": "Переходы из социальных сетей",
-      "visits": 10,
-      "share": 5
+      "visits": 11,
+      "share": 6
     }
   ],
   "referrers": [
@@ -87,7 +87,7 @@
     },
     {
       "name": "youtube.com",
-      "visits": 10
+      "visits": 11
     },
     {
       "name": "dataindex.pro",
@@ -174,15 +174,15 @@
   "geo": [
     {
       "name": "Таиланд",
-      "visits": 51
+      "visits": 52
     },
     {
       "name": "Россия",
-      "visits": 49
+      "visits": 50
     },
     {
       "name": "США",
-      "visits": 42
+      "visits": 43
     },
     {
       "name": "Беларусь",
@@ -208,9 +208,9 @@
   "pages": [
     {
       "url": "https://vernitemoy2007.ru/",
-      "visits": 127,
+      "visits": 129,
       "goals": {
-        "youtube_click": 4,
+        "youtube_click": 5,
         "video_play": 2,
         "read_end": 34,
         "search": 0
@@ -357,6 +357,16 @@
       }
     },
     {
+      "url": "https://vernitemoy2007.ru/articles/mihail-gorshenev/?fbclid=IwcGRvZgRleHRuA2FlbQIxMQBzcnRjBmFwcF9pZAwyNTYyODEwNDA1NTgAAR4drXMW4BskrDhB07fHPJZt7RTs9M83ICbkei-xmT6kxRQi6aZTsK83tXzZoQ_aem_IkybUMFTvRZLNjOwZJLrWQ",
+      "visits": 1,
+      "goals": {
+        "youtube_click": 0,
+        "video_play": 0,
+        "read_end": 0,
+        "search": 0
+      }
+    },
+    {
       "url": "https://vernitemoy2007.ru/articles/mihail-gorshenev/?fbclid=IwcGRvZgRleHRuA2FlbQIxMQBzcnRjBmFwcF9pZAwyNTYyODEwNDA1NTgAAR4lklvqzzxJZMJ0G1gxeGnn5kPSiKc9C56Af6gpYOHymSZUg49vtNyl_P4MDw_aem_sFd4SBCpqA_5GTXmnAEoSw",
       "visits": 1,
       "goals": {
@@ -388,16 +398,6 @@
     },
     {
       "url": "https://vernitemoy2007.ru/articles/mihail-gorshenev/?fbclid=IwcGRvZgRleHRuA2FlbQIxMQBzcnRjBmFwcF9pZAwyNTYyODEwNDA1NTgAAR6G2OZDeLWL7ky5pHI_gtoTKfNCTFPKLvYjqZzuTFk7bBch-QHwXTfykyHhmg_aem_Zs5wOS7rdKfv-6H1nKGuRA",
-      "visits": 1,
-      "goals": {
-        "youtube_click": 0,
-        "video_play": 0,
-        "read_end": 0,
-        "search": 0
-      }
-    },
-    {
-      "url": "https://vernitemoy2007.ru/articles/sergey-bodrov-i-karmadon-hronologiya-sobytiy-sentyabrya-2002-goda/",
       "visits": 1,
       "goals": {
         "youtube_click": 0,
