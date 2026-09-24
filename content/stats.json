@@ -1,12 +1,12 @@
 {
-  "updatedAt": "2026-09-24T17:07:36.770Z",
+  "updatedAt": "2026-09-24T21:29:01.139Z",
   "days": 30,
   "counter": "112450613",
   "totals": {
-    "visits": 207,
+    "visits": 208,
     "users": 142,
-    "pageviews": 498,
-    "avgSeconds": 197,
+    "pageviews": 500,
+    "avgSeconds": 196,
     "bounceRate": 37
   },
   "goals": [
@@ -26,7 +26,7 @@
       "id": 611348858,
       "name": "Дочитывание",
       "event": "read_end",
-      "reaches": 49
+      "reaches": 50
     },
     {
       "id": 611348974,
@@ -56,7 +56,7 @@
   "sources": [
     {
       "name": "Прямые заходы",
-      "visits": 108,
+      "visits": 109,
       "share": 53
     },
     {
@@ -174,7 +174,7 @@
   "geo": [
     {
       "name": "Россия",
-      "visits": 53
+      "visits": 54
     },
     {
       "name": "Таиланд",
@@ -208,11 +208,11 @@
   "pages": [
     {
       "url": "https://vernitemoy2007.ru/",
-      "visits": 132,
+      "visits": 133,
       "goals": {
         "youtube_click": 5,
         "video_play": 2,
-        "read_end": 36,
+        "read_end": 37,
         "search": 0
       }
     },
