@@ -1,12 +1,12 @@
 {
-  "updatedAt": "2026-09-25T04:54:02.339Z",
+  "updatedAt": "2026-09-25T11:47:35.996Z",
   "days": 30,
   "counter": "112450613",
   "totals": {
-    "visits": 208,
-    "users": 142,
-    "pageviews": 500,
-    "avgSeconds": 196,
+    "visits": 209,
+    "users": 143,
+    "pageviews": 501,
+    "avgSeconds": 195,
     "bounceRate": 37
   },
   "goals": [
@@ -67,11 +67,11 @@
     {
       "name": "Внутренние переходы",
       "visits": 32,
-      "share": 16
+      "share": 15
     },
     {
       "name": "Переходы из поисковых систем",
-      "visits": 16,
+      "visits": 17,
       "share": 8
     },
     {
@@ -108,6 +108,11 @@
     {
       "engine": "Яндекс, результаты поиска",
       "phrase": "зачем нужна была сцена в финале лост после титров\\",
+      "visits": 1
+    },
+    {
+      "engine": "Яндекс, результаты поиска",
+      "phrase": "история смартфонов 2000-х годов",
       "visits": 1
     },
     {
@@ -174,7 +179,7 @@
   "geo": [
     {
       "name": "Россия",
-      "visits": 54
+      "visits": 55
     },
     {
       "name": "Таиланд",
@@ -228,7 +233,7 @@
     },
     {
       "url": "https://vernitemoy2007.ru/articles/telefony-2000-h-fotokatalog-uznavaemyh-modeley-kotorye-my-razlichali-s-odnogo-vz/",
-      "visits": 10,
+      "visits": 11,
       "goals": {
         "youtube_click": 0,
         "video_play": 0,
