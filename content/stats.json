@@ -1,12 +1,12 @@
 {
-  "updatedAt": "2026-09-27T16:56:09.494Z",
+  "updatedAt": "2026-09-27T21:18:46.183Z",
   "days": 30,
   "counter": "112450613",
   "totals": {
-    "visits": 220,
-    "users": 153,
-    "pageviews": 525,
-    "avgSeconds": 194,
+    "visits": 224,
+    "users": 157,
+    "pageviews": 529,
+    "avgSeconds": 197,
     "bounceRate": 36
   },
   "goals": [
@@ -26,7 +26,7 @@
       "id": 611348858,
       "name": "Дочитывание",
       "event": "read_end",
-      "reaches": 54
+      "reaches": 55
     },
     {
       "id": 611348974,
@@ -56,12 +56,12 @@
   "sources": [
     {
       "name": "Прямые заходы",
-      "visits": 111,
-      "share": 51
+      "visits": 112,
+      "share": 50
     },
     {
       "name": "Переходы по ссылкам на сайтах",
-      "visits": 37,
+      "visits": 38,
       "share": 17
     },
     {
@@ -71,8 +71,8 @@
     },
     {
       "name": "Переходы из поисковых систем",
-      "visits": 20,
-      "share": 9
+      "visits": 22,
+      "share": 10
     },
     {
       "name": "Переходы из социальных сетей",
@@ -83,7 +83,7 @@
   "referrers": [
     {
       "name": "l.threads.com",
-      "visits": 23
+      "visits": 24
     },
     {
       "name": "youtube.com",
@@ -98,7 +98,7 @@
     {
       "engine": "Яндекс, результаты поиска",
       "phrase": "",
-      "visits": 3
+      "visits": 4
     },
     {
       "engine": "Яндекс, результаты поиска",
@@ -152,6 +152,11 @@
     },
     {
       "engine": "Мобильный Яндекс",
+      "phrase": "почему анны люсии не было в церкви в конце лост",
+      "visits": 1
+    },
+    {
+      "engine": "Мобильный Яндекс",
       "phrase": "почему в рстаться в живых всеидумают что рейс 518 не выжил",
       "visits": 1
     },
@@ -189,7 +194,7 @@
   "geo": [
     {
       "name": "Россия",
-      "visits": 59
+      "visits": 62
     },
     {
       "name": "Таиланд",
@@ -223,7 +228,7 @@
   "pages": [
     {
       "url": "https://vernitemoy2007.ru/",
-      "visits": 138,
+      "visits": 140,
       "goals": {
         "youtube_click": 5,
         "video_play": 2,
@@ -253,11 +258,11 @@
     },
     {
       "url": "https://vernitemoy2007.ru/articles/ostatsya-v-zhivyh-obyasnenie-koncovki-lost-chto-proizoshlo-na-ostrove-i-pochemu-/",
-      "visits": 8,
+      "visits": 10,
       "goals": {
         "youtube_click": 0,
         "video_play": 0,
-        "read_end": 4,
+        "read_end": 5,
         "search": 0
       }
     },
