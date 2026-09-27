@@ -1,12 +1,12 @@
 {
-  "updatedAt": "2026-09-27T11:58:59.626Z",
+  "updatedAt": "2026-09-27T16:56:09.494Z",
   "days": 30,
   "counter": "112450613",
   "totals": {
-    "visits": 218,
-    "users": 152,
-    "pageviews": 522,
-    "avgSeconds": 193,
+    "visits": 220,
+    "users": 153,
+    "pageviews": 525,
+    "avgSeconds": 194,
     "bounceRate": 36
   },
   "goals": [
@@ -61,12 +61,12 @@
     },
     {
       "name": "Переходы по ссылкам на сайтах",
-      "visits": 36,
+      "visits": 37,
       "share": 17
     },
     {
       "name": "Внутренние переходы",
-      "visits": 32,
+      "visits": 33,
       "share": 15
     },
     {
@@ -83,7 +83,7 @@
   "referrers": [
     {
       "name": "l.threads.com",
-      "visits": 22
+      "visits": 23
     },
     {
       "name": "youtube.com",
@@ -189,7 +189,7 @@
   "geo": [
     {
       "name": "Россия",
-      "visits": 58
+      "visits": 59
     },
     {
       "name": "Таиланд",
@@ -223,7 +223,7 @@
   "pages": [
     {
       "url": "https://vernitemoy2007.ru/",
-      "visits": 136,
+      "visits": 138,
       "goals": {
         "youtube_click": 5,
         "video_play": 2,
