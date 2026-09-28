@@ -1,13 +1,13 @@
 {
-  "updatedAt": "2026-09-28T05:19:42.586Z",
+  "updatedAt": "2026-09-28T13:49:07.112Z",
   "days": 30,
   "counter": "112450613",
   "totals": {
-    "visits": 224,
-    "users": 157,
-    "pageviews": 529,
-    "avgSeconds": 197,
-    "bounceRate": 36
+    "visits": 229,
+    "users": 161,
+    "pageviews": 535,
+    "avgSeconds": 195,
+    "bounceRate": 35
   },
   "goals": [
     {
@@ -26,7 +26,7 @@
       "id": 611348858,
       "name": "Дочитывание",
       "event": "read_end",
-      "reaches": 55
+      "reaches": 56
     },
     {
       "id": 611348974,
@@ -56,7 +56,7 @@
   "sources": [
     {
       "name": "Прямые заходы",
-      "visits": 112,
+      "visits": 114,
       "share": 50
     },
     {
@@ -66,17 +66,17 @@
     },
     {
       "name": "Внутренние переходы",
-      "visits": 33,
+      "visits": 34,
       "share": 15
     },
     {
       "name": "Переходы из поисковых систем",
-      "visits": 22,
+      "visits": 23,
       "share": 10
     },
     {
       "name": "Переходы из социальных сетей",
-      "visits": 17,
+      "visits": 18,
       "share": 8
     }
   ],
@@ -98,7 +98,7 @@
     {
       "engine": "Яндекс, результаты поиска",
       "phrase": "",
-      "visits": 4
+      "visits": 5
     },
     {
       "engine": "Яндекс, результаты поиска",
@@ -194,7 +194,7 @@
   "geo": [
     {
       "name": "Россия",
-      "visits": 62
+      "visits": 65
     },
     {
       "name": "Таиланд",
@@ -214,11 +214,11 @@
     },
     {
       "name": "Великобритания",
-      "visits": 5
+      "visits": 6
     },
     {
       "name": "Ирландия",
-      "visits": 5
+      "visits": 6
     },
     {
       "name": "Польша",
@@ -228,7 +228,7 @@
   "pages": [
     {
       "url": "https://vernitemoy2007.ru/",
-      "visits": 140,
+      "visits": 143,
       "goals": {
         "youtube_click": 5,
         "video_play": 2,
@@ -247,22 +247,22 @@
       }
     },
     {
+      "url": "https://vernitemoy2007.ru/articles/ostatsya-v-zhivyh-obyasnenie-koncovki-lost-chto-proizoshlo-na-ostrove-i-pochemu-/",
+      "visits": 11,
+      "goals": {
+        "youtube_click": 0,
+        "video_play": 0,
+        "read_end": 6,
+        "search": 0
+      }
+    },
+    {
       "url": "https://vernitemoy2007.ru/articles/telefony-2000-h-fotokatalog-uznavaemyh-modeley-kotorye-my-razlichali-s-odnogo-vz/",
       "visits": 11,
       "goals": {
         "youtube_click": 0,
         "video_play": 0,
         "read_end": 7,
-        "search": 0
-      }
-    },
-    {
-      "url": "https://vernitemoy2007.ru/articles/ostatsya-v-zhivyh-obyasnenie-koncovki-lost-chto-proizoshlo-na-ostrove-i-pochemu-/",
-      "visits": 10,
-      "goals": {
-        "youtube_click": 0,
-        "video_play": 0,
-        "read_end": 5,
         "search": 0
       }
     },
@@ -313,6 +313,16 @@
         "youtube_click": 0,
         "video_play": 0,
         "read_end": 2,
+        "search": 0
+      }
+    },
+    {
+      "url": "https://vernitemoy2007.ru/?fbclid=IwZXh0bgNhZW0CMTEAcGRvZgRzcnRjBmFwcF9pZAwyNTYyODEwNDA1NTgAAR7orqBF6a0CFHHt1H0mv74jVUtNREclfmo2LIU5OhjY9sTomI4yT5vIaA6yaQ_aem_552Vx4nh4U-JCMQYSM66eA",
+      "visits": 1,
+      "goals": {
+        "youtube_click": 0,
+        "video_play": 0,
+        "read_end": 0,
         "search": 0
       }
     },
@@ -408,16 +418,6 @@
     },
     {
       "url": "https://vernitemoy2007.ru/articles/mihail-gorshenev/?fbclid=IwZXh0bgNhZW0CMTEAcGRvZgRzcnRjBmFwcF9pZAwyNTYyODEwNDA1NTgAAR5wujE1YnSJvpUcl0D7IgazvMjE4UWFcfpOwtQvoX8LbDu3dqmugP33499eFw_aem_HSW4mggT2lHutuRaJgswtQ",
-      "visits": 1,
-      "goals": {
-        "youtube_click": 0,
-        "video_play": 0,
-        "read_end": 0,
-        "search": 0
-      }
-    },
-    {
-      "url": "https://vernitemoy2007.ru/articles/mihail-gorshenev/?fbclid=IwZXh0bgNhZW0CMTEAcGRvZgRzcnRjBmFwcF9pZAwyNTYyODEwNDA1NTgAAR6QeuUbrTYLB0bdnJxvlo8FBtl0jHn7V7xW_a6cCL87T-QNey6p4hZdZPWoBg_aem_i4Wvm35Nh12h8ueeM7RLmg",
       "visits": 1,
       "goals": {
         "youtube_click": 0,
