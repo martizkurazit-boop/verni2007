@@ -1,12 +1,12 @@
 {
-  "updatedAt": "2026-09-29T05:40:50.801Z",
+  "updatedAt": "2026-09-29T12:48:31.639Z",
   "days": 30,
   "counter": "112450613",
   "totals": {
-    "visits": 230,
-    "users": 162,
-    "pageviews": 536,
-    "avgSeconds": 194,
+    "visits": 232,
+    "users": 163,
+    "pageviews": 539,
+    "avgSeconds": 193,
     "bounceRate": 35
   },
   "goals": [
@@ -26,7 +26,7 @@
       "id": 611348858,
       "name": "Дочитывание",
       "event": "read_end",
-      "reaches": 56
+      "reaches": 57
     },
     {
       "id": 611348974,
@@ -66,17 +66,17 @@
     },
     {
       "name": "Внутренние переходы",
-      "visits": 34,
+      "visits": 35,
       "share": 15
     },
     {
       "name": "Переходы из поисковых систем",
       "visits": 24,
-      "share": 11
+      "share": 10
     },
     {
       "name": "Переходы из социальных сетей",
-      "visits": 18,
+      "visits": 19,
       "share": 8
     }
   ],
@@ -199,11 +199,11 @@
   "geo": [
     {
       "name": "Россия",
-      "visits": 66
+      "visits": 67
     },
     {
       "name": "Таиланд",
-      "visits": 52
+      "visits": 53
     },
     {
       "name": "США",
@@ -233,11 +233,11 @@
   "pages": [
     {
       "url": "https://vernitemoy2007.ru/",
-      "visits": 143,
+      "visits": 144,
       "goals": {
         "youtube_click": 5,
         "video_play": 2,
-        "read_end": 39,
+        "read_end": 40,
         "search": 0
       }
     },
@@ -352,6 +352,16 @@
       }
     },
     {
+      "url": "https://vernitemoy2007.ru/?fbclid=PAZXh0bgNhZW0CMTEAcGRvZgJmZGlkFlD1M6pRGziW21uH98OXutX7kXGgbXFzcnRjBmFwcF9pZA8xMjQwMjQ1NzQyODc0MTQAAac8mek0CqZuOkRst0kVVEZpwii2S9GDio0tOKIyuDISvWQ0lVNX_AhjVJEZDw_aem_yb481yRwoUN_Q5fZ3IX4XA",
+      "visits": 1,
+      "goals": {
+        "youtube_click": 0,
+        "video_play": 0,
+        "read_end": 0,
+        "search": 0
+      }
+    },
+    {
       "url": "https://vernitemoy2007.ru/all/",
       "visits": 1,
       "goals": {
@@ -413,16 +423,6 @@
     },
     {
       "url": "https://vernitemoy2007.ru/articles/mihail-gorshenev/?fbclid=IwZXh0bgNhZW0CMTEAcGRvZgRzcnRjBmFwcF9pZAwyNTYyODEwNDA1NTgAAR5qMCNSVKOX4HVnWBrs4F4pS94PwmSEXqFzPUPOd06yYbpif-exToMWoe_X0g_aem_XucQKaCARJcBX4ARMOT_AA",
-      "visits": 1,
-      "goals": {
-        "youtube_click": 0,
-        "video_play": 0,
-        "read_end": 0,
-        "search": 0
-      }
-    },
-    {
-      "url": "https://vernitemoy2007.ru/articles/mihail-gorshenev/?fbclid=IwZXh0bgNhZW0CMTEAcGRvZgRzcnRjBmFwcF9pZAwyNTYyODEwNDA1NTgAAR5wujE1YnSJvpUcl0D7IgazvMjE4UWFcfpOwtQvoX8LbDu3dqmugP33499eFw_aem_HSW4mggT2lHutuRaJgswtQ",
       "visits": 1,
       "goals": {
         "youtube_click": 0,
