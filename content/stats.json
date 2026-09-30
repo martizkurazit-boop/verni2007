@@ -1,12 +1,12 @@
 {
-  "updatedAt": "2026-09-30T12:30:32.965Z",
+  "updatedAt": "2026-09-30T22:12:52.090Z",
   "days": 30,
   "counter": "112450613",
   "totals": {
-    "visits": 237,
-    "users": 166,
-    "pageviews": 550,
-    "avgSeconds": 192,
+    "visits": 239,
+    "users": 167,
+    "pageviews": 552,
+    "avgSeconds": 190,
     "bounceRate": 35
   },
   "goals": [
@@ -71,7 +71,7 @@
     },
     {
       "name": "Переходы из поисковых систем",
-      "visits": 25,
+      "visits": 27,
       "share": 11
     },
     {
@@ -117,6 +117,11 @@
     },
     {
       "engine": "Яндекс, результаты поиска",
+      "phrase": "как бодров оказался очдом с тоннелем",
+      "visits": 1
+    },
+    {
+      "engine": "Яндекс, результаты поиска",
       "phrase": "как проводила последний день съемочная группа бодрова",
       "visits": 1
     },
@@ -133,6 +138,11 @@
     {
       "engine": "Яндекс, результаты поиска",
       "phrase": "что за хрень происходит на острове остаться в живых",
+      "visits": 1
+    },
+    {
+      "engine": "Мобильный Яндекс",
+      "phrase": "действительно ли герои лост вернулись",
       "visits": 1
     },
     {
@@ -184,22 +194,12 @@
       "engine": "Мобильный Яндекс",
       "phrase": "телефоны 2000-2017",
       "visits": 1
-    },
-    {
-      "engine": "Мобильный Яндекс",
-      "phrase": "телефоны samsung с 2000г с поворотной камерой",
-      "visits": 1
-    },
-    {
-      "engine": "Мобильный Яндекс",
-      "phrase": "французкий мобильник 2000 ых годов",
-      "visits": 1
     }
   ],
   "geo": [
     {
       "name": "Россия",
-      "visits": 69
+      "visits": 71
     },
     {
       "name": "Таиланд",
@@ -253,7 +253,7 @@
     },
     {
       "url": "https://vernitemoy2007.ru/articles/ostatsya-v-zhivyh-obyasnenie-koncovki-lost-chto-proizoshlo-na-ostrove-i-pochemu-/",
-      "visits": 11,
+      "visits": 12,
       "goals": {
         "youtube_click": 0,
         "video_play": 0,
@@ -292,6 +292,16 @@
       }
     },
     {
+      "url": "https://vernitemoy2007.ru/articles/sergey-bodrov-i-karmadon-hronologiya-sobytiy-sentyabrya-2002-goda/",
+      "visits": 3,
+      "goals": {
+        "youtube_click": 0,
+        "video_play": 0,
+        "read_end": 0,
+        "search": 0
+      }
+    },
+    {
       "url": "https://vernitemoy2007.ru/category/music/",
       "visits": 3,
       "goals": {
@@ -303,16 +313,6 @@
     },
     {
       "url": "https://mc.yandex.ru/watch/112450613",
-      "visits": 2,
-      "goals": {
-        "youtube_click": 0,
-        "video_play": 0,
-        "read_end": 0,
-        "search": 0
-      }
-    },
-    {
-      "url": "https://vernitemoy2007.ru/articles/sergey-bodrov-i-karmadon-hronologiya-sobytiy-sentyabrya-2002-goda/",
       "visits": 2,
       "goals": {
         "youtube_click": 0,
