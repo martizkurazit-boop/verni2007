@@ -1,11 +1,11 @@
 {
-  "updatedAt": "2026-10-01T13:08:05.514Z",
+  "updatedAt": "2026-10-01T22:38:57.961Z",
   "days": 30,
   "counter": "112450613",
   "totals": {
-    "visits": 240,
+    "visits": 241,
     "users": 167,
-    "pageviews": 553,
+    "pageviews": 554,
     "avgSeconds": 189,
     "bounceRate": 35
   },
@@ -61,7 +61,7 @@
     },
     {
       "name": "Переходы по ссылкам на сайтах",
-      "visits": 40,
+      "visits": 41,
       "share": 17
     },
     {
@@ -87,7 +87,7 @@
     },
     {
       "name": "youtube.com",
-      "visits": 14
+      "visits": 15
     },
     {
       "name": "dataindex.pro",
@@ -203,7 +203,7 @@
     },
     {
       "name": "Таиланд",
-      "visits": 54
+      "visits": 55
     },
     {
       "name": "США",
@@ -233,7 +233,7 @@
   "pages": [
     {
       "url": "https://vernitemoy2007.ru/",
-      "visits": 148,
+      "visits": 149,
       "goals": {
         "youtube_click": 5,
         "video_play": 2,
