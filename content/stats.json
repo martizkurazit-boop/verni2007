@@ -1,11 +1,11 @@
 {
-  "updatedAt": "2026-10-02T12:29:28.499Z",
+  "updatedAt": "2026-10-02T22:11:08.231Z",
   "days": 30,
   "counter": "112450613",
   "totals": {
-    "visits": 241,
-    "users": 167,
-    "pageviews": 554,
+    "visits": 243,
+    "users": 168,
+    "pageviews": 557,
     "avgSeconds": 189,
     "bounceRate": 35
   },
@@ -26,7 +26,7 @@
       "id": 611348858,
       "name": "Дочитывание",
       "event": "read_end",
-      "reaches": 57
+      "reaches": 59
     },
     {
       "id": 611348974,
@@ -66,12 +66,12 @@
     },
     {
       "name": "Внутренние переходы",
-      "visits": 36,
+      "visits": 37,
       "share": 15
     },
     {
       "name": "Переходы из поисковых систем",
-      "visits": 28,
+      "visits": 29,
       "share": 12
     },
     {
@@ -167,6 +167,11 @@
     },
     {
       "engine": "Мобильный Яндекс",
+      "phrase": "объясните мне события что происходит в сериале остаться в живых",
+      "visits": 1
+    },
+    {
+      "engine": "Мобильный Яндекс",
       "phrase": "почему анны люсии не было в церкви в конце лост",
       "visits": 1
     },
@@ -189,17 +194,12 @@
       "engine": "Мобильный Яндекс",
       "phrase": "телефон со съемными панелями разных цветов 2000 год",
       "visits": 1
-    },
-    {
-      "engine": "Мобильный Яндекс",
-      "phrase": "телефоны 2000-2017",
-      "visits": 1
     }
   ],
   "geo": [
     {
       "name": "Россия",
-      "visits": 72
+      "visits": 74
     },
     {
       "name": "Таиланд",
@@ -233,11 +233,11 @@
   "pages": [
     {
       "url": "https://vernitemoy2007.ru/",
-      "visits": 149,
+      "visits": 150,
       "goals": {
         "youtube_click": 5,
         "video_play": 2,
-        "read_end": 40,
+        "read_end": 41,
         "search": 0
       }
     },
@@ -253,11 +253,11 @@
     },
     {
       "url": "https://vernitemoy2007.ru/articles/ostatsya-v-zhivyh-obyasnenie-koncovki-lost-chto-proizoshlo-na-ostrove-i-pochemu-/",
-      "visits": 13,
+      "visits": 14,
       "goals": {
         "youtube_click": 0,
         "video_play": 0,
-        "read_end": 6,
+        "read_end": 7,
         "search": 0
       }
     },
