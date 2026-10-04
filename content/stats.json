@@ -1,13 +1,13 @@
 {
-  "updatedAt": "2026-10-03T21:11:47.800Z",
+  "updatedAt": "2026-10-04T05:48:26.017Z",
   "days": 30,
   "counter": "112450613",
   "totals": {
-    "visits": 246,
-    "users": 170,
-    "pageviews": 561,
-    "avgSeconds": 188,
-    "bounceRate": 35
+    "visits": 247,
+    "users": 171,
+    "pageviews": 562,
+    "avgSeconds": 187,
+    "bounceRate": 34
   },
   "goals": [
     {
@@ -71,7 +71,7 @@
     },
     {
       "name": "Переходы из поисковых систем",
-      "visits": 29,
+      "visits": 30,
       "share": 12
     },
     {
@@ -123,6 +123,11 @@
     {
       "engine": "Яндекс, результаты поиска",
       "phrase": "как проводила последний день съемочная группа бодрова",
+      "visits": 1
+    },
+    {
+      "engine": "Яндекс, результаты поиска",
+      "phrase": "лост что случилось после взрыва водородной бомбы в 17 серии 5 сезона",
       "visits": 1
     },
     {
@@ -189,17 +194,12 @@
       "engine": "Мобильный Яндекс",
       "phrase": "телефон слайдер из 2000",
       "visits": 1
-    },
-    {
-      "engine": "Мобильный Яндекс",
-      "phrase": "телефон со съемными панелями разных цветов 2000 год",
-      "visits": 1
     }
   ],
   "geo": [
     {
       "name": "Россия",
-      "visits": 75
+      "visits": 76
     },
     {
       "name": "Таиланд",
@@ -253,7 +253,7 @@
     },
     {
       "url": "https://vernitemoy2007.ru/articles/ostatsya-v-zhivyh-obyasnenie-koncovki-lost-chto-proizoshlo-na-ostrove-i-pochemu-/",
-      "visits": 14,
+      "visits": 15,
       "goals": {
         "youtube_click": 0,
         "video_play": 0,
