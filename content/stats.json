@@ -1,12 +1,12 @@
 {
-  "updatedAt": "2026-10-04T12:17:59.306Z",
+  "updatedAt": "2026-10-04T21:21:07.293Z",
   "days": 30,
   "counter": "112450613",
   "totals": {
-    "visits": 248,
-    "users": 172,
-    "pageviews": 563,
-    "avgSeconds": 186,
+    "visits": 251,
+    "users": 175,
+    "pageviews": 566,
+    "avgSeconds": 187,
     "bounceRate": 34
   },
   "goals": [
@@ -26,7 +26,7 @@
       "id": 611348858,
       "name": "Дочитывание",
       "event": "read_end",
-      "reaches": 59
+      "reaches": 60
     },
     {
       "id": 611348974,
@@ -57,7 +57,7 @@
     {
       "name": "Прямые заходы",
       "visits": 115,
-      "share": 47
+      "share": 46
     },
     {
       "name": "Переходы по ссылкам на сайтах",
@@ -71,12 +71,12 @@
     },
     {
       "name": "Переходы из поисковых систем",
-      "visits": 30,
+      "visits": 31,
       "share": 12
     },
     {
       "name": "Переходы из социальных сетей",
-      "visits": 21,
+      "visits": 23,
       "share": 9
     }
   ],
@@ -123,6 +123,11 @@
     {
       "engine": "Яндекс, результаты поиска",
       "phrase": "как проводила последний день съемочная группа бодрова",
+      "visits": 1
+    },
+    {
+      "engine": "Яндекс, результаты поиска",
+      "phrase": "кто такие ранетки они снимались в сериале и давали концерты",
       "visits": 1
     },
     {
@@ -189,17 +194,12 @@
       "engine": "Мобильный Яндекс",
       "phrase": "почему в рстаться в живых всеидумают что рейс 518 не выжил",
       "visits": 1
-    },
-    {
-      "engine": "Мобильный Яндекс",
-      "phrase": "телефон слайдер из 2000",
-      "visits": 1
     }
   ],
   "geo": [
     {
       "name": "Россия",
-      "visits": 76
+      "visits": 77
     },
     {
       "name": "Таиланд",
@@ -207,7 +207,7 @@
     },
     {
       "name": "США",
-      "visits": 44
+      "visits": 45
     },
     {
       "name": "Беларусь",
@@ -215,7 +215,7 @@
     },
     {
       "name": "Ирландия",
-      "visits": 8
+      "visits": 9
     },
     {
       "name": "Нидерланды",
@@ -322,6 +322,16 @@
       }
     },
     {
+      "url": "https://vernitemoy2007.ru/articles/ranetki-kak-svyazany-muzykalnaya-gruppa-i-odnoimennyy-serial/",
+      "visits": 2,
+      "goals": {
+        "youtube_click": 0,
+        "video_play": 0,
+        "read_end": 1,
+        "search": 0
+      }
+    },
+    {
       "url": "https://vernitemoy2007.ru/articles/tatu-kak-poyavilas-gruppa-i-pochemu-raspalsya-duet/",
       "visits": 2,
       "goals": {
@@ -413,16 +423,6 @@
     },
     {
       "url": "https://vernitemoy2007.ru/articles/icq-kak-rabotala-aska-kto-ee-pridumal-i-pochemu-legendarnyy-messendzher-zakrylsy/?fbclid=IwcGRvZgRleHRuA2FlbQIxMQBzcnRjBmFwcF9pZAwyNTYyODEwNDA1NTgAAR6tv2ZJLbho12o-tyKA57hyK2cOy1A0rKvI8m65A9PFyexklGr909fd471l5A_aem_6PbhAQdKPNL3LtsKCVK-1Q",
-      "visits": 1,
-      "goals": {
-        "youtube_click": 0,
-        "video_play": 0,
-        "read_end": 0,
-        "search": 0
-      }
-    },
-    {
-      "url": "https://vernitemoy2007.ru/articles/mihail-gorshenev/?fbclid=IwZXh0bgNhZW0CMTEAcGRvZgRzcnRjBmFwcF9pZAwyNTYyODEwNDA1NTgAAR50LgqXTqEckpu8OtSVJzHY3_x2UDWY5-LAd3ZlJnaZCTe6_Cf84XJZsyH8eA_aem_USwhWoR4RKIgl3jnAoqa3A",
       "visits": 1,
       "goals": {
         "youtube_click": 0,
