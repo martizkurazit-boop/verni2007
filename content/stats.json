@@ -1,12 +1,12 @@
 {
-  "updatedAt": "2026-10-05T14:31:45.456Z",
+  "updatedAt": "2026-10-06T00:01:12.859Z",
   "days": 30,
   "counter": "112450613",
   "totals": {
-    "visits": 253,
-    "users": 176,
-    "pageviews": 569,
-    "avgSeconds": 185,
+    "visits": 255,
+    "users": 178,
+    "pageviews": 572,
+    "avgSeconds": 192,
     "bounceRate": 34
   },
   "goals": [
@@ -26,7 +26,7 @@
       "id": 611348858,
       "name": "Дочитывание",
       "event": "read_end",
-      "reaches": 61
+      "reaches": 63
     },
     {
       "id": 611348974,
@@ -57,7 +57,7 @@
     {
       "name": "Прямые заходы",
       "visits": 115,
-      "share": 46
+      "share": 45
     },
     {
       "name": "Переходы по ссылкам на сайтах",
@@ -67,17 +67,17 @@
     {
       "name": "Внутренние переходы",
       "visits": 39,
-      "share": 16
+      "share": 15
     },
     {
       "name": "Переходы из поисковых систем",
-      "visits": 31,
-      "share": 12
+      "visits": 33,
+      "share": 13
     },
     {
       "name": "Переходы из социальных сетей",
       "visits": 24,
-      "share": 10
+      "share": 9
     }
   ],
   "referrers": [
@@ -98,7 +98,7 @@
     {
       "engine": "Яндекс, результаты поиска",
       "phrase": "",
-      "visits": 6
+      "visits": 7
     },
     {
       "engine": "Яндекс, результаты поиска",
@@ -199,7 +199,7 @@
   "geo": [
     {
       "name": "Россия",
-      "visits": 78
+      "visits": 80
     },
     {
       "name": "Таиланд",
@@ -253,11 +253,11 @@
     },
     {
       "url": "https://vernitemoy2007.ru/articles/ostatsya-v-zhivyh-obyasnenie-koncovki-lost-chto-proizoshlo-na-ostrove-i-pochemu-/",
-      "visits": 15,
+      "visits": 16,
       "goals": {
         "youtube_click": 0,
         "video_play": 0,
-        "read_end": 7,
+        "read_end": 8,
         "search": 0
       }
     },
@@ -292,6 +292,16 @@
       }
     },
     {
+      "url": "https://vernitemoy2007.ru/articles/ranetki-kak-svyazany-muzykalnaya-gruppa-i-odnoimennyy-serial/",
+      "visits": 3,
+      "goals": {
+        "youtube_click": 0,
+        "video_play": 0,
+        "read_end": 2,
+        "search": 0
+      }
+    },
+    {
       "url": "https://vernitemoy2007.ru/articles/sergey-bodrov-i-karmadon-hronologiya-sobytiy-sentyabrya-2002-goda/",
       "visits": 3,
       "goals": {
@@ -318,16 +328,6 @@
         "youtube_click": 0,
         "video_play": 0,
         "read_end": 0,
-        "search": 0
-      }
-    },
-    {
-      "url": "https://vernitemoy2007.ru/articles/ranetki-kak-svyazany-muzykalnaya-gruppa-i-odnoimennyy-serial/",
-      "visits": 2,
-      "goals": {
-        "youtube_click": 0,
-        "video_play": 0,
-        "read_end": 1,
         "search": 0
       }
     },
