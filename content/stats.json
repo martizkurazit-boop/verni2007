@@ -1,12 +1,12 @@
 {
-  "updatedAt": "2026-10-06T13:21:33.328Z",
+  "updatedAt": "2026-10-06T22:38:18.864Z",
   "days": 30,
   "counter": "112450613",
   "totals": {
-    "visits": 257,
-    "users": 180,
-    "pageviews": 574,
-    "avgSeconds": 191,
+    "visits": 262,
+    "users": 184,
+    "pageviews": 580,
+    "avgSeconds": 187,
     "bounceRate": 33
   },
   "goals": [
@@ -26,7 +26,7 @@
       "id": 611348858,
       "name": "Дочитывание",
       "event": "read_end",
-      "reaches": 63
+      "reaches": 64
     },
     {
       "id": 611348974,
@@ -56,7 +56,7 @@
   "sources": [
     {
       "name": "Прямые заходы",
-      "visits": 116,
+      "visits": 117,
       "share": 45
     },
     {
@@ -66,18 +66,18 @@
     },
     {
       "name": "Внутренние переходы",
-      "visits": 39,
+      "visits": 40,
       "share": 15
     },
     {
       "name": "Переходы из поисковых систем",
-      "visits": 33,
+      "visits": 35,
       "share": 13
     },
     {
       "name": "Переходы из социальных сетей",
-      "visits": 24,
-      "share": 9
+      "visits": 25,
+      "share": 10
     }
   ],
   "referrers": [
@@ -98,7 +98,7 @@
     {
       "engine": "Яндекс, результаты поиска",
       "phrase": "",
-      "visits": 7
+      "visits": 8
     },
     {
       "engine": "Яндекс, результаты поиска",
@@ -133,6 +133,11 @@
     {
       "engine": "Яндекс, результаты поиска",
       "phrase": "лост что случилось после взрыва водородной бомбы в 17 серии 5 сезона",
+      "visits": 1
+    },
+    {
+      "engine": "Яндекс, результаты поиска",
+      "phrase": "с кем кейт построила личную жизнь в остаться в живых как улетела на самолете сойром",
       "visits": 1
     },
     {
@@ -189,17 +194,12 @@
       "engine": "Мобильный Яндекс",
       "phrase": "почему бодров оказался рядом с тоннелем",
       "visits": 1
-    },
-    {
-      "engine": "Мобильный Яндекс",
-      "phrase": "почему в рстаться в живых всеидумают что рейс 518 не выжил",
-      "visits": 1
     }
   ],
   "geo": [
     {
       "name": "Россия",
-      "visits": 82
+      "visits": 86
     },
     {
       "name": "Таиланд",
@@ -215,7 +215,7 @@
     },
     {
       "name": "Ирландия",
-      "visits": 10
+      "visits": 11
     },
     {
       "name": "Нидерланды",
@@ -233,11 +233,11 @@
   "pages": [
     {
       "url": "https://vernitemoy2007.ru/",
-      "visits": 154,
+      "visits": 155,
       "goals": {
         "youtube_click": 5,
         "video_play": 2,
-        "read_end": 42,
+        "read_end": 43,
         "search": 0
       }
     },
@@ -253,7 +253,7 @@
     },
     {
       "url": "https://vernitemoy2007.ru/articles/ostatsya-v-zhivyh-obyasnenie-koncovki-lost-chto-proizoshlo-na-ostrove-i-pochemu-/",
-      "visits": 16,
+      "visits": 18,
       "goals": {
         "youtube_click": 0,
         "video_play": 0,
@@ -342,6 +342,16 @@
       }
     },
     {
+      "url": "https://vernitemoy2007.ru/?fbclid=IwZXh0bgNhZW0CMTEAcGRvZgRzcnRjBmFwcF9pZAwyNTYyODEwNDA1NTgAAR6Cw6Pcnaz02Hg-4-UmO6gw1rLdptbiR5JozphxF5RH5tLtjfGq0ocObhGi4A_aem_HDsAGeliUmbg2iypf0MMAg",
+      "visits": 1,
+      "goals": {
+        "youtube_click": 0,
+        "video_play": 0,
+        "read_end": 0,
+        "search": 0
+      }
+    },
+    {
       "url": "https://vernitemoy2007.ru/?fbclid=IwZXh0bgNhZW0CMTEAcGRvZgRzcnRjBmFwcF9pZAwyNTYyODEwNDA1NTgAAR7RmF85SQ-1jF9kEKFhW9BuIQIWiWxVkZLVMK9X4vFO6wK_NytnvvBt0uiWKg_aem_nltLkC61A57Ct7JrXYakXQ",
       "visits": 1,
       "goals": {
@@ -413,16 +423,6 @@
     },
     {
       "url": "https://vernitemoy2007.ru/articles/brat-2-istoriya-semok-lokacii-i-saundtrek-kotoryy-stal-golosom-2000-goda/?fbclid=IwcGRvZgRleHRuA2FlbQIxMQBzcnRjBmFwcF9pZAwyNTYyODEwNDA1NTgAAR5vWHuxd3jmH7pNwwGvaAAHmKaCP64wCt8uc-5UvY_8sp3AhRb5bw1eBSGOAA_aem_NKwhdWFae7CeORay_oFgkg",
-      "visits": 1,
-      "goals": {
-        "youtube_click": 0,
-        "video_play": 0,
-        "read_end": 0,
-        "search": 0
-      }
-    },
-    {
-      "url": "https://vernitemoy2007.ru/articles/decl-kak-kirill-tolmackiy-stal-zvezdoy-nulevyh-i-nachal-vse-zanovo/",
       "visits": 1,
       "goals": {
         "youtube_click": 0,
