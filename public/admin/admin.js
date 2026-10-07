@@ -1721,13 +1721,62 @@
     var box = $('#screen-stats');
     box.innerHTML = '<div class="eyebrow"><span class="sl">//</span><span>Загружаем данные…</span></div>'
       + '<h1>Аналитика.</h1>';
-    gh(repoPath('/contents/' + contentPath('stats.json') + '?ref=' + (CFG.branch || 'main')
-      + '&_=' + Date.now()), { raw: true, allow404: true })
-      .then(function (text) { drawStats(text ? JSON.parse(text) : null); })
-      .catch(function (e) { drawStats(null, e.message); });
+    // Два источника: Метрика (кто дошёл) и Вебмастер (кто увидел в выдаче).
+    // Вебмастера может не быть — тогда просто не показываем его блок.
+    var load = function (name) {
+      return gh(repoPath('/contents/' + contentPath(name) + '?ref=' + (CFG.branch || 'main')
+        + '&_=' + Date.now()), { raw: true, allow404: true })
+        .then(function (text) { return text ? JSON.parse(text) : null; })
+        .catch(function () { return null; });
+    };
+    Promise.all([load('stats.json'), load('webmaster.json')])
+      .then(function (r) { drawStats(r[0], null, r[1]); })
+      .catch(function (e) { drawStats(null, e.message, null); });
   }
 
-  function drawStats(d, err) {
+  /* Вебмастер. Главная ценность — не визиты, а показы: запрос, по которому
+     сайт уже в выдаче, но его не выбирают, стоит дешевле любого нового
+     текста. Отдельно выносим вторую страницу выдачи — её дожать проще всего. */
+  function webmasterBlock(w) {
+    if (!w) return '';
+    var pos = function (p) { return typeof p === 'number' ? p.toFixed(1) : '—'; };
+    var head = '<div class="card" style="margin-top:24px">'
+      + '<h2 class="sec">Яндекс.Вебмастер · обновлено ' + esc(ago(w.updatedAt)) + '</h2>';
+    if ((w.errors || []).length && !(w.queries || []).length) {
+      return head + '<div class="note-danger"><div class="h">Вебмастер не отдал данные</div><ul>'
+        + w.errors.map(function (e) { return '<li>' + esc(e) + '</li>'; }).join('')
+        + '</ul></div></div>';
+    }
+    var idx = w.indexing || {};
+    var row = function (q) {
+      return '<div class="r">'
+        + '<span style="flex:1 1 220px;min-width:0;font-weight:600">' + esc(q.text) + '</span>'
+        + '<span class="hint" style="min-width:90px">поз. ' + pos(q.position) + '</span>'
+        + '<span class="hint" style="min-width:90px">' + fmt(q.shows) + ' показов</span>'
+        + '<span class="hint" style="min-width:80px">' + fmt(q.clicks) + ' кликов</span>'
+        + '</div>';
+    };
+    return head
+      + '<div class="tiles" style="margin-bottom:18px">'
+      + '<div class="tile"><div class="l">Страниц в поиске</div><div class="v">'
+        + fmt(idx.inSearch) + '</div><div class="n">исключено ' + fmt(idx.excluded) + '</div></div>'
+      + '<div class="tile"><div class="l">Запросов в выдаче</div><div class="v">'
+        + fmt((w.queries || []).length) + '</div><div class="n">за ' + (w.days || 28) + ' дней</div></div>'
+      + '<div class="tile"><div class="l">Почти в топе</div><div class="v">'
+        + fmt((w.nearlyThere || []).length) + '</div><div class="n">позиции 11–30, дожать дешевле всего</div></div>'
+      + '</div>'
+      + ((w.nearlyThere || []).length
+        ? '<h2 class="sec">Дожать: вторая страница выдачи</h2><div class="tbl">'
+          + w.nearlyThere.map(row).join('') + '</div>'
+        : '')
+      + ((w.queries || []).length
+        ? '<h2 class="sec" style="margin-top:22px">Все запросы по показам</h2><div class="tbl">'
+          + w.queries.slice(0, 30).map(row).join('') + '</div>'
+        : '<p class="hint">Запросов пока нет — Вебмастеру нужно несколько дней.</p>')
+      + '</div>';
+  }
+
+  function drawStats(d, err, wm) {
     var box = $('#screen-stats');
     var counter = (state.site.analytics || {}).yandexMetrika;
     if (!d) {
@@ -1794,6 +1843,7 @@
             + esc(q.engine) + '</span><span class="hint">' + fmt(q.visits) + '</span></div>';
         }).join('') : '<div class="r"><span class="hint">Из поиска пока не приходят.</span></div>')
       + '</div></div></div>'
+      + webmasterBlock(wm)
       + '<div class="card" style="margin-top:24px"><h2 class="sec">Статьи и переходы на YouTube</h2><div class="tbl">'
       + ((d.pages || []).length ? d.pages.map(function (p) {
           return '<div class="r">'

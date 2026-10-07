@@ -24,18 +24,26 @@ jobs:
           METRIKA_TOKEN: ${{ secrets.METRIKA_TOKEN }}
         run: node scripts/fetch-stats.mjs
 
+      # Вебмастер показывает то, чего не видит Метрика: запросы, по которым
+      # сайт показывается в выдаче, но его не выбирают. Без секрета шаг
+      # молча пропускается и ничего не ломает.
+      - name: Забрать данные из Вебмастера
+        env:
+          WEBMASTER_TOKEN: ${{ secrets.WEBMASTER_TOKEN }}
+        run: node scripts/fetch-webmaster.mjs
+
       # Список выпусков берётся из публичной RSS-ленты канала — ключи не нужны.
       - name: Забрать список выпусков канала
         run: node scripts/fetch-videos.mjs
 
       - name: Закоммитить, если что-то изменилось
         run: |
-          if [ -z "$(git status --porcelain content/stats.json content/videos.json)" ]; then
+          if [ -z "$(git status --porcelain content/stats.json content/videos.json content/webmaster.json)" ]; then
             echo "Данные не изменились — коммит не нужен."
             exit 0
           fi
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add content/stats.json content/videos.json
+          git add content/stats.json content/videos.json content/webmaster.json
           git commit -m "Данные: обновление $(date -u +%Y-%m-%d\ %H:%M) UTC"
           git push
