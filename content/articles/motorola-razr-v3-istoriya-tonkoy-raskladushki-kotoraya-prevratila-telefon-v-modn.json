@@ -1,6 +1,6 @@
 {
   "slug": "motorola-razr-v3-istoriya-tonkoy-raskladushki-kotoraya-prevratila-telefon-v-modn",
-  "title": "Motorola RAZR V3: история тонкой раскладушки, которая превратила телефон в модный аксессуар",
+  "title": "Motorola RAZR V3: год выпуска, характеристики и почему она стала культовой",
   "excerpt": "В 2004 году мобильный телефон уже перестал быть диковинкой. Цветные экраны, камеры, полифония и Bluetooth постепенно становились привычными.",
   "lead": "В 2004 году мобильный телефон уже перестал быть диковинкой. Цветные экраны, камеры, полифония и Bluetooth постепенно становились привычными. Производители соревновались функциями — и вдруг Motorola показала аппарат, про который хотелось сказать не «что он умеет?», а «какой же он тонкий».",
   "category": "things",
@@ -20,8 +20,8 @@
   "author": "Мартиз",
   "publishedAt": "2026-10-02",
   "status": "published",
-  "seoTitle": "Motorola RAZR V3: история тонкой раскладушки, которая превратила телефон в модный аксессуар",
-  "seoDescription": "В 2004 году мобильный телефон уже перестал быть диковинкой. Цветные экраны, камеры, полифония и Bluetooth постепенно становились привычными.",
+  "seoTitle": "Motorola RAZR V3: год выпуска и характеристики",
+  "seoDescription": "Когда вышла Motorola RAZR V3, чем она отличалась от других раскладушек и почему тонкий алюминиевый корпус сделал её модным аксессуаром.",
   "body": [
     {
       "type": "p",
@@ -349,7 +349,10 @@
     }
   ],
   "sources": [],
-  "related": [],
+  "related": [
+    "telefony-2000-h-fotokatalog-uznavaemyh-modeley-kotorye-my-razlichali-s-odnogo-vz",
+    "telefony-2000-h-fotokatalog-nokia-siemens-motorola-i-sony-ericsson"
+  ],
   "aliases": [
     "Мобильный телефон Motorola RAZR V3",
     "Motorola RAZR V3",
@@ -380,5 +383,5 @@
   ],
   "subject": "Мобильный телефон Motorola RAZR V3, Motorola RAZR V3, Motorola, мобильный телефон",
   "demo": false,
-  "updatedAt": "2026-10-02"
+  "updatedAt": "2026-10-07T13:14:23.562Z"
 }

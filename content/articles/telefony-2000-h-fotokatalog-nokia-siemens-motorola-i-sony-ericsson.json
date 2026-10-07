@@ -1,6 +1,6 @@
 {
   "slug": "telefony-2000-h-fotokatalog-nokia-siemens-motorola-i-sony-ericsson",
-  "title": "Телефоны 2000-х: фотокаталог Nokia, Siemens, Motorola и Sony Ericsson",
+  "title": "Телефоны 2000-х по брендам: Nokia, Siemens, Motorola и Sony Ericsson",
   "excerpt": "В начале 2000-х телефон ещё не был безликим прямоугольником. Его можно было узнать из другого конца класса, вагона или двора. У Nokia — своя форма клавиш и знакомое меню.",
   "lead": "В начале 2000-х телефон ещё не был безликим прямоугольником. Его можно было узнать из другого конца класса, вагона или двора. У Nokia — своя форма клавиш и знакомое меню. У Siemens — строгий корпус и инженерные эксперименты. Motorola могла быть дешёвой цветной «трубкой», музыкальным аппаратом с двумя динамиками или ультратонкой раскладушкой. А Sony Ericsson заставлял выбирать почти мировоззрение: вам важнее камера или музыка?",
   "category": "things",
@@ -22,8 +22,8 @@
   "author": "Мартиз",
   "publishedAt": "2026-09-29",
   "status": "published",
-  "seoTitle": "Телефоны 2000-х: фотокаталог Nokia, Siemens, Motorola и Sony Ericsson",
-  "seoDescription": "В начале 2000-х телефон ещё не был безликим прямоугольником. Его можно было узнать из другого конца класса, вагона или двора.",
+  "seoTitle": "Телефоны 2000-х по брендам: Nokia, Siemens, Motorola",
+  "seoDescription": "Чем отличались телефоны Nokia, Siemens, Motorola и Sony Ericsson в 2000-х: фирменный почерк каждого бренда и самые узнаваемые модели.",
   "body": [
     {
       "type": "p",
@@ -435,7 +435,12 @@
     }
   ],
   "sources": [],
-  "related": [],
+  "related": [
+    "telefony-2000-h-fotokatalog-uznavaemyh-modeley-kotorye-my-razlichali-s-odnogo-vz",
+    "nokia-3310-istoriya-originalnoy-modeli-i-mifa-o-neubivaemosti",
+    "motorola-razr-v3-istoriya-tonkoy-raskladushki-kotoraya-prevratila-telefon-v-modn",
+    "sony-ericsson-walkman-w800-i-w810-kak-muzykalnye-telefony-zamenili-nam-mp3-pleer"
+  ],
   "aliases": [
     "1990-е",
     "2000-е",
@@ -468,5 +473,5 @@
   ],
   "subject": "1990-е, 2000-е, NOKIA, SIEMENS, Motorola, SONY ERICSSON",
   "demo": false,
-  "updatedAt": "2026-09-29"
+  "updatedAt": "2026-10-07T13:14:23.559Z"
 }

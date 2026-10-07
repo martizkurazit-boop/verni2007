@@ -1,6 +1,6 @@
 {
   "slug": "sony-ericsson-walkman-w800-i-w810-kak-muzykalnye-telefony-zamenili-nam-mp3-pleer",
-  "title": "Sony Ericsson Walkman W800 и W810: как музыкальные телефоны заменили нам MP3-плееры",
+  "title": "Sony Ericsson W800i и W810i: характеристики музыкальных телефонов Walkman",
   "excerpt": "В середине нулевых у человека, который хотел всегда носить музыку с собой, обычно было несколько карманов и несколько устройств. В одном — телефон. В другом — MP3-плеер.",
   "lead": "В середине нулевых у человека, который хотел всегда носить музыку с собой, обычно было несколько карманов и несколько устройств. В одном — телефон. В другом — MP3-плеер. Где-то рядом — проводные наушники, а дома лежал компьютер, с которого музыка перекочёвывала на флеш-память.",
   "category": "things",
@@ -20,8 +20,8 @@
   "author": "Мартиз",
   "publishedAt": "2026-10-04",
   "status": "published",
-  "seoTitle": "Sony Ericsson Walkman W800 и W810: как телефоны заменили плееры",
-  "seoDescription": "В середине нулевых у человека, который хотел всегда носить музыку с собой, обычно было несколько карманов и несколько устройств. В одном — телефон.",
+  "seoTitle": "Sony Ericsson W800i и W810i: музыкальные телефоны Walkman",
+  "seoDescription": "Чем W800i отличался от W810i, сколько музыки влезало на карту памяти и почему эти Walkman заменили нам отдельный MP3-плеер.",
   "body": [
     {
       "type": "p",
@@ -345,7 +345,10 @@
     }
   ],
   "sources": [],
-  "related": [],
+  "related": [
+    "telefony-2000-h-fotokatalog-uznavaemyh-modeley-kotorye-my-razlichali-s-odnogo-vz",
+    "telefony-2000-h-fotokatalog-nokia-siemens-motorola-i-sony-ericsson"
+  ],
   "aliases": [
     "Sony Ericsson Walkman W800",
     "Sony Ericsson Walkman W810",
@@ -376,5 +379,5 @@
   ],
   "subject": "Sony Ericsson Walkman W800, Sony Ericsson Walkman W810, Sony Ericsson Walkman , Sony Ericsson",
   "demo": false,
-  "updatedAt": "2026-10-04"
+  "updatedAt": "2026-10-07T13:14:23.564Z"
 }
