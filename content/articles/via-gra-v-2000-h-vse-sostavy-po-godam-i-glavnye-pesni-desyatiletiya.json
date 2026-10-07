@@ -16,7 +16,7 @@
     "Лобода",
     "Брежнева"
   ],
-  "youtubeUrl": "",
+  "youtubeUrl": "https://www.youtube.com/watch?v=Bd9le130WJY",
   "cover": {
     "src": "/uploads/via-gra-v-2000-h-vse-sostavy-po-godam-i-glavnye-pesni-desyatiletiya-1789659456161-1600.webp",
     "alt": "Участницы группы «ВИА Гра»",
@@ -402,5 +402,5 @@
   ],
   "subject": "группа ВИА Гра, ВИА Гра, музыка, Меладзе, Грановская, Седакова, Лобода, Брежнева",
   "demo": false,
-  "updatedAt": "2026-09-17"
+  "updatedAt": "2026-10-07T11:41:04.756Z"
 }
