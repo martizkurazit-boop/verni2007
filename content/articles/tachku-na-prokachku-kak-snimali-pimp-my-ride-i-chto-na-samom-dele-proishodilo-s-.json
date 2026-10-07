@@ -380,7 +380,10 @@
       "text": "Если вам близки истории о телевидении, музыке, играх, вещах и героях 1990-х и 2000-х, читайте другие материалы «Верните мой 2007» ниже на странице."
     }
   ],
-  "sources": [],
+  "sources": [
+    "[Pimp My Ride — Википедия](https://ru.wikipedia.org/wiki/Pimp_My_Ride)",
+    "[Pimp My Ride — Wikipedia](https://en.wikipedia.org/wiki/Pimp_My_Ride)"
+  ],
   "related": [],
   "aliases": [
     "программа Тачка на прокачку",
@@ -412,5 +415,5 @@
   ],
   "subject": "программа Тачка на прокачку, Тачка на прокачку, Pimp My Ride, Xzibit",
   "demo": false,
-  "updatedAt": "2026-10-07T13:12:37.819Z"
+  "updatedAt": "2026-10-07T14:50:11.220Z"
 }

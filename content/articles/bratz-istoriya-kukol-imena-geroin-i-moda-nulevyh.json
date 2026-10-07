@@ -367,7 +367,10 @@
       "text": "Если вам близка эпоха нулевых, читайте и другие истории «Верните мой 2007» ниже на странице — о людях, вещах, музыке и явлениях времени, которое совсем недавно казалось нам обычной современностью."
     }
   ],
-  "sources": [],
+  "sources": [
+    "[Bratz — Википедия](https://ru.wikipedia.org/wiki/Bratz)",
+    "[Bratz — Wikipedia](https://en.wikipedia.org/wiki/Bratz)"
+  ],
   "related": [],
   "aliases": [
     "Куклы Bratz",
@@ -398,5 +401,5 @@
   ],
   "subject": "Куклы Bratz, куклы, Bratz",
   "demo": false,
-  "updatedAt": "2026-10-07T13:12:37.789Z"
+  "updatedAt": "2026-10-07T14:50:11.164Z"
 }

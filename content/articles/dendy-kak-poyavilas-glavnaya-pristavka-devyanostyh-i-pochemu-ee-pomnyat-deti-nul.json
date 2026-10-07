@@ -398,7 +398,10 @@
       "text": "Если вам близки такие истории, ниже на странице можно прочитать другие материалы «Верните мой 2007» о людях, играх, технике и вещах нашей эпохи."
     }
   ],
-  "sources": [],
+  "sources": [
+    "[Dendy — Википедия](https://ru.wikipedia.org/wiki/Dendy_(приставка))",
+    "[Famicom — Википедия](https://ru.wikipedia.org/wiki/Nintendo_Entertainment_System)"
+  ],
   "related": [],
   "aliases": [
     "Приставка Dendy",
@@ -432,5 +435,5 @@
   ],
   "subject": "Приставка Dendy, приставка, Dendy, Famicom, PlayStation, Nintendo",
   "demo": false,
-  "updatedAt": "2026-10-07T13:12:37.795Z"
+  "updatedAt": "2026-10-07T14:50:11.173Z"
 }

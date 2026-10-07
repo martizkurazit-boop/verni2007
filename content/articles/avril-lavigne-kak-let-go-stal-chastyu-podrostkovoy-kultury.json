@@ -345,7 +345,10 @@
       "text": "Если вам близки такие истории, ниже на сайте можно прочитать другие материалы «Верните мой 2007» — о людях, музыке, кино и вещах эпохи, которая до сих пор неожиданно возвращается."
     }
   ],
-  "sources": [],
+  "sources": [
+    "[Аврил Лавин — Википедия](https://ru.wikipedia.org/wiki/Лавин,_Аврил)",
+    "[Let Go — Wikipedia](https://en.wikipedia.org/wiki/Let_Go_(Avril_Lavigne_album))"
+  ],
   "related": [],
   "aliases": [
     "Avril Lavigne",
@@ -378,5 +381,5 @@
   ],
   "subject": "Avril Lavigne, канадская певица, автор песен, дизайнер, актриса",
   "demo": false,
-  "updatedAt": "2026-10-07T13:12:37.787Z"
+  "updatedAt": "2026-10-07T14:50:11.162Z"
 }

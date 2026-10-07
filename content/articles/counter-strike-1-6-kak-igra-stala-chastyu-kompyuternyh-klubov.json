@@ -339,7 +339,10 @@
       "text": "Если вам близки истории о технологиях, играх и вещах эпохи девяностых и нулевых, читайте другие материалы «Верните мой 2007» ниже на странице."
     }
   ],
-  "sources": [],
+  "sources": [
+    "[Counter-Strike — Википедия](https://ru.wikipedia.org/wiki/Counter-Strike)",
+    "[Counter-Strike — Wikipedia](https://en.wikipedia.org/wiki/Counter-Strike_(video_game))"
+  ],
   "related": [],
   "aliases": [
     "Компьютерная игра Counter-Strike 1.6",
@@ -370,5 +373,5 @@
   ],
   "subject": "Компьютерная игра Counter-Strike 1.6, Counter-Strike 1.6, компьютерная игра",
   "demo": false,
-  "updatedAt": "2026-10-07T13:12:37.792Z"
+  "updatedAt": "2026-10-07T14:50:11.167Z"
 }

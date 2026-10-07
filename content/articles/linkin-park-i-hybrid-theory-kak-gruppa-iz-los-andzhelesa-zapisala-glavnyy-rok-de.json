@@ -336,7 +336,10 @@
       "text": "Если вам близки истории о музыке, кино, играх и вещах 1990-х и 2000-х, читайте другие материалы «Верните мой 2007» ниже на странице."
     }
   ],
-  "sources": [],
+  "sources": [
+    "[Linkin Park — Википедия](https://ru.wikipedia.org/wiki/Linkin_Park)",
+    "[Hybrid Theory — Wikipedia](https://en.wikipedia.org/wiki/Hybrid_Theory)"
+  ],
   "related": [],
   "aliases": [
     "группа Linkin Park",
@@ -368,5 +371,5 @@
   ],
   "subject": "группа Linkin Park, Честер Беннингтон, Linkin Park, Hybrid Theory",
   "demo": false,
-  "updatedAt": "2026-10-07T13:12:37.804Z"
+  "updatedAt": "2026-10-07T14:50:11.192Z"
 }

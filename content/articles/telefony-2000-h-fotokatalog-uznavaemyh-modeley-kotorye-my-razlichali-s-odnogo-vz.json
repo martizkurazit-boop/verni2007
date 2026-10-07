@@ -340,7 +340,11 @@
       "text": "Если хочется ещё немного задержаться в этой эпохе, ниже на сайте есть другие истории о технике, музыке, играх и вещах 1990-х и 2000-х."
     }
   ],
-  "sources": [],
+  "sources": [
+    "[История мобильных телефонов — Википедия](https://ru.wikipedia.org/wiki/История_мобильных_телефонов)",
+    "[Nokia 3310 — Википедия](https://ru.wikipedia.org/wiki/Nokia_3310)",
+    "[Motorola RAZR — Википедия](https://ru.wikipedia.org/wiki/Motorola_RAZR)"
+  ],
   "related": [
     "telefony-2000-h-fotokatalog-nokia-siemens-motorola-i-sony-ericsson",
     "sony-ericsson-walkman-w800-i-w810-kak-muzykalnye-telefony-zamenili-nam-mp3-pleer",
@@ -401,5 +405,5 @@
   ],
   "subject": "Мобильные телефоны 2000-х годов, 1990-е, 2000-е, детство, гаджеты, вещи, мобильный телефон 2000 год, телефон 2000 года",
   "demo": false,
-  "updatedAt": "2026-10-07T13:14:23.546Z"
+  "updatedAt": "2026-10-07T14:50:30.372Z"
 }

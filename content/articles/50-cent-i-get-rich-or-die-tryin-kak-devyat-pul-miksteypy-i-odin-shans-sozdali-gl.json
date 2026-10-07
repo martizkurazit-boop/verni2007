@@ -447,7 +447,10 @@
       "text": "Если вам нравятся такие истории о музыке, людях и вещах нашей эпохи, читайте другие материалы «Верните мой 2007» ниже на странице."
     }
   ],
-  "sources": [],
+  "sources": [
+    "[50 Cent — Википедия](https://ru.wikipedia.org/wiki/50_Cent)",
+    "[Get Rich or Die Tryin' — Wikipedia](https://en.wikipedia.org/wiki/Get_Rich_or_Die_Tryin'_(album))"
+  ],
   "related": [],
   "aliases": [
     "50 Cent (Кёртис Джексон)",
@@ -478,5 +481,5 @@
   ],
   "subject": "50 Cent (Кёртис Джексон), Eminem, Dr. Dre",
   "demo": false,
-  "updatedAt": "2026-10-07T13:12:37.777Z"
+  "updatedAt": "2026-10-07T14:50:11.150Z"
 }

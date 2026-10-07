@@ -434,7 +434,10 @@
       "text": "Если вам близка эта эпоха, читайте другие материалы «Верните мой 2007» ниже на странице — там мы так же разбираем людей, вещи и технологии, из которых сложились наши 1990-е и 2000-е."
     }
   ],
-  "sources": [],
+  "sources": [
+    "[Nokia — Википедия](https://ru.wikipedia.org/wiki/Nokia)",
+    "[Sony Ericsson — Википедия](https://ru.wikipedia.org/wiki/Sony_Ericsson)"
+  ],
   "related": [
     "telefony-2000-h-fotokatalog-uznavaemyh-modeley-kotorye-my-razlichali-s-odnogo-vz",
     "nokia-3310-istoriya-originalnoy-modeli-i-mifa-o-neubivaemosti",
@@ -473,5 +476,5 @@
   ],
   "subject": "1990-е, 2000-е, NOKIA, SIEMENS, Motorola, SONY ERICSSON",
   "demo": false,
-  "updatedAt": "2026-10-07T13:14:23.559Z"
+  "updatedAt": "2026-10-07T14:50:11.223Z"
 }

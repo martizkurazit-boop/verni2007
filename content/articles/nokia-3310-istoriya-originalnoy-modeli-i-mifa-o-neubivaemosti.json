@@ -320,7 +320,10 @@
       "text": "Если вам близки истории вещей, музыки, игр и технологий рубежа девяностых и нулевых, читайте другие материалы «Верните мой 2007» ниже на странице."
     }
   ],
-  "sources": [],
+  "sources": [
+    "[Nokia 3310 — Википедия](https://ru.wikipedia.org/wiki/Nokia_3310)",
+    "[Nokia 3310 — Wikipedia](https://en.wikipedia.org/wiki/Nokia_3310)"
+  ],
   "related": [
     "telefony-2000-h-fotokatalog-uznavaemyh-modeley-kotorye-my-razlichali-s-odnogo-vz",
     "telefony-2000-h-fotokatalog-nokia-siemens-motorola-i-sony-ericsson"
@@ -355,5 +358,5 @@
   ],
   "subject": "Мобильный телефон Nokia 3310, Мобильный телефон Nokia 3210, Nokia 3310, Nokia 3210",
   "demo": false,
-  "updatedAt": "2026-10-07T13:14:23.561Z"
+  "updatedAt": "2026-10-07T14:50:11.203Z"
 }
