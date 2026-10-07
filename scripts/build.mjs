@@ -117,6 +117,38 @@ function youtubeId(link) {
 /* Автоматические ссылки на свои же материалы: если в тексте упомянут герой или
    предмет, о котором есть отдельная статья, первое упоминание становится ссылкой.
    Ровно одно на статью-цель — иначе текст превращается в решето из ссылок. */
+/* Падежные окончания. Текст живой: «Сергея Бодрова», «у Веры Брежневой», —
+   и точное совпадение с именительным падежом ловит едва ли одно упоминание из
+   трёх. Набор окончаний закрытый, не «любые три буквы»: иначе «Кино» начинает
+   цепляться к «Кингу». Длинные идут первыми — регулярка берёт первое совпавшее. */
+const CASE_ENDINGS = ['ами', 'ями', 'ого', 'его', 'ому', 'ему', 'ую', 'юю', 'ая', 'яя',
+  'ое', 'ее', 'ие', 'ые', 'ий', 'ый', 'ой', 'ей', 'ою', 'ею', 'ом', 'ем', 'ём',
+  'ах', 'ях', 'ам', 'ям', 'ых', 'их', 'ов', 'ев', 'ым', 'им',
+  'а', 'я', 'у', 'ю', 'е', 'ы', 'и', 'о', 'ь', 'й'];
+// Отрезаем только то, что само похоже на окончание, и только если останется
+// основа хотя бы в четыре буквы: у «Цоя» основа «Ц» — такую трогать нельзя.
+const STEM_CUT = CASE_ENDINGS.slice().sort((a, b) => b.length - a.length);
+
+function wordPattern(word) {
+  const esc = (x) => x.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  if (!/^[а-яёА-ЯЁ]+$/.test(word) || word.length < 5) return esc(word);
+  let stem = word;
+  for (const end of STEM_CUT) {
+    if (word.length - end.length >= 4 && word.toLowerCase().endsWith(end)) {
+      stem = word.slice(0, word.length - end.length);
+      break;
+    }
+  }
+  return esc(stem) + '(?:' + CASE_ENDINGS.join('|') + ')?';
+}
+
+// Имя однозначное — многословное, латиница или в кавычках. Такое можно
+// связывать и в начале предложения: «Кино» в начале фразы двусмысленно,
+// «Сергей Бодров» — нет.
+function unambiguousName(name) {
+  return /\s/.test(name) || /[A-Za-z]/.test(name) || /[«»"]/.test(name);
+}
+
 function autoLink(html, article) {
   if (!article) return html;
   const targets = published
@@ -133,26 +165,31 @@ function autoLink(html, article) {
     // Длинные названия проверяем первыми: «Виктор Цой» важнее, чем «Цой».
     .sort((a, b) => b.name.length - a.name.length)
     // Имя собственное и не короче четырёх букв — иначе в ссылки полезут предлоги.
-    .filter((t) => t.name.length >= 4 && t.name[0] === t.name[0].toUpperCase());
+    .filter((t) => t.name.length >= 4 && t.name[0] === t.name[0].toUpperCase())
+    // Эпохи и годы — не имена: «2000-е» встречаются в каждом тексте, и ссылка
+    // с них ведёт в случайную статью, у которой это просто стоит в псевдонимах.
+    .filter((t) => !/^[\d«»"'\s.-]+$/.test(t.name) && !/^\d/.test(t.name));
   const used = article._autoLinked || (article._autoLinked = new Set());
-  // Больше четырёх автоссылок на статью — уже решето, читать мешает.
-  const LIMIT = 4;
+  // Больше шести автоссылок на статью — уже решето, читать мешает.
+  const LIMIT = 6;
   let out = html;
   for (const t of targets) {
     if (used.size >= LIMIT) break;
     if (used.has(t.slug)) continue;
-    const safe = t.name.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    // Каждое слово имени — со своим хвостом падежа, разделители свободные:
+    // между словами может стоять неразрывный пробел после типографики.
+    const safe = t.name.trim().split(/\s+/).map(wordPattern).join('[\\s\u00a0]+');
     // Мимо содержимого тегов и уже проставленных ссылок.
     // Регистр важен: «Кино» — группа, «кино» — просто кино. Без этого обычные
     // слова в тексте превращались в ссылки на статьи о героях.
-    const re = new RegExp('(^|[^\\w<>/-])(' + safe + ')(?![\\w-])', 'u');
+    const re = new RegExp('(^|[^\\wа-яёА-ЯЁ<>/-])(' + safe + ')(?![\\wа-яёА-ЯЁ-])', 'u');
     const m = re.exec(out);
     if (!m) continue;
     if (/<a[^>]*>[^<]*$/.test(out.slice(0, m.index))) continue;
     // В начале предложения заглавная буква ничего не значит: «Кино просто
     // закрепило доверие» — это кино, а не группа. Такие совпадения пропускаем.
     const before = out.slice(0, m.index + m[1].length).replace(/<[^>]*>/g, '').trimEnd();
-    if (!before || /[.!?…:»)]$/.test(before)) continue;
+    if ((!before || /[.!?…:»)]$/.test(before)) && !unambiguousName(t.name)) continue;
     used.add(t.slug);
     out = out.slice(0, m.index) + m[1]
       + `<a class="autolink" href="${url('/articles/' + t.slug + '/')}">${m[2]}</a>`
@@ -226,6 +263,7 @@ function loadArticles() {
     a.related = Array.isArray(a.related) ? a.related : [];
     a.sources = Array.isArray(a.sources) ? a.sources : [];
     a.faq = Array.isArray(a.faq) ? a.faq.filter((f) => f && f.q && f.a) : [];
+    a.answer = typeof a.answer === 'string' ? a.answer.trim() : '';
     return a;
   }).sort((x, y) => String(y.publishedAt || '').localeCompare(String(x.publishedAt || '')));
 }
@@ -1036,8 +1074,8 @@ function renderBody(a, inlineRel) {
     switch (u.kind) {
       case 'h2': out.push(`<h2 id="${attr(b.anchor || slugify(b.text))}">${inline(b.text)}</h2>`); break;
       case 'h3': out.push(`<h3 id="${attr(b.anchor || slugify(b.text))}">${inline(b.text)}</h3>`); break;
-      case 'quote': out.push(`<blockquote>${inline(b.text)}</blockquote>`); break;
-      case 'list': out.push(`<ul>${(b.items || []).map((i) => `<li>${inline(i)}</li>`).join('')}</ul>`); break;
+      case 'quote': out.push(`<blockquote>${autoLink(inline(b.text), a)}</blockquote>`); break;
+      case 'list': out.push(`<ul>${(b.items || []).map((i) => `<li>${autoLink(inline(i), a)}</li>`).join('')}</ul>`); break;
       case 'rule': out.push('<hr>'); break;
       case 'image': {
         const src = b.src ? (b.src.startsWith('/') ? url(b.src) : url('/uploads/' + b.src)) : '';
@@ -1070,14 +1108,27 @@ function renderBody(a, inlineRel) {
 /* Очередь рекомендаций. Порядок: выбранные вручную в админке → та же категория →
    общие теги → всё остальное свежее. Текущая статья и черновики не попадают никогда.
    Ничего выбирать вручную не обязательно: список всегда заполняется сам. */
+/* Сколько раз статью уже порекомендовали с других страниц. Без этого счётчика
+   списки заполнялись в одном и том же порядке, и несколько свежих материалов
+   попадали в рекомендации всюду, а полсотни остальных — никуда: у них ноль
+   входящих ссылок, и поисковик считает их задворками сайта. */
+const relUsage = new Map();
+const usedTimes = (x) => relUsage.get(x.slug) || 0;
+function countShown(list) {
+  list.forEach((x) => relUsage.set(x.slug, usedTimes(x) + 1));
+}
+
 function pickRelated(a) {
   const pool = published.filter((x) => x.slug !== a.slug);
   const picked = [];
   const push = (x) => { if (x && !picked.some((p) => p.slug === x.slug)) picked.push(x); };
+  // Внутри каждой ступени близости вперёд идут те, на кого ссылались реже.
+  // Близость при этом не нарушается: своя категория всегда раньше чужой.
+  const byNeed = (list) => list.slice().sort((x, y) => usedTimes(x) - usedTimes(y));
   a.related.forEach((slug) => push(pool.find((x) => x.slug === slug)));
-  pool.filter((x) => x.category === a.category).forEach(push);
-  pool.filter((x) => x.tags.some((t) => a.tags.includes(t))).forEach(push);
-  pool.forEach(push);
+  byNeed(pool.filter((x) => x.category === a.category)).forEach(push);
+  byNeed(pool.filter((x) => x.tags.some((t) => a.tags.includes(t)))).forEach(push);
+  byNeed(pool).forEach(push);
   return picked;
 }
 
@@ -1133,6 +1184,9 @@ function articlePage(a) {
   const sideItems = related.slice(0, 5);
   const rest = related.slice(5, 11);
   const bottomItems = rest.length >= 3 ? rest : related.slice(0, 6);
+  // Отмечаем показанные: следующая статья будет выбирать с учётом этого.
+  countShown(sideItems);
+  countShown(bottomItems);
   const cover = coverData(a);
   const desc = clip(a.seoDescription || a.excerpt || a.lead || '');
 
@@ -1140,6 +1194,7 @@ function articlePage(a) {
     {
       '@context': 'https://schema.org', '@type': 'Article',
       headline: a.title, description: desc,
+      ...(a.answer ? { abstract: String(a.answer).replace(/\*\*/g, '') } : {}),
       mainEntityOfPage: { '@type': 'WebPage', '@id': canonical },
       datePublished: a.publishedAt, dateModified: a.updatedAt || a.publishedAt,
       author: authorLd(a.author),
@@ -1223,6 +1278,10 @@ function articlePage(a) {
   <a class="kicker" href="${attr(url('/category/' + cat.id + '/'))}">${esc(cat.title)}</a>
   <h1 class="h1-art">${esc(a.title)}</h1>
   ${paragraphs(a.lead).map((t) => `<p class="lead-art">${esc(typo(t))}</p>`).join('\n  ')}
+  ${a.answer ? `<aside class="art-answer">
+    <span class="lbl">Коротко</span>
+    <p>${inline(a.answer)}</p>
+  </aside>` : ''}
   <div class="meta">
     <span class="who">${esc(a.author || site.author || 'Редакция')}</span>
     <span><time datetime="${attr(a.publishedAt)}">${esc(ruDate(a.publishedAt))}</time></span>
