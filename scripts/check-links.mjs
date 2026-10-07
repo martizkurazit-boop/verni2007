@@ -15,13 +15,38 @@ const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const CONTENT = path.join(ROOT, 'content', 'articles');
 const UA = 'Mozilla/5.0 (compatible; vernitemoy2007-linkcheck/1.0; +https://vernitemoy2007.ru/)';
 
+/* Скобки в адресе — обычное дело: «Бригада_(телесериал)», «TODD_(альбом)».
+   Наивное [^\s)]+ обрезает такой адрес на первой скобке, и живая ссылка
+   выглядит битой. Разрешаем парные скобки внутри — так же, как это делает
+   разбор ссылок в сборке. */
+const URL_IN_TEXT = /\[([^\]]+)\]\((https?:\/\/(?:[^\s()]|\([^\s()]*\))*)\)/g;
+
+/* Если адрес Википедии не открылся, скорее всего мы просто не угадали точное
+   название статьи. Спрашиваем у поиска самой Википедии, как она называется. */
+async function suggestWiki(url) {
+  const m = String(url).match(/^https:\/\/(ru|en)\.wikipedia\.org\/wiki\/(.+)$/);
+  if (!m) return '';
+  const [, lang, raw] = m;
+  const title = decodeURIComponent(raw).replace(/_/g, ' ');
+  try {
+    const api = `https://${lang}.wikipedia.org/w/api.php?action=query&list=search`
+      + `&srsearch=${encodeURIComponent(title)}&srlimit=1&format=json`;
+    const res = await fetch(api, { headers: { 'user-agent': UA }, signal: AbortSignal.timeout(15000) });
+    if (!res.ok) return '';
+    const data = await res.json();
+    const hit = ((data.query || {}).search || [])[0];
+    if (!hit) return '';
+    return `https://${lang}.wikipedia.org/wiki/${hit.title.replace(/ /g, '_')}`;
+  } catch (e) { return ''; }
+}
+
 const found = [];
 for (const f of fs.readdirSync(CONTENT).filter((x) => x.endsWith('.json'))) {
   const a = JSON.parse(fs.readFileSync(path.join(CONTENT, f), 'utf8'));
   if (a.status !== 'published') continue;
   const texts = [...(a.sources || []), ...(a.body || []).map((b) => b.text || '')];
   for (const t of texts) {
-    for (const m of String(t).matchAll(/\[([^\]]+)\]\((https?:\/\/[^\s)]+)\)/g)) {
+    for (const m of String(t).matchAll(URL_IN_TEXT)) {
       found.push({ slug: a.slug, label: m[1], url: m[2] });
     }
   }
@@ -71,11 +96,13 @@ const ok = results.filter((r) => r.status >= 200 && r.status < 400);
 console.log(`Живых: ${ok.length}, битых: ${dead.length}\n`);
 if (dead.length) {
   console.log('БИТЫЕ ССЫЛКИ — их нужно заменить:');
-  dead.forEach((r) => {
+  for (const r of dead) {
     console.log(`  ✗ ${r.status || 'нет ответа'}  ${r.url}`);
     console.log(`      в статьях: ${byUrl.get(r.url).join(', ')}`);
     if (r.error) console.log(`      ${r.error}`);
-  });
+    const hint = await suggestWiki(r.url);
+    if (hint) console.log(`      похоже, нужно: ${decodeURI(hint)}`);
+  }
   console.log('');
 }
 // Перенаправления показываем отдельно: ссылка работает, но лучше вести сразу
